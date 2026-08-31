@@ -26,7 +26,7 @@ export default async function OnboardingPage({
   }
 
   return (
-    <main className="min-vh flex align-items-center justify-content-center py-4 px-3">
+    <main className="min-vh flex align-items-center justify-content-center py-4 px-3 light-landing">
       <div className="onboarding-card">
         <div className="header-logo">
           <div className="logo-icon">G</div>

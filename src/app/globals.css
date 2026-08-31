@@ -1058,3 +1058,127 @@ a {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* Light theme: Admin & Manage overrides */
+.light-landing .stat-card,
+.light-landing .tool-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+}
+
+.light-landing .admin-table th {
+  color: #64748b;
+}
+
+.light-landing .admin-table tr:hover {
+  background: #f8fafc;
+}
+
+.light-landing .action-btn {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #334155;
+}
+
+.light-landing .action-btn:hover {
+  background: #e2e8f0;
+}
+
+.light-landing .onboarding-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08);
+}
+
+.light-landing .search-input,
+.light-landing .filter-select {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.light-landing .search-input:focus,
+.light-landing .filter-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.light-landing input,
+.light-landing select,
+.light-landing textarea {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.light-landing input:focus,
+.light-landing select:focus,
+.light-landing textarea:focus {
+  background: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.light-landing .btn-primary {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+.light-landing .btn-primary:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.light-landing .btn-secondary {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #334155;
+}
+
+.light-landing .btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+.light-landing .modal-backdrop {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.light-landing .modal-content {
+  border-color: #e2e8f0 !important;
+}
+
+.light-landing .error-alert {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.light-landing .success-alert {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.light-landing .tab-btn {
+  color: #64748b;
+}
+
+.light-landing .tab-btn.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+}
+
+.light-landing .summary-box {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.light-landing .help-text {
+  color: #94a3b8;
+}
+
+.light-landing .link-btn {
+  color: #3b82f6;
+}

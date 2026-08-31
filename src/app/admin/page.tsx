@@ -27,6 +27,11 @@ export default function AdminPage() {
   const [printLabelCardId, setPrintLabelCardId] = useState<string>('');
   const [printLabelDataUrl, setPrintLabelDataUrl] = useState<string>('');
 
+  // Show QR Preview Modal state
+  const [showQrCardId, setShowQrCardId] = useState<string>('');
+  const [showQrDataUrl, setShowQrDataUrl] = useState<string>('');
+  const [loadingQr, setLoadingQr] = useState(false);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -301,7 +306,32 @@ export default function AdminPage() {
     }
   };
 
-  // Export Print-Ready PNG (QR with Card ID next to it)
+  // Show QR preview (no download, just display)
+  const handleShowQR = async (cardId: string) => {
+    setError('');
+    setLoadingQr(true);
+    setShowQrCardId(cardId);
+    try {
+      const response = await fetch('/api/admin/qr', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-password': password
+        },
+        body: JSON.stringify({ cardIds: [cardId], format: 'png' })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to generate QR.');
+      setShowQrDataUrl(data.results[0].data);
+    } catch (err: any) {
+      setError(err.message || 'Failed to show QR.');
+      setShowQrCardId('');
+    } finally {
+      setLoadingQr(false);
+    }
+  };
+
+  // Export Print-Ready PNG (QR Code + small Card ID below)
   const handleDownloadPrintPNG = async (cardId: string) => {
     setError('');
     try {
@@ -323,70 +353,38 @@ export default function AdminPage() {
 
       const img = new Image();
       img.onload = () => {
+        const qrSize = 400;
+        const padding = 30;
+        const labelHeight = 40;
         const canvas = document.createElement('canvas');
-        canvas.width = 760;
-        canvas.height = 360;
+        canvas.width = qrSize + (padding * 2);
+        canvas.height = qrSize + (padding * 2) + labelHeight;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        // Background
+        // White background
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Minimalist label border
-        ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 4;
-        ctx.strokeRect(6, 6, canvas.width - 12, canvas.height - 12);
+        // QR Code centered
+        ctx.drawImage(img, padding, padding, qrSize, qrSize);
 
-        // Divider
-        ctx.strokeStyle = '#e5e5e5';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(360, 20);
-        ctx.lineTo(360, 340);
-        ctx.stroke();
-
-        // QR Code
-        ctx.drawImage(img, 20, 20, 320, 320);
-
-        // Right details
-        ctx.fillStyle = '#000000';
-        ctx.textAlign = 'left';
-
-        ctx.font = 'bold 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-        ctx.fillText('TAPKU REVIEW CARD', 390, 75);
-
-        ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-        ctx.fillStyle = '#666666';
-        ctx.fillText('SCAN QR / TAP NFC TO ACTIVATED/REVIEW', 390, 102);
-
-        ctx.font = '600 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-        ctx.fillStyle = '#888888';
-        ctx.fillText('CARD IDENTIFICATION', 390, 160);
-
-        ctx.font = 'bold 48px monospace';
-        ctx.fillStyle = '#000000';
-        ctx.fillText(cardId, 390, 215);
-
-        ctx.font = '600 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-        ctx.fillStyle = '#888888';
-        ctx.fillText('PERMANENT ROUTING URL', 390, 265);
-
-        ctx.font = '500 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-        ctx.fillStyle = '#111111';
-        const origin = window.location.origin;
-        ctx.fillText(`${origin.replace(/^https?:\/\//, '')}/c/${cardId}`, 390, 290);
+        // Card ID label below QR
+        ctx.fillStyle = '#333333';
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 22px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillText(cardId, canvas.width / 2, qrSize + padding + 28);
 
         const pngUrl = canvas.toDataURL('image/png');
         
-        // Save to states to pop open the on-screen preview & print modal
+        // Save to states for preview modal
         setPrintLabelDataUrl(pngUrl);
         setPrintLabelCardId(cardId);
 
         // Trigger file download
         const link = document.createElement('a');
         link.href = pngUrl;
-        link.download = `print_label_${cardId}.png`;
+        link.download = `qr_${cardId}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -430,7 +428,7 @@ export default function AdminPage() {
   };
 
   return (
-    <main className="admin-container py-4 px-3">
+    <main className="admin-container py-4 px-3 light-landing">
       {/* HEADER */}
       <header className="admin-header flex justify-between align-items-center mb-4">
         <div>
@@ -586,13 +584,21 @@ export default function AdminPage() {
                           }
                         </td>
                         <td>
-                          <div className="flex gap-1 justify-content-center">
+                          <div className="flex gap-1 justify-content-center" style={{ flexWrap: 'wrap' }}>
+                             <button
+                               onClick={() => handleShowQR(card.card_id)}
+                               className="action-btn"
+                               title="Lihat QR Code"
+                               style={{ background: 'var(--primary-color)', color: 'var(--primary-text)', borderColor: 'var(--primary-color)' }}
+                             >
+                               👁 QR
+                             </button>
                              <button
                                onClick={() => handleDownloadPrintPNG(card.card_id)}
                                className="action-btn"
-                               title="Download Printable PNG Label (Card ID + QR)"
+                               title="Download QR PNG"
                              >
-                               PRINT PNG
+                               PNG
                              </button>
                              <button
                                onClick={() => handleExportSingleSVG(card.card_id)}
@@ -722,6 +728,58 @@ export default function AdminPage() {
                 className="btn btn-secondary w-full py-2 font-semibold"
               >
                 Tutup Pratinjau
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* POPUP MODAL: SHOW QR PREVIEW (scan-ready) */}
+      {showQrCardId && (
+        <div className="modal-backdrop">
+          <div className="onboarding-card modal-content animate-fade-in" style={{ maxWidth: '420px', textAlign: 'center' }}>
+            <h3 className="h3 font-bold mb-2">QR Code: {showQrCardId}</h3>
+            <p className="text-muted text-sm mb-4">
+              Scan kode QR di bawah ini dengan kamera HP untuk menguji sebelum cetak.
+            </p>
+            
+            {loadingQr ? (
+              <div className="py-4 text-muted">Memuat QR Code...</div>
+            ) : showQrDataUrl ? (
+              <div className="mb-4" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <img 
+                  src={showQrDataUrl} 
+                  alt={`QR ${showQrCardId}`}
+                  style={{ 
+                    width: '280px', 
+                    height: '280px', 
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-md)',
+                    background: '#ffffff',
+                    padding: '8px'
+                  }} 
+                />
+                <p className="font-mono font-bold mt-2" style={{ fontSize: '1.1rem', color: 'var(--foreground)' }}>{showQrCardId}</p>
+              </div>
+            ) : null}
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => handleDownloadPrintPNG(showQrCardId)}
+                className="btn btn-primary w-full py-2 font-semibold"
+              >
+                Download PNG
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowQrCardId('');
+                  setShowQrDataUrl('');
+                }}
+                className="btn btn-secondary w-full py-2 font-semibold"
+              >
+                Tutup
               </button>
             </div>
           </div>
