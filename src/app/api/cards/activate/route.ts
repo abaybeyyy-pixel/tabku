@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { findCardById, activateCard } from '@/lib/db-helpers';
+import { resolveGoogleMapsReviewUrl } from '@/lib/url-resolver';
 import { hashPin, isValidPin, isValidGoogleReviewUrl, isValidEmail } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
@@ -47,7 +48,10 @@ export async function POST(request: NextRequest) {
 
     // Hash PIN and activate
     const pinHash = await hashPin(pin);
-    const success = await activateCard(cardId, businessName.trim(), destinationUrl.trim(), pinHash, email.trim().toLowerCase());
+    // Auto-resolve Google Maps link to a review pop-up link
+    const finalDestinationUrl = await resolveGoogleMapsReviewUrl(destinationUrl.trim());
+
+    const success = await activateCard(cardId, businessName.trim(), finalDestinationUrl, pinHash, email.trim().toLowerCase());
 
     if (!success) {
       return NextResponse.json({ error: 'Failed to activate card. Please try again.' }, { status: 500 });

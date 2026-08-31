@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { findCardById, updateDestination } from '@/lib/db-helpers';
+import { resolveGoogleMapsReviewUrl } from '@/lib/url-resolver';
 import { verifyPin, isValidGoogleReviewUrl } from '@/lib/auth';
 import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit';
 
@@ -32,7 +33,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Incorrect PIN.' }, { status: 401 });
     }
 
-    const success = await updateDestination(cardId.toUpperCase(), newDestinationUrl.trim());
+    // Resolve URL before saving
+    const finalDestinationUrl = await resolveGoogleMapsReviewUrl(newDestinationUrl.trim());
+    const success = await updateDestination(cardId.toUpperCase(), finalDestinationUrl);
     if (!success) {
       return NextResponse.json({ error: 'Failed to update destination.' }, { status: 500 });
     }
