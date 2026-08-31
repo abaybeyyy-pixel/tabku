@@ -528,9 +528,9 @@ export default function AdminPage() {
         {/* RIGHT COLUMN: DATABASE VIEWER */}
         <div className="admin-main-col">
           <div className="tool-card h-full">
-            <div className="flex justify-between align-items-center mb-3">
+            <div className="flex justify-between align-items-center mb-3" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
               <h2 className="h4 font-bold mb-0">Registri Kartu</h2>
-              <div className="flex gap-2">
+              <div className="flex gap-2" style={{ flexWrap: 'wrap', flex: '1 1 auto', justifyContent: 'flex-end' }}>
                 <input
                   type="text"
                   placeholder="Cari ID Kartu / Bisnis..."
