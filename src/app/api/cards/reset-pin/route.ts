@@ -26,12 +26,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'New PINs do not match.' }, { status: 400 });
     }
 
-    const card = findCardById(cardId.toUpperCase());
+    const card = await findCardById(cardId.toUpperCase());
     if (!card) {
       return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
     }
 
-    const otpRecord = getLatestOtp(cardId.toUpperCase());
+    const otpRecord = await getLatestOtp(cardId.toUpperCase());
     if (!otpRecord) {
       return NextResponse.json({ error: 'No valid OTP found. Please request a new one.' }, { status: 400 });
     }
@@ -42,11 +42,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Mark OTP as used
-    markOtpUsed(otpRecord.id);
+    await markOtpUsed(otpRecord.id);
 
     // Update PIN
     const newPinHash = await hashPin(newPin);
-    const success = updatePin(cardId.toUpperCase(), newPinHash);
+    const success = await updatePin(cardId.toUpperCase(), newPinHash);
     if (!success) {
       return NextResponse.json({ error: 'Failed to reset PIN.' }, { status: 500 });
     }

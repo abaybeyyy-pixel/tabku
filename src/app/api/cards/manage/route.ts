@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Card ID and PIN are required.' }, { status: 400 });
     }
 
-    const card = findCardById(cardId.toUpperCase());
+    const card = await findCardById(cardId.toUpperCase());
     if (!card) {
       return NextResponse.json({ error: 'Card not found.' }, { status: 404 });
     }

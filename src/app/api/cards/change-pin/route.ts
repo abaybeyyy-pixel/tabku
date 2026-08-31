@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'New PINs do not match.' }, { status: 400 });
     }
 
-    const card = findCardById(cardId.toUpperCase());
+    const card = await findCardById(cardId.toUpperCase());
     if (!card || card.status !== 'ACTIVE' || !card.pin_hash) {
       return NextResponse.json({ error: 'Card not found or not active.' }, { status: 404 });
     }
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     const newPinHash = await hashPin(newPin);
-    const success = updatePin(cardId.toUpperCase(), newPinHash);
+    const success = await updatePin(cardId.toUpperCase(), newPinHash);
     if (!success) {
       return NextResponse.json({ error: 'Failed to update PIN.' }, { status: 500 });
     }

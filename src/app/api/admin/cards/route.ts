@@ -13,8 +13,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
-    const cards = getAllCards(search, status);
-    const stats = getCardStats();
+    const cards = await getAllCards(search, status);
+    const stats = await getCardStats();
 
     return NextResponse.json({
       success: true,

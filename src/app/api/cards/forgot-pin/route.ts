@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Please enter a valid email address.' }, { status: 400 });
     }
 
-    const card = findCardById(cardId.toUpperCase());
+    const card = await findCardById(cardId.toUpperCase());
 
     // Always return success to prevent email enumeration
     // But only actually send OTP if card exists and email matches
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       const otpHash = await hashPin(otp);
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 min expiry
 
-      storeOtp(card.card_id, otpHash, expiresAt);
+      await storeOtp(card.card_id, otpHash, expiresAt);
 
       // In production, send email via SMTP
       // For MVP, log to console

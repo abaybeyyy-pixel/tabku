@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Please enter a valid URL.' }, { status: 400 });
     }
 
-    const card = findCardById(cardId.toUpperCase());
+    const card = await findCardById(cardId.toUpperCase());
     if (!card || card.status !== 'ACTIVE' || !card.pin_hash) {
       return NextResponse.json({ error: 'Card not found or not active.' }, { status: 404 });
     }
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Incorrect PIN.' }, { status: 401 });
     }
 
-    const success = updateDestination(cardId.toUpperCase(), newDestinationUrl.trim());
+    const success = await updateDestination(cardId.toUpperCase(), newDestinationUrl.trim());
     if (!success) {
       return NextResponse.json({ error: 'Failed to update destination.' }, { status: 500 });
     }

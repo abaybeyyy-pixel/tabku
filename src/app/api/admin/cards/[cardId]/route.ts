@@ -18,7 +18,7 @@ export async function PATCH(
     const { action, newPin } = body;
 
     if (action === 'disable') {
-      const success = disableCard(cardId);
+      const success = await disableCard(cardId);
       if (!success) {
         return NextResponse.json({ error: 'Failed to disable card.' }, { status: 400 });
       }
@@ -26,7 +26,7 @@ export async function PATCH(
     }
 
     if (action === 'reactivate') {
-      const success = reactivateCard(cardId);
+      const success = await reactivateCard(cardId);
       if (!success) {
         return NextResponse.json({ error: 'Failed to reactivate card. Ensure it is currently DISABLED.' }, { status: 400 });
       }
@@ -38,7 +38,7 @@ export async function PATCH(
         return NextResponse.json({ error: 'PIN must be 4-6 digits.' }, { status: 400 });
       }
       const pinHash = await hashPin(newPin);
-      const success = adminResetPin(cardId, pinHash);
+      const success = await adminResetPin(cardId, pinHash);
       if (!success) {
         return NextResponse.json({ error: 'Failed to reset PIN.' }, { status: 400 });
       }

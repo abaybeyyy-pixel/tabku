@@ -94,7 +94,7 @@ export async function GET(
   { params }: { params: Promise<{ cardId: string }> }
 ) {
   const { cardId } = await params;
-  const card = findCardById(cardId.toUpperCase());
+  const card = await findCardById(cardId.toUpperCase());
   const cacheHeaders = {
     'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
   };

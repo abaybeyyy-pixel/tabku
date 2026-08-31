@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Count must be between 1 and 10,000.' }, { status: 400 });
     }
 
-    const cardIds = generateCards(prefix.toUpperCase(), count);
+    const cardIds = await generateCards(prefix.toUpperCase(), count);
 
     return NextResponse.json({
       success: true,

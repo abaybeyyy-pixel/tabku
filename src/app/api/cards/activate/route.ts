@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Card ID is required.' }, { status: 400 });
     }
 
-    const card = findCardById(cardId);
+    const card = await findCardById(cardId);
     if (!card) {
       return NextResponse.json({ error: 'Card not found.' }, { status: 404 });
     }
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     // Hash PIN and activate
     const pinHash = await hashPin(pin);
-    const success = activateCard(cardId, businessName.trim(), destinationUrl.trim(), pinHash, email.trim().toLowerCase());
+    const success = await activateCard(cardId, businessName.trim(), destinationUrl.trim(), pinHash, email.trim().toLowerCase());
 
     if (!success) {
       return NextResponse.json({ error: 'Failed to activate card. Please try again.' }, { status: 500 });

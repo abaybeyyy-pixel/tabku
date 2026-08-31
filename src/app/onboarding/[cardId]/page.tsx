@@ -9,7 +9,7 @@ export default async function OnboardingPage({
 }) {
   const { cardId } = await params;
   const upperCardId = cardId.toUpperCase();
-  const card = findCardById(upperCardId);
+  const card = await findCardById(upperCardId);
 
   if (!card) {
     notFound();
