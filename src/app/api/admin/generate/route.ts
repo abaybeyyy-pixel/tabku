@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       count: cardIds.length,
       cardIds,
     });
-  } catch {
-    return NextResponse.json({ error: 'An unexpected error occurred.' }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || 'An unexpected error occurred.' }, { status: 500 });
   }
 }

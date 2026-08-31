@@ -122,7 +122,8 @@ export async function generateCards(prefix: string, count: number): Promise<stri
   }
 
   if (toInsert.length > 0) {
-    await supabase.from('cards').insert(toInsert);
+    const { error } = await supabase.from('cards').insert(toInsert);
+    if (error) throw new Error(error.message);
   }
   
   return cardIds;
