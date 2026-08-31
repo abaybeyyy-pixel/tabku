@@ -16,6 +16,32 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [activatedData, setActivatedData] = useState<{ businessName: string; destinationUrl: string } | null>(null);
+  const [resolvingUrl, setResolvingUrl] = useState(false);
+
+  const handleResolveUrl = async () => {
+    if (!destinationUrl.trim()) {
+      setError('Masukkan URL Google Maps terlebih dahulu.');
+      return;
+    }
+    setError('');
+    setResolvingUrl(true);
+    try {
+      const res = await fetch('/api/resolve-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: destinationUrl.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Gagal generate link.');
+      if (data.resolvedUrl) {
+        setDestinationUrl(data.resolvedUrl);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Gagal mengonversi link.');
+    } finally {
+      setResolvingUrl(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,10 +173,19 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
           placeholder="https://search.google.com/local/writereview?placeid=..."
           value={destinationUrl}
           onChange={(e) => setDestinationUrl(e.target.value)}
-          disabled={loading}
+          disabled={loading || resolvingUrl}
           required
         />
-        <span className="help-text">Link langsung tempat pelanggan menulis ulasan.</span>
+        <button
+          type="button"
+          onClick={handleResolveUrl}
+          disabled={resolvingUrl || !destinationUrl}
+          className="btn btn-secondary mt-2 w-full py-2 font-semibold"
+          style={{ fontSize: '0.875rem' }}
+        >
+          {resolvingUrl ? 'Memproses Link...' : 'Generate Link Review Otomatis'}
+        </button>
+        <span className="help-text mt-1">Link langsung tempat pelanggan menulis ulasan. Jika Anda memasukkan link pendek (maps.app.goo.gl), klik tombol Generate di atas.</span>
       </div>
 
       <div className="input-group">

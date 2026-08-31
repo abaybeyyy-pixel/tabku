@@ -10,6 +10,7 @@ export default function ManagePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [resolvingUrl, setResolvingUrl] = useState(false);
 
   // Tab state within dashboard: 'details' | 'destination' | 'pin'
   const [dashTab, setDashTab] = useState<'details' | 'destination' | 'pin'>('details');
@@ -136,6 +137,33 @@ export default function ManagePage() {
   };
 
   // Handle update destination
+  const handleResolveUrl = async () => {
+    if (!newDestinationUrl.trim()) {
+      setError('Masukkan URL Google Maps terlebih dahulu.');
+      return;
+    }
+    setError('');
+    setSuccessMsg('');
+    setResolvingUrl(true);
+    try {
+      const res = await fetch('/api/resolve-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: newDestinationUrl.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Gagal generate link.');
+      if (data.resolvedUrl) {
+        setNewDestinationUrl(data.resolvedUrl);
+        setSuccessMsg('Link berhasil di-generate! Silakan perbarui tujuan.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Gagal mengonversi link.');
+    } finally {
+      setResolvingUrl(false);
+    }
+  };
+
   const handleUpdateDestination = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -520,10 +548,19 @@ export default function ManagePage() {
                     placeholder="https://search.google.com/local/writereview?placeid=..."
                     value={newDestinationUrl}
                     onChange={(e) => setNewDestinationUrl(e.target.value)}
-                    disabled={loading}
+                    disabled={loading || resolvingUrl}
                     required
                   />
-                  <span className="help-text">NFC dan QR Code kartu Anda akan langsung mengarah ke link ini.</span>
+                  <button
+                    type="button"
+                    onClick={handleResolveUrl}
+                    disabled={resolvingUrl || !newDestinationUrl}
+                    className="btn btn-secondary mt-2 w-full py-2 font-semibold"
+                    style={{ fontSize: '0.875rem' }}
+                  >
+                    {resolvingUrl ? 'Memproses Link...' : 'Generate Link Review Otomatis'}
+                  </button>
+                  <span className="help-text mt-1">Jika Anda memasukkan link pendek (maps.app.goo.gl), klik tombol Generate sebelum memperbarui.</span>
                 </div>
 
                 <div className="flex gap-2 mt-4">
