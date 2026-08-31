@@ -90,7 +90,7 @@ export default function Homepage() {
   ];
 
   return (
-    <div className="home-container">
+    <div className="home-container light-landing">
       {/* NAVBAR */}
       <nav className="navbar">
         <div className="navbar-container">
@@ -102,14 +102,6 @@ export default function Homepage() {
             <a href="#workflow" className="nav-link">Cara Kerja</a>
             <a href="#testimonials" className="nav-link">Testimoni</a>
             <a href="#faq" className="nav-link">Tanya Jawab</a>
-          </div>
-          <div className="nav-ctas">
-            <a href="/manage" className="btn btn-secondary py-2 px-4 font-semibold text-sm">
-              Kelola Kartu
-            </a>
-            <a href="/admin/login" className="btn btn-primary py-2 px-4 font-semibold text-sm">
-              Admin
-            </a>
           </div>
         </div>
       </nav>
@@ -303,11 +295,8 @@ export default function Homepage() {
             Dapatkan ulasan bintang lima di Google Maps dengan kartu fisik NFC kami secara instan.
           </p>
           <div className="flex justify-content-center gap-3">
-            <a href="#hero" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="btn btn-primary py-3 px-6 font-semibold">
-              Aktifkan Kartu
-            </a>
-            <a href="/manage" className="btn btn-secondary py-3 px-6 font-semibold">
-              Dashboard Kelola
+            <a href="#hero" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="btn btn-primary py-3 px-6 font-semibold shadow-soft">
+              Aktifkan Kartu Sekarang
             </a>
           </div>
         </div>

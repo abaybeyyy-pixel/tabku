@@ -974,3 +974,87 @@ a {
     padding: 4rem 1rem 3rem 1rem;
   }
 }
+
+/* --- Light Theme Landing Page Overrides --- */
+.light-landing {
+  --background: #f8fafc;
+  --background-card: #ffffff;
+  --border: #e2e8f0;
+  --border-focus: #cbd5e1;
+  --foreground: #0f172a;
+  --foreground-muted: #64748b;
+  --primary-color: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-text: #ffffff;
+  --secondary-bg: #f1f5f9;
+  --secondary-hover: #e2e8f0;
+  --secondary-text: #334155;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.light-landing .navbar {
+  background-color: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid var(--border);
+}
+
+.light-landing .nav-logo {
+  color: #0f172a;
+}
+
+.light-landing .nav-link {
+  color: #475569;
+}
+
+.light-landing .nav-link:hover {
+  color: #0f172a;
+}
+
+.light-landing .hero-section {
+  background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+}
+
+.light-landing .cta-box {
+  background: #ffffff;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+}
+
+.light-landing .feature-card-minimal,
+.light-landing .step-card-minimal,
+.light-landing .testimonial-card,
+.light-landing .faq-item {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.light-landing .feature-card-minimal:hover,
+.light-landing .step-card-minimal:hover,
+.light-landing .testimonial-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.08);
+}
+
+.light-landing .bg-muted-light {
+  background-color: #f1f5f9;
+}
+
+.light-landing .card-id-input {
+  background-color: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.light-landing .card-id-input:focus {
+  background-color: #ffffff;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.light-landing .text-gradient {
+  background: linear-gradient(to right, #2563eb, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
