@@ -325,8 +325,8 @@ export default function Homepage() {
       a: 'Kartu dilengkapi chip NFC dan kode QR dinamis. Saat pelanggan menempelkan smartphone atau memindai kode QR di kartu, layar HP langsung membuka jendela resmi Google Review tempat pelanggan bisa langsung memberi rating bintang 5 dan ulasan dalam hitungan detik.',
     },
     {
-      q: 'Apakah saya bisa mengganti nama usaha dan link bisnis di kemudian hari?',
-      a: 'Bisa, 100% fleksibel! Ini keunggulan utama teknologi Dynamic Link Tapku. Melalui menu "Kelola Kartu" (/manage) dengan memasukkan ID Kartu dan PIN Anda, Anda bebas memperbarui nama bisnis dan Place ID Google Maps kapan saja tanpa perlu mengganti kartu fisik.',
+      q: 'Bagaimana jika nama bisnis atau Place ID saya berubah nanti?',
+      a: 'Bisa, 100% fleksibel! Ini keunggulan utama teknologi Dynamic Link Tapku. Dengan memasukkan ID Kartu dan PIN Anda pada sistem Tapku, Anda bebas memperbarui nama bisnis dan Place ID Google Maps kapan saja tanpa perlu mengganti kartu fisik.',
     },
     {
       q: 'Apakah semua jenis smartphone bisa menggunakan kartu ini?',
@@ -366,10 +366,10 @@ export default function Homepage() {
           <div className="nav-actions">
             <a href="/manage" className="btn-manage-nav">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
               </svg>
-              <span>Kelola Kartu</span>
+              <span>Login User</span>
             </a>
           </div>
         </div>
@@ -1071,15 +1071,14 @@ export default function Homepage() {
               </div>
             </div>
 
-            {/* Column 3: Features & Self-Serve */}
+            {/* Column 3: Features */}
             <div>
-              <div className="footer-col-title">Layanan</div>
+              <div className="footer-col-title">Fitur &amp; Layanan</div>
               <div className="footer-col-links">
-                <a href="/manage" className="footer-col-link font-semibold text-primary">Kelola Kartu Mandiri</a>
-                <a href="#benefits" className="footer-col-link">Aktivasi Kartu Fisik</a>
+                <a href="#benefits" className="footer-col-link">Aktivasi Kartu Instan</a>
                 <a href="#benefits" className="footer-col-link">Dynamic QR Code Cloud</a>
                 <a href="#workflow" className="footer-col-link">Google Places API Sync</a>
-                <a href="/admin/login" className="footer-col-link">Portal Akses Admin</a>
+                <a href="#target-market" className="footer-col-link">Solusi Multi-Bisnis</a>
               </div>
             </div>
 
@@ -1101,10 +1100,8 @@ export default function Homepage() {
           {/* Bottom Copyright & Legal */}
           <div className="footer-bottom-bar">
             <span>&copy; {new Date().getFullYear()} Tapku. Hak cipta dilindungi undang-undang.</span>
-            <div className="flex gap-4">
-              <a href="/manage" className="hover:underline">Kelola Kartu</a>
-              <span className="text-subtle">•</span>
-              <a href="/admin/login" className="hover:underline">Portal Admin</a>
+            <div className="flex gap-4 text-xs text-muted">
+              <span>Solusi Kartu Google Review NFC &amp; Dynamic QR</span>
             </div>
           </div>
         </div>
