@@ -34,10 +34,6 @@ export default async function OnboardingPage({
           </a>
           <span className="card-badge">{upperCardId}</span>
         </div>
-        <div className="text-center mb-4">
-          <h1 className="text-xl font-bold mb-1">Aktivasi Kartu Review</h1>
-          <p className="text-muted text-xs">Hubungkan kartu Anda ke profil lokasi Google Review bisnis Anda.</p>
-        </div>
         <OnboardingForm cardId={upperCardId} />
       </div>
     </main>
