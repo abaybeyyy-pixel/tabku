@@ -206,7 +206,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
           Simpan PIN Anda dengan aman. PIN dan ID Kartu <strong>{cardId}</strong> digunakan untuk mengedit pengaturan di portal kelola.
         </div>
 
-        <div className="flex gap-2.5 flex-col">
+        <div className="flex gap-3 flex-col mt-4">
           <a
             href={reviewUrl}
             target="_blank"

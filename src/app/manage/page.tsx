@@ -704,8 +704,8 @@ export default function ManagePage() {
                   </div>
                 </div>
 
-                {/* TOMBOL AKSI UTAMA (Jarak Seimbang & Nyaman Ditap) */}
-                <div className="flex flex-col gap-2.5 mt-3">
+                {/* TOMBOL AKSI UTAMA (Jarak Nyaman & Bernapas) */}
+                <div className="flex flex-col gap-3 mt-4">
                   {loggedInCard.destinationUrl && (
                     <a
                       href={loggedInCard.destinationUrl}
