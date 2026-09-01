@@ -367,27 +367,27 @@ export default function Homepage() {
         <div className="wa-marquee-track-container">
           <div className="wa-marquee-content">
             <span className="wa-marquee-item">
-              💬 <strong>Punya pertanyaan atau butuh informasi produk?</strong> Chat Customer Support kami via WhatsApp (Respon Cepat).
+              <strong>Punya pertanyaan seputar produk?</strong> Chat Customer Support via WhatsApp (Respon Cepat).
             </span>
             <span className="wa-marquee-sep">•</span>
             <span className="wa-marquee-item">
-              🚀 <strong>Konsultasi Gratis &amp; Dapatkan Penawaran Khusus!</strong> Klik untuk langsung chat via WhatsApp ➜
+              <strong>Konsultasi Gratis &amp; Penawaran Khusus:</strong> Klik untuk langsung terhubung ke tim kami.
             </span>
             <span className="wa-marquee-sep">•</span>
             <span className="wa-marquee-item">
-              ⭐ <strong>Tapku Smart Card Google Review NFC:</strong> Praktis sekali tap langsung buka review bintang 5 bisnis Anda!
+              <strong>Tapku Smart Card Google Review NFC:</strong> Tingkatkan ulasan positif bisnis Anda secara praktis &amp; instan.
             </span>
             <span className="wa-marquee-sep">•</span>
             <span className="wa-marquee-item">
-              💬 <strong>Punya pertanyaan atau butuh informasi produk?</strong> Chat Customer Support kami via WhatsApp (Respon Cepat).
+              <strong>Punya pertanyaan seputar produk?</strong> Chat Customer Support via WhatsApp (Respon Cepat).
             </span>
             <span className="wa-marquee-sep">•</span>
             <span className="wa-marquee-item">
-              🚀 <strong>Konsultasi Gratis &amp; Dapatkan Penawaran Khusus!</strong> Klik untuk langsung chat via WhatsApp ➜
+              <strong>Konsultasi Gratis &amp; Penawaran Khusus:</strong> Klik untuk langsung terhubung ke tim kami.
             </span>
             <span className="wa-marquee-sep">•</span>
             <span className="wa-marquee-item">
-              ⭐ <strong>Tapku Smart Card Google Review NFC:</strong> Praktis sekali tap langsung buka review bintang 5 bisnis Anda!
+              <strong>Tapku Smart Card Google Review NFC:</strong> Tingkatkan ulasan positif bisnis Anda secara praktis &amp; instan.
             </span>
             <span className="wa-marquee-sep">•</span>
           </div>
@@ -1184,8 +1184,8 @@ export default function Homepage() {
           </div>
           <div className="floating-wa-marquee-track">
             <div className="floating-wa-marquee-anim">
-              <span>💬 Butuh info produk? Tanya langsung via WhatsApp! • Fast response &amp; konsultasi gratis ➜</span>
-              <span>💬 Butuh info produk? Tanya langsung via WhatsApp! • Fast response &amp; konsultasi gratis ➜</span>
+              <span>Butuh informasi produk? Chat via WhatsApp • Respon cepat &amp; konsultasi gratis</span>
+              <span>Butuh informasi produk? Chat via WhatsApp • Respon cepat &amp; konsultasi gratis</span>
             </div>
           </div>
         </div>
