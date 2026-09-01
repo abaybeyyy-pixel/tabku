@@ -5,25 +5,25 @@ import { verifyAdminPassword } from '@/lib/auth';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { password, prefix, count } = body;
+    const { password, prefix = '', count = 10 } = body;
 
     if (!verifyAdminPassword(password)) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
-    if (!prefix || prefix.length < 1 || prefix.length > 4) {
-      return NextResponse.json({ error: 'Prefix must be 1-4 characters.' }, { status: 400 });
+    if (prefix && prefix.length > 5) {
+      return NextResponse.json({ error: 'Prefix maksimal 5 karakter.' }, { status: 400 });
     }
 
-    if (!count || count < 1 || count > 10000) {
-      return NextResponse.json({ error: 'Count must be between 1 and 10,000.' }, { status: 400 });
+    if (!count || count < 1 || count > 1000) {
+      return NextResponse.json({ error: 'Jumlah harus antara 1 dan 1.000.' }, { status: 400 });
     }
 
-    const cardIds = await generateCards(prefix.toUpperCase(), count);
+    const cardIds = await generateCards(prefix ? prefix.toUpperCase() : '', count);
 
     return NextResponse.json({
       success: true,
-      message: `Generated ${cardIds.length} cards.`,
+      message: `Berhasil membuat ${cardIds.length} ID kartu acak 6 digit.`,
       count: cardIds.length,
       cardIds,
     });

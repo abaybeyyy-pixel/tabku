@@ -130,34 +130,43 @@ export async function reactivateCard(cardId: string): Promise<boolean> {
   return !error && data && data.length > 0;
 }
 
-export async function generateCards(prefix: string, count: number): Promise<string[]> {
+function generateRandomCode(length: number): string {
+  const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+export async function generateCards(prefix: string = '', count: number = 1): Promise<string[]> {
   const supabase = await createClient();
   const cardIds: string[] = [];
-  
-  // Find the highest existing number for this prefix
-  const { data: existing } = await supabase
+  const cleanPrefix = (prefix || '').trim().toUpperCase();
+  const randomLength = Math.max(1, 6 - cleanPrefix.length);
+
+  // Fetch existing card IDs to guarantee zero collision
+  const { data: existingRows } = await supabase
     .from('cards')
-    .select('card_id')
-    .like('card_id', `${prefix}%`)
-    .order('card_id', { ascending: false })
-    .limit(1)
-    .single();
+    .select('card_id');
   
-  let startNum = 1;
-  if (existing) {
-    const numPart = existing.card_id.replace(prefix, '');
-    const parsed = parseInt(numPart, 10);
-    if (!isNaN(parsed)) {
-      startNum = parsed + 1;
-    }
-  }
-  
+  const existingSet = new Set((existingRows || []).map((r: { card_id: string }) => r.card_id.toUpperCase()));
+  const generatedSet = new Set<string>();
+
   const toInsert = [];
   for (let i = 0; i < count; i++) {
-    const num = startNum + i;
-    const cardId = `${prefix}${num.toString().padStart(4, '0')}`;
-    toInsert.push({ card_id: cardId, status: 'UNACTIVATED' });
-    cardIds.push(cardId);
+    let candidate = '';
+    let attempts = 0;
+    do {
+      const rand = generateRandomCode(randomLength);
+      candidate = `${cleanPrefix}${rand}`;
+      attempts++;
+    } while ((existingSet.has(candidate) || generatedSet.has(candidate)) && attempts < 1000);
+
+    generatedSet.add(candidate);
+    existingSet.add(candidate);
+    toInsert.push({ card_id: candidate, status: 'UNACTIVATED' });
+    cardIds.push(candidate);
   }
 
   if (toInsert.length > 0) {

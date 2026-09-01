@@ -22,8 +22,8 @@ export default function AdminPage() {
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [deletingSingle, setDeletingSingle] = useState(false);
 
-  // Bulk generator state
-  const [genPrefix, setGenPrefix] = useState('GR');
+  // Bulk generator state (Random 6-digit card IDs)
+  const [genPrefix, setGenPrefix] = useState('');
   const [genCount, setGenCount] = useState(10);
   const [generating, setGenerating] = useState(false);
 
@@ -504,15 +504,15 @@ export default function AdminPage() {
       <div className="admin-tools-grid mb-3">
         {/* Bulk Generator */}
         <div className="feature-card-minimal p-3">
-          <h2 className="text-xs font-bold mb-1.5 text-muted uppercase tracking-wider" style={{ fontSize: '0.7rem' }}>Generate ID Kartu</h2>
+          <h2 className="text-xs font-bold mb-1.5 text-muted uppercase tracking-wider" style={{ fontSize: '0.7rem' }}>Generate ID Random (6 Digit)</h2>
           <form onSubmit={handleBulkGenerate} className="flex gap-2">
             <input
               type="text"
-              placeholder="Prefix"
+              placeholder="Prefix (opsi)"
               maxLength={4}
               value={genPrefix}
               onChange={(e) => setGenPrefix(e.target.value.toUpperCase())}
-              style={{ flex: '1 1 60px', minWidth: 0, padding: '0.35rem 0.5rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', background: '#ffffff', color: 'var(--foreground)' }}
+              style={{ flex: '1 1 80px', minWidth: 0, padding: '0.35rem 0.5rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', background: '#ffffff', color: 'var(--foreground)' }}
             />
             <input
               type="number"
