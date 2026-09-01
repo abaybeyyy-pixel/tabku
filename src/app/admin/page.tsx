@@ -459,17 +459,17 @@ export default function AdminPage() {
 
   return (
     <main className="container py-3" style={{ maxWidth: '860px' }}>
-      {/* COMPACT TOPBAR */}
+      {/* COMPACT TOPBAR WITH SPACED BUTTONS */}
       <header className="flex justify-between items-center mb-3 flex-wrap gap-2">
         <div>
           <h1 className="text-base font-bold tracking-tight">Tapku Dashboard</h1>
           <p className="text-muted text-xs" style={{ fontSize: '0.72rem' }}>Pusat Manajemen Kartu NFC &amp; QR</p>
         </div>
-        <div className="flex gap-1.5">
-          <a href="/" className="btn btn-secondary py-1 px-2.5 text-xs font-semibold">
+        <div className="admin-header-actions">
+          <a href="/" className="admin-header-btn">
             Beranda
           </a>
-          <button onClick={handleLogout} className="btn btn-secondary py-1 px-2.5 text-xs font-semibold">
+          <button onClick={handleLogout} className="admin-header-btn">
             Keluar
           </button>
         </div>
@@ -505,7 +505,7 @@ export default function AdminPage() {
         {/* Bulk Generator */}
         <div className="feature-card-minimal p-3">
           <h2 className="text-xs font-bold mb-1.5 text-muted uppercase tracking-wider" style={{ fontSize: '0.7rem' }}>Generate ID Kartu</h2>
-          <form onSubmit={handleBulkGenerate} className="flex gap-1.5">
+          <form onSubmit={handleBulkGenerate} className="flex gap-2">
             <input
               type="text"
               placeholder="Prefix"
@@ -536,7 +536,7 @@ export default function AdminPage() {
         {/* Export Data */}
         <div className="feature-card-minimal p-3">
           <h2 className="text-xs font-bold mb-1.5 text-muted uppercase tracking-wider" style={{ fontSize: '0.7rem' }}>Ekspor &amp; Cetak</h2>
-          <div className="flex gap-1.5">
+          <div className="flex gap-2">
             <button
               onClick={handleExportCSV}
               className="btn btn-secondary flex-1 py-1.5 text-xs font-semibold"
@@ -557,7 +557,7 @@ export default function AdminPage() {
       <div className="feature-card-minimal p-3">
         {/* Search, Filter & Bulk Actions Bar */}
         <div className="flex gap-2 mb-2.5 flex-wrap items-center justify-between">
-          <div className="flex gap-1.5 flex-1 flex-wrap" style={{ minWidth: '220px' }}>
+          <div className="flex gap-2 flex-1 flex-wrap" style={{ minWidth: '220px' }}>
             <input
               type="text"
               placeholder="Cari ID / bisnis..."
@@ -594,7 +594,7 @@ export default function AdminPage() {
 
           {/* Bulk Selection Actions */}
           {selectedCardIds.length > 0 && (
-            <div className="flex items-center gap-1.5 animate-fade-in">
+            <div className="flex items-center gap-2 animate-fade-in">
               <span className="text-xs font-semibold text-muted" style={{ fontSize: '0.75rem' }}>
                 {selectedCardIds.length} dipilih
               </span>
@@ -611,7 +611,7 @@ export default function AdminPage() {
 
         {/* Selection Bar (Select All Toggle) */}
         {cards.length > 0 && (
-          <div className="flex items-center gap-2 mb-2 py-1 px-2 rounded-sm" style={{ background: 'var(--background-subtle)', border: '1px solid var(--border-subtle)' }}>
+          <div className="flex items-center gap-2 mb-2 py-1.5 px-2.5 rounded-sm" style={{ background: 'var(--background-subtle)', border: '1px solid var(--border-subtle)' }}>
             <label className="flex items-center gap-2 text-xs font-semibold text-muted cursor-pointer" style={{ fontSize: '0.72rem' }}>
               <input
                 type="checkbox"
@@ -629,7 +629,7 @@ export default function AdminPage() {
         ) : cards.length === 0 ? (
           <div className="text-center py-4 text-muted text-xs">Tidak ditemukan kartu yang cocok.</div>
         ) : (
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             {cards.map((card) => {
               const isChecked = selectedCardIds.includes(card.card_id);
               return (
@@ -654,7 +654,7 @@ export default function AdminPage() {
                   </div>
 
                   {/* Middle: Business details */}
-                  <div style={{ flex: '1 1 120px', minWidth: 0 }}>
+                  <div style={{ flex: '1 1 120px', minWidth: 0, paddingRight: '0.5rem' }}>
                     <div className="text-xs font-semibold text-truncate" style={{ fontSize: '0.8rem' }}>
                       {card.business_name || <span className="text-muted italic" style={{ fontSize: '0.75rem' }}>Belum diaktivasi</span>}
                     </div>
@@ -665,20 +665,20 @@ export default function AdminPage() {
                     )}
                     {card.activated_at && (
                       <div className="text-subtle" style={{ fontSize: '0.65rem' }}>
-                        {new Date(card.activated_at).toLocaleDateString('id-ID')}
+                        Aktif: {new Date(card.activated_at).toLocaleDateString('id-ID')}
                       </div>
                     )}
                   </div>
 
                   {/* Right: Minimalist Action Icon Buttons */}
-                  <div className="flex gap-1.5 items-center">
+                  <div className="flex gap-2 items-center flex-shrink-0">
                     <button
                       type="button"
                       onClick={() => handleShowQR(card.card_id)}
                       title="Lihat QR Code"
                       aria-label="Lihat QR Code"
                       className="action-icon-btn btn-qr"
-                      style={{ width: '30px', height: '30px', minWidth: '30px' }}
+                      style={{ width: '32px', height: '32px', minWidth: '32px' }}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <rect x="3" y="3" width="7" height="7" rx="1" />
@@ -694,7 +694,7 @@ export default function AdminPage() {
                       title="Download PNG Cetak"
                       aria-label="Download PNG Cetak"
                       className="action-icon-btn btn-download"
-                      style={{ width: '30px', height: '30px', minWidth: '30px' }}
+                      style={{ width: '32px', height: '32px', minWidth: '32px' }}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -709,7 +709,7 @@ export default function AdminPage() {
                       title="Atur Ulang PIN"
                       aria-label="Atur Ulang PIN"
                       className="action-icon-btn btn-pin"
-                      style={{ width: '30px', height: '30px', minWidth: '30px' }}
+                      style={{ width: '32px', height: '32px', minWidth: '32px' }}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -723,7 +723,7 @@ export default function AdminPage() {
                       title="Hapus Kartu Ini"
                       aria-label="Hapus Kartu Ini"
                       className="action-icon-btn btn-delete"
-                      style={{ width: '30px', height: '30px', minWidth: '30px' }}
+                      style={{ width: '32px', height: '32px', minWidth: '32px' }}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="3 6 5 6 21 6" />
