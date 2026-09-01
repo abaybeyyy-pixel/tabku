@@ -241,11 +241,17 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="form-group animate-fade-in">
-      {error && <div className="error-alert">{error}</div>}
+    <div className="animate-fade-in">
+      <div className="text-center mb-4">
+        <h1 className="text-xl font-bold mb-1">Aktivasi Kartu Review</h1>
+        <p className="text-muted text-xs">Hubungkan kartu Anda ke profil lokasi Google Review bisnis Anda.</p>
+      </div>
 
-      {/* Business Search Section */}
-      {!selectedBusiness ? (
+      <form onSubmit={handleSubmit} className="form-group">
+        {error && <div className="error-alert">{error}</div>}
+
+        {/* Business Search Section */}
+        {!selectedBusiness ? (
         <div className="input-group">
           <label htmlFor="businessSearch">Cari Tempat / Usaha Anda</label>
           <div className="flex gap-2">
@@ -392,6 +398,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
           </button>
         </>
       )}
-    </form>
+      </form>
+    </div>
   );
 }
