@@ -43,7 +43,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <main className="min-vh flex align-items-center justify-content-center py-5 px-3">
+    <main className="min-vh flex items-center justify-center py-6 px-3">
       <div className="onboarding-card">
         <div className="header-logo">
           <a href="/" className="font-extrabold text-sm tracking-wider" style={{ color: 'var(--primary-color)' }}>
