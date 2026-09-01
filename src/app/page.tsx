@@ -381,8 +381,15 @@ export default function Homepage() {
           <div className="hero-split-grid">
             {/* Left Column: Heading, Subtitle & WhatsApp CTA */}
             <div>
+              {/* UNIFIED HERO TRUST BADGE */}
               <div className="hero-badge-pill mb-3">
-                <span className="text-primary font-bold">SMART CARD GOOGLE REVIEW NO. 1 DI INDONESIA</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <polyline points="9 12 11 14 15 10"/>
+                </svg>
+                <span className="font-bold text-xs" style={{ color: '#15803d' }}>TERUJI TINGKATKAN 3X REVIEW</span>
+                <span style={{ color: 'var(--border)' }}>•</span>
+                <span className="text-muted text-xs font-semibold">Smart Card No. 1 di Indonesia</span>
               </div>
 
               <h1 className="hero-title font-extrabold mb-3">
@@ -395,7 +402,7 @@ export default function Homepage() {
               </p>
 
               {/* SINGLE FOCUSED WHATSAPP CTA */}
-              <div className="hero-cta-wrap mb-3">
+              <div className="hero-cta-wrap mb-1">
                 <a
                   href={waUrl}
                   target="_blank"
@@ -410,14 +417,50 @@ export default function Homepage() {
                 </a>
               </div>
 
-              <div className="flex items-center gap-3 text-xs text-muted flex-wrap">
-                <span>Beli 1x Aktif Selamanya</span>
-                <span>•</span>
-                <span>Bebas Ganti Lokasi Realtime</span>
-                <span>•</span>
-                <span>Garansi NFC Seumur Hidup</span>
+              {/* VALUE TRUST ROW */}
+              <div className="hero-trust-row">
+                <span className="trust-pill-item">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  1x Beli Aktif Selamanya
+                </span>
+                <span className="dot-sep">•</span>
+                <span className="trust-pill-item">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  Bebas Ganti Lokasi
+                </span>
+                <span className="dot-sep">•</span>
+                <span className="trust-pill-item">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  Garansi Chip 100%
+                </span>
+              </div>
+
+              {/* SOCIAL PROOF: RATUSAN UNIT TERJUAL & RATING BINTANG */}
+              <div className="hero-social-card">
+                <div className="avatar-group">
+                  <div className="avatar-bubble" style={{ background: '#dbeafe', color: '#1e40af' }}>R</div>
+                  <div className="avatar-bubble" style={{ background: '#dcfce7', color: '#15803d' }}>M</div>
+                  <div className="avatar-bubble" style={{ background: '#fef3c7', color: '#b45309' }}>B</div>
+                  <div className="avatar-bubble" style={{ background: '#f3e8ff', color: '#6b21a8' }}>H</div>
+                  <div className="avatar-bubble count">+850</div>
+                </div>
+
+                <div className="text-left flex-1 min-w-0">
+                  <div className="flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <svg key={i} width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                      </svg>
+                    ))}
+                    <span className="font-extrabold text-xs ml-1" style={{ fontSize: '0.78rem' }}>4.9 / 5.0</span>
+                  </div>
+                  <p className="text-muted text-xs truncate" style={{ fontSize: '0.72rem', marginTop: '2px' }}>
+                    <strong style={{ color: 'var(--foreground)' }}>850+ Unit Kartu Terjual</strong> &amp; Dipercaya UMKM
+                  </p>
+                </div>
               </div>
             </div>
+
 
             {/* Right Column: 3D Interactive Smartphone Tap Mockup */}
             <div className="flex flex-col items-center">
