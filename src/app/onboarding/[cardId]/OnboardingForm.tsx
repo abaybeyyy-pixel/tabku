@@ -218,7 +218,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
             <input
               type="text"
               id="businessSearch"
-              placeholder="contoh: Kopi Kenangan Senayan"
+              placeholder="contoh: Kedai Kopi Joni"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => {

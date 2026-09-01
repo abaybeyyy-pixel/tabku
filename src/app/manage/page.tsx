@@ -617,7 +617,7 @@ export default function ManagePage() {
                         id="editNameInput"
                         value={customBusinessName}
                         onChange={(e) => setCustomBusinessName(e.target.value)}
-                        placeholder="contoh: Kopi Kenangan Senayan City"
+                        placeholder="contoh: Kedai Kopi Joni"
                         disabled={savingName}
                         required
                       />
@@ -730,7 +730,7 @@ export default function ManagePage() {
                     <input
                       type="text"
                       id="businessSearchManage"
-                      placeholder="contoh: Kopi Kenangan Senayan"
+                      placeholder="contoh: Kedai Kopi Joni"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onKeyDown={(e) => {
