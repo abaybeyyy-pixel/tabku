@@ -86,6 +86,25 @@ export async function updatePin(cardId: string, newPinHash: string): Promise<boo
   return !error && data && data.length > 0;
 }
 
+export async function deleteCard(cardId: string): Promise<boolean> {
+  const supabase = await createClient();
+  // Delete related OTPs first
+  await supabase.from('otp_codes').delete().eq('card_id', cardId);
+  // Delete card
+  const { error } = await supabase.from('cards').delete().eq('card_id', cardId);
+  return !error;
+}
+
+export async function deleteCards(cardIds: string[]): Promise<boolean> {
+  if (!cardIds || cardIds.length === 0) return true;
+  const supabase = await createClient();
+  // Delete related OTPs first
+  await supabase.from('otp_codes').delete().in('card_id', cardIds);
+  // Delete cards
+  const { error } = await supabase.from('cards').delete().in('card_id', cardIds);
+  return !error;
+}
+
 export async function disableCard(cardId: string): Promise<boolean> {
   const supabase = await createClient();
   const now = new Date().toISOString();

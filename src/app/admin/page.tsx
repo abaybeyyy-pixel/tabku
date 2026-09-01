@@ -13,6 +13,15 @@ export default function AdminPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // Bulk Selection State
+  const [selectedCardIds, setSelectedCardIds] = useState<string[]>([]);
+  const [deletingBulk, setDeletingBulk] = useState(false);
+
+  // Single Delete Confirmation Dialog state
+  const [cardToDelete, setCardToDelete] = useState<string | null>(null);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [deletingSingle, setDeletingSingle] = useState(false);
+
   // Bulk generator state
   const [genPrefix, setGenPrefix] = useState('GR');
   const [genCount, setGenCount] = useState(10);
@@ -65,6 +74,8 @@ export default function AdminPage() {
       const data = await response.json();
       setCards(data.cards || []);
       setStats(data.stats || { total: 0, active: 0, unactivated: 0, disabled: 0 });
+      // Reset selection if cards list changes
+      setSelectedCardIds([]);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Terjadi kesalahan sistem.';
       setError(message);
@@ -83,6 +94,87 @@ export default function AdminPage() {
     fetchData(password, search, status);
   };
 
+  // Selection handlers
+  const handleToggleSelectAll = () => {
+    if (selectedCardIds.length === cards.length && cards.length > 0) {
+      setSelectedCardIds([]);
+    } else {
+      setSelectedCardIds(cards.map((c) => c.card_id));
+    }
+  };
+
+  const handleToggleSelectCard = (cardId: string) => {
+    setSelectedCardIds((prev) =>
+      prev.includes(cardId) ? prev.filter((id) => id !== cardId) : [...prev, cardId]
+    );
+  };
+
+  // Single card delete
+  const handleConfirmSingleDelete = async () => {
+    if (!cardToDelete) return;
+    setDeletingSingle(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await fetch(`/api/admin/cards/${cardToDelete}`, {
+        method: 'DELETE',
+        headers: {
+          'x-admin-password': password,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal menghapus kartu.');
+      }
+
+      setSuccess(`Kartu ${cardToDelete} berhasil dihapus.`);
+      setCardToDelete(null);
+      fetchData(password);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal menghapus kartu.';
+      setError(message);
+    } finally {
+      setDeletingSingle(false);
+    }
+  };
+
+  // Bulk delete
+  const handleConfirmBulkDelete = async () => {
+    if (selectedCardIds.length === 0) return;
+    setDeletingBulk(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await fetch('/api/admin/cards', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-password': password,
+        },
+        body: JSON.stringify({ cardIds: selectedCardIds }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal menghapus kartu terpilih.');
+      }
+
+      setSuccess(`Berhasil menghapus ${selectedCardIds.length} kartu.`);
+      setSelectedCardIds([]);
+      setShowBulkDeleteConfirm(false);
+      fetchData(password);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal menghapus kartu terpilih.';
+      setError(message);
+    } finally {
+      setDeletingBulk(false);
+    }
+  };
+
+  // Bulk generator
   const handleBulkGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     setGenerating(true);
@@ -118,32 +210,7 @@ export default function AdminPage() {
     }
   };
 
-  const handleCardAction = async (cardId: string, action: 'disable' | 'reactivate') => {
-    setError('');
-    setSuccess('');
-    try {
-      const response = await fetch(`/api/admin/cards/${cardId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-admin-password': password,
-        },
-        body: JSON.stringify({ action }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Aksi gagal dijalankan.');
-      }
-
-      setSuccess(data.message);
-      fetchData(password);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Aksi gagal dijalankan.';
-      setError(message);
-    }
-  };
-
+  // Reset PIN
   const handleResetPin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedCard) return;
@@ -389,6 +456,8 @@ export default function AdminPage() {
     router.push('/admin/login');
   };
 
+  const isAllSelected = cards.length > 0 && selectedCardIds.length === cards.length;
+
   return (
     <main className="container py-4" style={{ maxWidth: '980px' }}>
       {/* TOPBAR */}
@@ -411,12 +480,11 @@ export default function AdminPage() {
       {success && <div className="success-alert mb-3">{success}</div>}
 
       {/* STATS OVERVIEW */}
-      <div className="grid-4 mb-4">
+      <div className="grid-3 mb-4">
         {[
           { label: 'Total Kartu', value: stats.total, color: 'var(--foreground)' },
           { label: 'Kartu Aktif', value: stats.active, color: 'var(--success-accent)' },
           { label: 'Pending (Belum Aktif)', value: stats.unactivated, color: 'var(--accent-gold)' },
-          { label: 'Dinonaktifkan', value: stats.disabled, color: 'var(--danger-accent)' },
         ].map((s, i) => (
           <div
             key={i}
@@ -484,42 +552,74 @@ export default function AdminPage() {
 
       {/* CARD REGISTRY LIST */}
       <div className="feature-card-minimal p-4">
-        {/* Search & Filter Bar */}
-        <div className="flex gap-2 mb-3 flex-wrap">
-          <input
-            type="text"
-            placeholder="Cari ID kartu atau nama bisnis..."
-            value={search}
-            onChange={handleSearchChange}
-            style={{
-              flex: '1 1 220px',
-              padding: '0.5rem 0.75rem',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-sm)',
-              fontSize: '0.85rem',
-              background: '#ffffff',
-              color: 'var(--foreground)',
-              minWidth: 0,
-            }}
-          />
-          <select
-            value={statusFilter}
-            onChange={(e) => handleStatusFilterChange(e.target.value)}
-            style={{
-              padding: '0.5rem 0.75rem',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-sm)',
-              fontSize: '0.85rem',
-              background: '#ffffff',
-              color: 'var(--foreground)',
-            }}
-          >
-            <option value="ALL">Semua Status</option>
-            <option value="ACTIVE">Aktif</option>
-            <option value="UNACTIVATED">Pending</option>
-            <option value="DISABLED">Nonaktif</option>
-          </select>
+        {/* Search, Filter & Bulk Actions Bar */}
+        <div className="flex gap-2 mb-3 flex-wrap items-center justify-between">
+          <div className="flex gap-2 flex-1 flex-wrap" style={{ minWidth: '240px' }}>
+            <input
+              type="text"
+              placeholder="Cari ID kartu atau nama bisnis..."
+              value={search}
+              onChange={handleSearchChange}
+              style={{
+                flex: '1 1 200px',
+                padding: '0.5rem 0.75rem',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '0.85rem',
+                background: '#ffffff',
+                color: 'var(--foreground)',
+                minWidth: 0,
+              }}
+            />
+            <select
+              value={statusFilter}
+              onChange={(e) => handleStatusFilterChange(e.target.value)}
+              style={{
+                padding: '0.5rem 0.75rem',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '0.85rem',
+                background: '#ffffff',
+                color: 'var(--foreground)',
+              }}
+            >
+              <option value="ALL">Semua Status</option>
+              <option value="ACTIVE">Aktif</option>
+              <option value="UNACTIVATED">Pending</option>
+            </select>
+          </div>
+
+          {/* Bulk Selection Actions */}
+          {selectedCardIds.length > 0 && (
+            <div className="flex items-center gap-2 animate-fade-in">
+              <span className="text-xs font-semibold text-muted">
+                {selectedCardIds.length} kartu dipilih
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowBulkDeleteConfirm(true)}
+                className="btn btn-danger py-1.5 px-3 text-xs font-semibold"
+              >
+                Hapus Terpilih ({selectedCardIds.length})
+              </button>
+            </div>
+          )}
         </div>
+
+        {/* Selection Bar (Select All Toggle) */}
+        {cards.length > 0 && (
+          <div className="flex items-center gap-2 mb-2 p-2 rounded-sm" style={{ background: 'var(--background-subtle)', border: '1px solid var(--border-subtle)' }}>
+            <label className="flex items-center gap-2 text-xs font-semibold text-muted cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isAllSelected}
+                onChange={handleToggleSelectAll}
+                style={{ width: '15px', height: '15px', accentColor: 'var(--primary-color)', cursor: 'pointer' }}
+              />
+              <span>Pilih Semua ({cards.length} kartu)</span>
+            </label>
+          </div>
+        )}
 
         {loading ? (
           <div className="text-center py-5 text-muted text-xs">Memuat data kartu...</div>
@@ -527,94 +627,157 @@ export default function AdminPage() {
           <div className="text-center py-5 text-muted text-xs">Tidak ditemukan kartu yang cocok.</div>
         ) : (
           <div className="flex flex-col gap-2">
-            {cards.map((card) => (
-              <div
-                key={card.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '0.75rem',
-                  padding: '0.75rem 1rem',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid var(--border)',
-                  background: 'var(--background)',
-                  flexWrap: 'wrap',
-                }}
-              >
-                {/* Left: ID & Status */}
-                <div style={{ minWidth: '90px' }}>
-                  <span className="font-mono font-bold text-sm block">{card.card_id}</span>
-                  <span className={`status-tag ${card.status.toLowerCase()} mt-1`} style={{ fontSize: '0.65rem' }}>
-                    {card.status === 'ACTIVE' ? 'Aktif' : card.status === 'UNACTIVATED' ? 'Pending' : 'Off'}
-                  </span>
-                </div>
-
-                {/* Middle: Business details */}
-                <div style={{ flex: '1 1 180px', minWidth: 0 }}>
-                  <div className="text-xs font-semibold text-truncate">
-                    {card.business_name || <span className="text-muted italic">Belum diaktivasi</span>}
+            {cards.map((card) => {
+              const isChecked = selectedCardIds.includes(card.card_id);
+              return (
+                <div
+                  key={card.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '0.75rem',
+                    padding: '0.75rem 1rem',
+                    borderRadius: 'var(--radius-md)',
+                    border: isChecked ? '1px solid var(--primary-color)' : '1px solid var(--border)',
+                    background: isChecked ? 'var(--background-accent)' : 'var(--background)',
+                    flexWrap: 'wrap',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {/* Left: Checkbox + ID + Status */}
+                  <div className="flex items-center gap-3" style={{ minWidth: '130px' }}>
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => handleToggleSelectCard(card.card_id)}
+                      style={{ width: '16px', height: '16px', accentColor: 'var(--primary-color)', cursor: 'pointer' }}
+                    />
+                    <div>
+                      <span className="font-mono font-bold text-sm block">{card.card_id}</span>
+                      <span className={`status-tag ${card.status.toLowerCase()} mt-1`} style={{ fontSize: '0.65rem' }}>
+                        {card.status === 'ACTIVE' ? 'Aktif' : 'Pending'}
+                      </span>
+                    </div>
                   </div>
-                  {card.business_address && (
-                    <div className="text-xs text-muted text-truncate" style={{ fontSize: '0.72rem' }}>
-                      {card.business_address}
-                    </div>
-                  )}
-                  {card.activated_at && (
-                    <div className="text-subtle" style={{ fontSize: '0.68rem' }}>
-                      Aktif: {new Date(card.activated_at).toLocaleDateString('id-ID')}
-                    </div>
-                  )}
-                </div>
 
-                {/* Right: Actions */}
-                <div className="flex gap-1.5 flex-wrap items-center">
-                  <button
-                    onClick={() => handleShowQR(card.card_id)}
-                    title="Lihat QR Code"
-                    className="btn btn-secondary py-1 px-2.5 text-xs font-semibold"
-                  >
-                    Lihat QR
-                  </button>
-                  <button
-                    onClick={() => handleDownloadPrintPNG(card.card_id)}
-                    title="Download PNG Cetak"
-                    className="btn btn-secondary py-1 px-2 text-xs font-semibold"
-                  >
-                    PNG
-                  </button>
-                  <button
-                    onClick={() => { setSelectedCard(card); setNewPinInput(''); }}
-                    title="Reset PIN"
-                    className="btn btn-secondary py-1 px-2 text-xs font-semibold"
-                  >
-                    PIN
-                  </button>
-                  {card.status === 'ACTIVE' && (
+                  {/* Middle: Business details */}
+                  <div style={{ flex: '1 1 180px', minWidth: 0 }}>
+                    <div className="text-xs font-semibold text-truncate">
+                      {card.business_name || <span className="text-muted italic">Belum diaktivasi</span>}
+                    </div>
+                    {card.business_address && (
+                      <div className="text-xs text-muted text-truncate" style={{ fontSize: '0.72rem' }}>
+                        {card.business_address}
+                      </div>
+                    )}
+                    {card.activated_at && (
+                      <div className="text-subtle" style={{ fontSize: '0.68rem' }}>
+                        Aktif: {new Date(card.activated_at).toLocaleDateString('id-ID')}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right: Actions */}
+                  <div className="flex gap-1.5 flex-wrap items-center">
                     <button
-                      onClick={() => handleCardAction(card.card_id, 'disable')}
-                      title="Nonaktifkan Kartu"
-                      className="btn btn-danger py-1 px-2 text-xs font-semibold"
+                      onClick={() => handleShowQR(card.card_id)}
+                      title="Lihat QR Code"
+                      className="btn btn-secondary py-1 px-2.5 text-xs font-semibold"
                     >
-                      Nonaktifkan
+                      Lihat QR
                     </button>
-                  )}
-                  {card.status === 'DISABLED' && (
                     <button
-                      onClick={() => handleCardAction(card.card_id, 'reactivate')}
-                      title="Aktifkan Kartu"
-                      className="btn btn-secondary py-1 px-2 text-xs font-semibold text-success"
-                      style={{ borderColor: 'var(--success-border)' }}
+                      onClick={() => handleDownloadPrintPNG(card.card_id)}
+                      title="Download PNG Cetak"
+                      className="btn btn-secondary py-1 px-2 text-xs font-semibold"
                     >
-                      Aktifkan
+                      PNG
                     </button>
-                  )}
+                    <button
+                      onClick={() => { setSelectedCard(card); setNewPinInput(''); }}
+                      title="Reset PIN"
+                      className="btn btn-secondary py-1 px-2 text-xs font-semibold"
+                    >
+                      PIN
+                    </button>
+                    <button
+                      onClick={() => setCardToDelete(card.card_id)}
+                      title="Hapus Kartu Ini"
+                      className="btn btn-danger py-1 px-2.5 text-xs font-semibold"
+                    >
+                      Hapus
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
+
+      {/* POPUP MODAL: SINGLE DELETE CONFIRMATION */}
+      {cardToDelete && (
+        <div className="modal-backdrop">
+          <div className="onboarding-card modal-content animate-fade-in" style={{ maxWidth: '420px' }}>
+            <h3 className="text-base font-bold mb-1 text-danger">Hapus Kartu Ini?</h3>
+            <p className="text-muted text-xs mb-4">
+              Apakah Anda yakin ingin menghapus kartu <strong className="font-mono">{cardToDelete}</strong>? Tindakan ini permanen dan kartu tidak akan bisa di-scan lagi.
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleConfirmSingleDelete}
+                className="btn btn-danger w-full py-2 font-semibold text-xs"
+                disabled={deletingSingle}
+              >
+                {deletingSingle ? 'Menghapus...' : 'Ya, Hapus Kartu'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setCardToDelete(null)}
+                className="btn btn-secondary w-full py-2 font-semibold text-xs"
+                disabled={deletingSingle}
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* POPUP MODAL: BULK DELETE CONFIRMATION */}
+      {showBulkDeleteConfirm && (
+        <div className="modal-backdrop">
+          <div className="onboarding-card modal-content animate-fade-in" style={{ maxWidth: '440px' }}>
+            <h3 className="text-base font-bold mb-1 text-danger">Hapus {selectedCardIds.length} Kartu Terpilih?</h3>
+            <p className="text-muted text-xs mb-3">
+              Semua data {selectedCardIds.length} kartu berikut akan dihapus permanen dari database:
+            </p>
+            <div className="p-2 border rounded-sm mb-4 max-h-32 overflow-y-auto font-mono text-xs text-muted" style={{ background: 'var(--background-subtle)' }}>
+              {selectedCardIds.join(', ')}
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleConfirmBulkDelete}
+                className="btn btn-danger w-full py-2 font-semibold text-xs"
+                disabled={deletingBulk}
+              >
+                {deletingBulk ? 'Menghapus...' : `Hapus ${selectedCardIds.length} Kartu`}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowBulkDeleteConfirm(false)}
+                className="btn btn-secondary w-full py-2 font-semibold text-xs"
+                disabled={deletingBulk}
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* POPUP MODAL: PIN RESET */}
       {selectedCard && (

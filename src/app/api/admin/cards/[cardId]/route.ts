@@ -1,6 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { disableCard, reactivateCard, adminResetPin } from '@/lib/db-helpers';
+import { deleteCard, adminResetPin } from '@/lib/db-helpers';
 import { verifyAdminPassword, hashPin } from '@/lib/auth';
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ cardId: string }> }
+) {
+  try {
+    const { cardId } = await params;
+    const password = request.headers.get('x-admin-password') || '';
+
+    if (!verifyAdminPassword(password)) {
+      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+    }
+
+    const success = await deleteCard(cardId);
+    if (!success) {
+      return NextResponse.json({ error: 'Gagal menghapus kartu.' }, { status: 400 });
+    }
+
+    return NextResponse.json({ success: true, message: `Kartu ${cardId} berhasil dihapus.` });
+  } catch {
+    return NextResponse.json({ error: 'Terjadi kesalahan sistem.' }, { status: 500 });
+  }
+}
 
 export async function PATCH(
   request: NextRequest,
@@ -17,36 +40,28 @@ export async function PATCH(
     const body = await request.json();
     const { action, newPin } = body;
 
-    if (action === 'disable') {
-      const success = await disableCard(cardId);
+    if (action === 'delete') {
+      const success = await deleteCard(cardId);
       if (!success) {
-        return NextResponse.json({ error: 'Failed to disable card.' }, { status: 400 });
+        return NextResponse.json({ error: 'Gagal menghapus kartu.' }, { status: 400 });
       }
-      return NextResponse.json({ success: true, message: 'Card disabled successfully.' });
-    }
-
-    if (action === 'reactivate') {
-      const success = await reactivateCard(cardId);
-      if (!success) {
-        return NextResponse.json({ error: 'Failed to reactivate card. Ensure it is currently DISABLED.' }, { status: 400 });
-      }
-      return NextResponse.json({ success: true, message: 'Card reactivated successfully.' });
+      return NextResponse.json({ success: true, message: `Kartu ${cardId} berhasil dihapus.` });
     }
 
     if (action === 'reset-pin') {
       if (!newPin || newPin.length < 4 || newPin.length > 6 || !/^\d+$/.test(newPin)) {
-        return NextResponse.json({ error: 'PIN must be 4-6 digits.' }, { status: 400 });
+        return NextResponse.json({ error: 'PIN harus 4-6 digit angka.' }, { status: 400 });
       }
       const pinHash = await hashPin(newPin);
       const success = await adminResetPin(cardId, pinHash);
       if (!success) {
-        return NextResponse.json({ error: 'Failed to reset PIN.' }, { status: 400 });
+        return NextResponse.json({ error: 'Gagal mengatur ulang PIN.' }, { status: 400 });
       }
-      return NextResponse.json({ success: true, message: 'PIN reset successfully.' });
+      return NextResponse.json({ success: true, message: 'PIN berhasil diubah.' });
     }
 
-    return NextResponse.json({ error: 'Invalid action.' }, { status: 400 });
-  } catch (error) {
-    return NextResponse.json({ error: 'An unexpected error occurred.' }, { status: 500 });
+    return NextResponse.json({ error: 'Aksi tidak valid.' }, { status: 400 });
+  } catch {
+    return NextResponse.json({ error: 'Terjadi kesalahan sistem.' }, { status: 500 });
   }
 }
