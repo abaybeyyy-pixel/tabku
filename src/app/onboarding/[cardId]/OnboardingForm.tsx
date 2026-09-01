@@ -284,7 +284,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
             </div>
           </div>
 
-          <div className="input-group mb-2">
+          <div className="input-group">
             <label htmlFor="businessNameInput">Nama Usaha pada Kartu</label>
             <input
               type="text"
@@ -297,15 +297,6 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
             />
             <span className="help-text">Anda dapat menyesuaikan nama yang tampil sesuai kebutuhan.</span>
           </div>
-
-          <button
-            type="button"
-            onClick={handleChangeBusiness}
-            className="btn btn-secondary w-full py-1.5 font-semibold text-xs"
-            disabled={loading}
-          >
-            Pilih Lokasi Lain
-          </button>
         </div>
       )}
 
