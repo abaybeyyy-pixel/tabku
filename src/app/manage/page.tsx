@@ -704,8 +704,8 @@ export default function ManagePage() {
                   </div>
                 </div>
 
-                {/* TOMBOL AKSI UTAMA (Ukuran Mantap & Nyaman Ditap) */}
-                <div className="flex flex-col gap-2.5 mt-2">
+                {/* TOMBOL AKSI UTAMA (Jarak Seimbang & Nyaman Ditap) */}
+                <div className="flex flex-col gap-2.5 mt-3">
                   {loggedInCard.destinationUrl && (
                     <a
                       href={loggedInCard.destinationUrl}
@@ -723,37 +723,36 @@ export default function ManagePage() {
                     </a>
                   )}
 
-                  <div className="grid-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={handleCopyLink}
-                      className="btn btn-secondary py-3 px-3 text-xs font-bold"
-                    >
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                      </svg>
-                      {copiedLink ? 'Link Tersalin!' : 'Salin Link Kartu'}
-                    </button>
-                    <a
-                      href={`/c/${loggedInCard.cardId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn btn-secondary py-3 px-3 text-xs font-bold"
-                    >
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <path d="M5 12.55a11 11 0 0 1 14.08 0" />
-                        <path d="M1.42 9a16 16 0 0 1 21.16 0" />
-                        <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
-                        <line x1="12" y1="20" x2="12.01" y2="20" />
-                      </svg>
-                      Tes Redirect Kartu
-                    </a>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCopyLink}
+                    className="btn btn-secondary w-full py-3 px-3 text-xs font-bold"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                    {copiedLink ? 'Link Tersalin!' : 'Salin Link Kartu'}
+                  </button>
+
+                  <a
+                    href={`/c/${loggedInCard.cardId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-secondary w-full py-3 px-3 text-xs font-bold"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M5 12.55a11 11 0 0 1 14.08 0" />
+                      <path d="M1.42 9a16 16 0 0 1 21.16 0" />
+                      <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+                      <line x1="12" y1="20" x2="12.01" y2="20" />
+                    </svg>
+                    Tes Redirect Kartu
+                  </a>
 
                   <button
                     onClick={handleLogout}
-                    className="btn btn-danger w-full py-3 font-bold text-xs mt-1"
+                    className="btn btn-danger w-full py-3 font-bold text-xs"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
