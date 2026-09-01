@@ -627,48 +627,42 @@ export default function ManagePage() {
             {/* TAB 1: RINGKASAN & EDIT NAMA USAHA */}
             {dashTab === 'details' && (
               <div className="animate-fade-in flex flex-col gap-3">
-                {/* WIDGET STATISTIK INTERAKSI & TOTAL TAP */}
-                <div
-                  className="summary-box"
-                  style={{
-                    background: 'linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%)',
-                    borderColor: '#bbf7d0',
-                    boxShadow: '0 2px 8px rgba(22, 163, 74, 0.06)',
-                  }}
-                >
-                  <div className="flex justify-between items-center mb-2.5">
-                    <div className="flex items-center gap-2">
-                      <span
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: '50%',
-                          background: '#22c55e',
-                          display: 'inline-block',
-                          boxShadow: '0 0 6px #22c55e',
-                        }}
-                      ></span>
-                      <span className="font-extrabold text-xs" style={{ color: '#15803d', letterSpacing: '0.04em' }}>
-                        STATISTIK TAP KARTU
-                      </span>
+                {/* 1. TOP STATS ROW (2 Clean Metric Cards) */}
+                <div className="grid-2 gap-2.5">
+                  {/* Total Tap Card */}
+                  <div className="stat-metric-card">
+                    <div className="stat-metric-header">
+                      <div className="stat-metric-icon" style={{ background: '#eff6ff', color: '#2563eb' }}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M5 12.55a11 11 0 0 1 14.08 0" />
+                          <path d="M1.42 9a16 16 0 0 1 21.16 0" />
+                          <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+                          <line x1="12" y1="20" x2="12.01" y2="20" />
+                        </svg>
+                      </div>
+                      <span className="stat-metric-title">Total Tap Ulasan</span>
                     </div>
-                    <span className="text-xs font-semibold text-muted">ID: {loggedInCard.cardId}</span>
+                    <div className="stat-metric-body">
+                      <span className="stat-metric-num">{loggedInCard.tapCount || 0}</span>
+                      <span className="stat-metric-unit">kali ulasan</span>
+                    </div>
                   </div>
 
-                  <div className="grid-2 gap-2.5">
-                    <div className="p-3 rounded-lg bg-white border border-slate-200/80 shadow-xs">
-                      <span className="summary-label block mb-1">Total Pelanggan Tap Ulasan</span>
-                      <div className="flex items-baseline gap-1.5">
-                        <span className="text-2xl font-black text-slate-900">{loggedInCard.tapCount || 0}</span>
-                        <span className="text-xs font-bold text-emerald-600">Kali Tap</span>
+                  {/* Terakhir Ditempel Card */}
+                  <div className="stat-metric-card">
+                    <div className="stat-metric-header">
+                      <div className="stat-metric-icon" style={{ background: '#f0fdf4', color: '#16a34a' }}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
                       </div>
+                      <span className="stat-metric-title">Aktivitas Terakhir</span>
                     </div>
-
-                    <div className="p-3 rounded-lg bg-white border border-slate-200/80 shadow-xs">
-                      <span className="summary-label block mb-1">Terakhir Kali Ditempel</span>
-                      <div className="text-xs font-bold text-slate-800 mt-1">
-                        {formatDateTime(loggedInCard.lastTappedAt)}
-                      </div>
+                    <div className="stat-metric-body">
+                      <span className="stat-metric-text">
+                        {loggedInCard.lastTappedAt ? formatDateTime(loggedInCard.lastTappedAt) : 'Belum ada tap'}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -708,8 +702,24 @@ export default function ManagePage() {
                   </form>
                 ) : null}
 
-                {/* DETAIL INFORMASI KARTU */}
+                {/* 2. DETAIL INFORMASI KARTU UTAMA */}
                 <div className="summary-box">
+                  {/* Top Bar: ID Kartu + Status Tag */}
+                  <div className="flex justify-between items-center pb-2.5 border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs text-muted font-medium">ID Kartu:</span>
+                      <span
+                        className="font-mono font-bold text-xs px-2 py-0.5 rounded"
+                        style={{ background: 'var(--background-accent)', color: 'var(--foreground)' }}
+                      >
+                        {loggedInCard.cardId}
+                      </span>
+                    </div>
+                    <span className={`status-tag ${loggedInCard.status.toLowerCase()}`}>
+                      {loggedInCard.status === 'ACTIVE' ? 'Aktif' : loggedInCard.status === 'DISABLED' ? 'Nonaktif' : loggedInCard.status}
+                    </span>
+                  </div>
+
                   {/* Nama Usaha */}
                   <div className="summary-card-row">
                     <div className="flex justify-between items-center">
@@ -742,19 +752,11 @@ export default function ManagePage() {
                     </div>
                   )}
 
-                  {/* Status & Email */}
-                  <div className="summary-card-grid-2">
-                    <div>
-                      <span className="summary-label block mb-1">Status Kartu</span>
-                      <span className={`status-tag ${loggedInCard.status.toLowerCase()}`}>
-                        {loggedInCard.status === 'ACTIVE' ? 'Aktif' : loggedInCard.status === 'DISABLED' ? 'Nonaktif' : loggedInCard.status}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="summary-label block mb-1">Email Pemulihan</span>
-                      <div className="summary-val-sub font-mono" style={{ fontSize: '0.78rem' }}>
-                        {loggedInCard.email}
-                      </div>
+                  {/* Email Pemulihan */}
+                  <div className="summary-card-row">
+                    <span className="summary-label">Email Pemulihan</span>
+                    <div className="summary-val-sub font-mono" style={{ fontSize: '0.78rem' }}>
+                      {loggedInCard.email}
                     </div>
                   </div>
 
