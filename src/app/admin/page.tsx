@@ -462,8 +462,8 @@ export default function AdminPage() {
       {/* COMPACT TOPBAR WITH SPACED BUTTONS */}
       <header className="flex justify-between items-center mb-3 flex-wrap gap-2">
         <div>
-          <h1 className="text-base font-bold tracking-tight">Tapku Dashboard</h1>
-          <p className="text-muted text-xs" style={{ fontSize: '0.72rem' }}>Pusat Manajemen Kartu NFC &amp; QR</p>
+          <h1 className="text-base font-extrabold tracking-tight">TAPKU ADMIN</h1>
+          <p className="text-muted text-xs" style={{ fontSize: '0.72rem' }}>Pusat Manajemen Kartu NFC &amp; Dynamic QR</p>
         </div>
         <div className="admin-header-actions">
           <a href="/" className="admin-header-btn">

@@ -354,11 +354,13 @@ export default function ManagePage() {
       <div className="onboarding-card">
         {/* HEADER */}
         <div className="header-logo">
-          <a href="/" className="font-bold text-sm text-primary tracking-wide">
-            TAPKU PORTAL
+          <a href="/" className="font-extrabold text-sm tracking-wider" style={{ color: 'var(--primary-color)' }}>
+            TAPKU
           </a>
-          {loggedInCard && (
+          {loggedInCard ? (
             <span className="card-badge">{loggedInCard.cardId}</span>
+          ) : (
+            <span className="card-badge">Portal Kelola</span>
           )}
         </div>
 
