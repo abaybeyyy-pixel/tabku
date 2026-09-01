@@ -4,6 +4,8 @@ export interface Card {
   status: 'UNACTIVATED' | 'ACTIVE' | 'DISABLED';
   business_name: string | null;
   destination_url: string | null;
+  place_id: string | null;
+  business_address: string | null;
   pin_hash: string | null;
   email: string | null;
   created_at: string;

@@ -428,223 +428,204 @@ export default function AdminPage() {
   };
 
   return (
-    <main className="admin-container py-4 px-3 light-landing">
+    <main className="admin-container light-landing" style={{ maxWidth: '960px', margin: '0 auto', padding: '1.5rem 1rem' }}>
       {/* HEADER */}
-      <header className="admin-header flex justify-between align-items-center mb-4">
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
         <div>
-          <h1 className="h1 font-bold mb-0">Konsol Admin Tapku</h1>
-          <p className="text-muted">Kelola database kartu NFC, buat identitas & ekspor kode QR.</p>
+          <h1 style={{ fontSize: '1.4rem', fontWeight: 700, margin: 0, color: 'var(--foreground)' }}>Tapku Admin</h1>
+          <p style={{ fontSize: '0.8rem', color: 'var(--foreground-muted)', margin: '0.25rem 0 0' }}>Kelola kartu NFC &amp; ekspor QR</p>
         </div>
-        <button onClick={handleLogout} className="btn btn-secondary font-semibold">
+        <button onClick={handleLogout} className="btn btn-secondary" style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}>
           Keluar
         </button>
       </header>
 
-      {/* STATS OVERVIEW */}
-      <section className="grid-4 mb-4">
-        <div className="stat-card">
-          <span className="stat-label">Total Dibuat</span>
-          <span className="stat-value">{stats.total}</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-label">Kartu Aktif</span>
-          <span className="stat-value active-color">{stats.active}</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-label">Belum Aktif</span>
-          <span className="stat-value text-muted">{stats.unactivated}</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-label">Nonaktif</span>
-          <span className="stat-value disabled-color">{stats.disabled}</span>
-        </div>
-      </section>
+      {/* STATS - compact row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', marginBottom: '1.25rem' }}>
+        {[
+          { label: 'Total', value: stats.total, color: 'var(--foreground)' },
+          { label: 'Aktif', value: stats.active, color: '#16a34a' },
+          { label: 'Pending', value: stats.unactivated, color: 'var(--foreground-muted)' },
+          { label: 'Nonaktif', value: stats.disabled, color: '#dc2626' },
+        ].map((s, i) => (
+          <div key={i} style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', padding: '0.75rem 0.5rem', textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--foreground-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: '0.25rem', fontWeight: 600 }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
 
       {/* FEEDBACK */}
       {error && <div className="error-alert mb-4">{error}</div>}
       {success && <div className="success-alert mb-4">{success}</div>}
 
-      {/* BOTTOM LAYOUT GRID */}
-      <div className="admin-body-layout">
-        
-        {/* LEFT COLUMN: ACTIONS & TOOLS */}
-        <div className="admin-sidebar-col">
-          {/* BULK CARD GENERATOR */}
-          <div className="tool-card mb-4">
-            <h2 className="h4 font-bold mb-3">Generator Kartu Massal</h2>
-            <form onSubmit={handleBulkGenerate} className="form-group">
-              <div className="input-group">
-                <label>Prefix ID Kartu</label>
-                <input
-                  type="text"
-                  maxLength={4}
-                  value={genPrefix}
-                  onChange={(e) => setGenPrefix(e.target.value.replace(/[^A-Za-z]/g, ''))}
-                  disabled={generating}
-                  required
-                />
-                <span className="help-text">Huruf saja (contoh: GR, AB, QR).</span>
-              </div>
-              <div className="input-group">
-                <label>Jumlah</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={1000}
-                  value={genCount}
-                  onChange={(e) => setGenCount(parseInt(e.target.value) || 0)}
-                  disabled={generating}
-                  required
-                />
-                <span className="help-text">Maksimum 1.000 kartu per batch.</span>
-              </div>
-              <button
-                type="submit"
-                className="btn btn-primary w-full py-2 font-semibold"
+      {/* TOOLS ROW - Generator + Export side by side on desktop, stacked on mobile */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.75rem', marginBottom: '1.25rem' }}>
+        {/* Generator */}
+        <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', padding: '1rem' }}>
+          <h2 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.75rem' }}>Buat Kartu Baru</h2>
+          <form onSubmit={handleBulkGenerate} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 80px', minWidth: '80px' }}>
+              <label style={{ fontSize: '0.7rem', color: 'var(--foreground-muted)', fontWeight: 600, textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Prefix</label>
+              <input
+                type="text"
+                maxLength={4}
+                value={genPrefix}
+                onChange={(e) => setGenPrefix(e.target.value.replace(/[^A-Za-z]/g, ''))}
                 disabled={generating}
+                required
+                style={{ width: '100%', padding: '0.5rem 0.6rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.85rem', background: '#f8fafc', color: 'var(--foreground)' }}
+              />
+            </div>
+            <div style={{ flex: '1 1 70px', minWidth: '70px' }}>
+              <label style={{ fontSize: '0.7rem', color: 'var(--foreground-muted)', fontWeight: 600, textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Jumlah</label>
+              <input
+                type="number"
+                min={1}
+                max={1000}
+                value={genCount}
+                onChange={(e) => setGenCount(parseInt(e.target.value) || 0)}
+                disabled={generating}
+                required
+                style={{ width: '100%', padding: '0.5rem 0.6rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.85rem', background: '#f8fafc', color: 'var(--foreground)' }}
+              />
+            </div>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={generating}
+              style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', fontWeight: 600, whiteSpace: 'nowrap' }}
+            >
+              {generating ? 'Proses...' : '+ Buat'}
+            </button>
+          </form>
+        </div>
+
+        {/* Export */}
+        <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', padding: '1rem' }}>
+          <h2 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.75rem' }}>Ekspor Data</h2>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <button onClick={handleExportCSV} className="btn btn-secondary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.8rem', fontWeight: 600, minWidth: '120px' }}>
+              📄 CSV
+            </button>
+            <button onClick={handleExportPDF} className="btn btn-secondary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.8rem', fontWeight: 600, minWidth: '120px' }}>
+              📋 QR PDF
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* CARD REGISTRY */}
+      <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', padding: '1rem' }}>
+        {/* Search & Filter */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+          <input
+            type="text"
+            placeholder="Cari ID / Bisnis..."
+            value={search}
+            onChange={handleSearchChange}
+            style={{ flex: '1 1 180px', padding: '0.5rem 0.75rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.85rem', background: '#f8fafc', color: 'var(--foreground)', minWidth: 0 }}
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => handleStatusFilterChange(e.target.value)}
+            style={{ padding: '0.5rem 0.6rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.85rem', background: '#f8fafc', color: 'var(--foreground)' }}
+          >
+            <option value="ALL">Semua</option>
+            <option value="UNACTIVATED">Pending</option>
+            <option value="ACTIVE">Aktif</option>
+            <option value="DISABLED">Nonaktif</option>
+          </select>
+        </div>
+
+        {loading ? (
+          <div className="text-center py-4 text-muted">Memuat data...</div>
+        ) : cards.length === 0 ? (
+          <div className="text-center py-4 text-muted">Belum ada kartu.</div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {cards.map((card) => (
+              <div
+                key={card.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '0.65rem 0.75rem',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border)',
+                  background: '#fafbfc',
+                  flexWrap: 'wrap',
+                }}
               >
-                {generating ? 'Membuat Identitas...' : 'Buat Kartu'}
-              </button>
-            </form>
-          </div>
+                {/* Left: ID + Status */}
+                <div style={{ flex: '0 0 auto', minWidth: '70px' }}>
+                  <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '0.85rem', color: 'var(--foreground)' }}>{card.card_id}</span>
+                  <div style={{ marginTop: '2px' }}>
+                    <span className={`status-tag ${card.status.toLowerCase()}`} style={{ fontSize: '0.55rem' }}>
+                      {card.status === 'ACTIVE' ? 'AKTIF' : card.status === 'UNACTIVATED' ? 'PENDING' : 'OFF'}
+                    </span>
+                  </div>
+                </div>
 
-          {/* BULK EXPORT UTILITIES */}
-          <div className="tool-card">
-            <h2 className="h4 font-bold mb-3">Ekspor Massal</h2>
-            <p className="text-muted text-sm mb-3">
-              Ekspor daftar parameter atau lembar cetak QR Code.
-            </p>
-            <div className="flex flex-col gap-2">
-              <button onClick={handleExportCSV} className="btn btn-secondary w-full py-2 font-semibold text-center">
-                Ekspor Daftar CSV
-              </button>
-              <button onClick={handleExportPDF} className="btn btn-secondary w-full py-2 font-semibold text-center">
-                Ekspor QR Code (Lembar PDF)
-              </button>
-            </div>
-          </div>
-        </div>
+                {/* Middle: Business name */}
+                <div style={{ flex: '1 1 100px', minWidth: 0 }}>
+                  <div style={{ fontSize: '0.82rem', color: card.business_name ? 'var(--foreground)' : 'var(--foreground-muted)', fontStyle: card.business_name ? 'normal' : 'italic', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {card.business_name || 'Belum diaktifkan'}
+                  </div>
+                  {card.activated_at && (
+                    <div style={{ fontSize: '0.65rem', color: 'var(--foreground-muted)' }}>
+                      {new Date(card.activated_at).toLocaleDateString('id-ID')}
+                    </div>
+                  )}
+                </div>
 
-        {/* RIGHT COLUMN: DATABASE VIEWER */}
-        <div className="admin-main-col">
-          <div className="tool-card h-full">
-            <div className="flex justify-between align-items-center mb-3" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
-              <h2 className="h4 font-bold mb-0">Registri Kartu</h2>
-              <div className="flex gap-2" style={{ flexWrap: 'wrap', flex: '1 1 auto', justifyContent: 'flex-end' }}>
-                <input
-                  type="text"
-                  placeholder="Cari ID Kartu / Bisnis..."
-                  value={search}
-                  onChange={handleSearchChange}
-                  className="search-input"
-                />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => handleStatusFilterChange(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="ALL">Semua Status</option>
-                  <option value="UNACTIVATED">Belum Aktif</option>
-                  <option value="ACTIVE">Aktif</option>
-                  <option value="DISABLED">Nonaktif</option>
-                </select>
+                {/* Right: Actions */}
+                <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', flex: '0 0 auto' }}>
+                  <button
+                    onClick={() => handleShowQR(card.card_id)}
+                    title="Lihat QR"
+                    style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem', fontWeight: 600, borderRadius: '4px', border: 'none', background: '#3b82f6', color: '#fff', cursor: 'pointer' }}
+                  >
+                    👁 QR
+                  </button>
+                  <button
+                    onClick={() => handleDownloadPrintPNG(card.card_id)}
+                    title="Download PNG"
+                    style={{ padding: '0.25rem 0.4rem', fontSize: '0.7rem', fontWeight: 500, borderRadius: '4px', border: '1px solid var(--border)', background: '#f1f5f9', color: '#334155', cursor: 'pointer' }}
+                  >
+                    PNG
+                  </button>
+                  <button
+                    onClick={() => { setSelectedCard(card); setNewPinInput(''); }}
+                    title="Reset PIN"
+                    style={{ padding: '0.25rem 0.4rem', fontSize: '0.7rem', fontWeight: 500, borderRadius: '4px', border: '1px solid var(--border)', background: '#f1f5f9', color: '#334155', cursor: 'pointer' }}
+                  >
+                    PIN
+                  </button>
+                  {card.status === 'ACTIVE' && (
+                    <button
+                      onClick={() => handleCardAction(card.card_id, 'disable')}
+                      title="Nonaktifkan"
+                      style={{ padding: '0.25rem 0.4rem', fontSize: '0.7rem', fontWeight: 500, borderRadius: '4px', border: '1px solid #fecaca', background: '#fef2f2', color: '#dc2626', cursor: 'pointer' }}
+                    >
+                      Off
+                    </button>
+                  )}
+                  {card.status === 'DISABLED' && (
+                    <button
+                      onClick={() => handleCardAction(card.card_id, 'reactivate')}
+                      title="Aktifkan"
+                      style={{ padding: '0.25rem 0.4rem', fontSize: '0.7rem', fontWeight: 500, borderRadius: '4px', border: '1px solid #bbf7d0', background: '#f0fdf4', color: '#16a34a', cursor: 'pointer' }}
+                    >
+                      On
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-
-            {loading ? (
-              <div className="text-center py-4 text-muted">Memperbarui registri...</div>
-            ) : cards.length === 0 ? (
-              <div className="text-center py-4 text-muted">Tidak ada kartu yang cocok dengan pencarian.</div>
-            ) : (
-              <div className="table-responsive">
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>ID Kartu</th>
-                      <th>Nama Bisnis</th>
-                      <th>Status</th>
-                      <th>Tanggal Aktif</th>
-                      <th>Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {cards.map((card) => (
-                      <tr key={card.id}>
-                        <td className="font-mono font-bold">{card.card_id}</td>
-                        <td>{card.business_name || <span className="text-muted italic">Belum diaktifkan</span>}</td>
-                        <td>
-                          <span className={`status-tag ${card.status.toLowerCase()}`}>
-                            {card.status}
-                          </span>
-                        </td>
-                        <td>
-                          {card.activated_at 
-                            ? new Date(card.activated_at).toLocaleDateString() 
-                            : <span className="text-muted">-</span>
-                          }
-                        </td>
-                        <td>
-                          <div className="flex gap-1 justify-content-center" style={{ flexWrap: 'wrap' }}>
-                             <button
-                               onClick={() => handleShowQR(card.card_id)}
-                               className="action-btn"
-                               title="Lihat QR Code"
-                               style={{ background: 'var(--primary-color)', color: 'var(--primary-text)', borderColor: 'var(--primary-color)' }}
-                             >
-                               👁 QR
-                             </button>
-                             <button
-                               onClick={() => handleDownloadPrintPNG(card.card_id)}
-                               className="action-btn"
-                               title="Download QR PNG"
-                             >
-                               PNG
-                             </button>
-                             <button
-                               onClick={() => handleExportSingleSVG(card.card_id)}
-                               className="action-btn"
-                               title="Download Raw SVG QR"
-                             >
-                               SVG
-                             </button>
-                            <button
-                              onClick={() => {
-                                setSelectedCard(card);
-                                setNewPinInput('');
-                              }}
-                              className="action-btn"
-                              title="Reset PIN"
-                            >
-                              PIN
-                            </button>
-                            {card.status === 'ACTIVE' && (
-                              <button
-                                onClick={() => handleCardAction(card.card_id, 'disable')}
-                                className="action-btn danger"
-                                title="Nonaktifkan Kartu"
-                              >
-                                Nonaktif
-                              </button>
-                            )}
-                            {card.status === 'DISABLED' && (
-                              <button
-                                onClick={() => handleCardAction(card.card_id, 'reactivate')}
-                                className="action-btn success"
-                                title="Aktifkan Kembali"
-                              >
-                                Aktifkan
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            ))}
           </div>
-        </div>
+        )}
       </div>
 
       {/* POPUP MODAL: PIN RESET */}

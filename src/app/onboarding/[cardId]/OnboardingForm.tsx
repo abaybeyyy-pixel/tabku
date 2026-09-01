@@ -6,54 +6,83 @@ interface OnboardingFormProps {
   cardId: string;
 }
 
+interface PlaceResult {
+  placeId: string;
+  name: string;
+  address: string;
+}
+
 export default function OnboardingForm({ cardId }: OnboardingFormProps) {
-  const [businessName, setBusinessName] = useState('');
-  const [destinationUrl, setDestinationUrl] = useState('');
+  // Business search state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<PlaceResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  // Selected business state
+  const [selectedBusiness, setSelectedBusiness] = useState<PlaceResult | null>(null);
+
+  // Form state
   const [email, setEmail] = useState('');
   const [pin, setPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [activatedData, setActivatedData] = useState<{ businessName: string; destinationUrl: string } | null>(null);
-  const [resolvingUrl, setResolvingUrl] = useState(false);
+  const [activatedData, setActivatedData] = useState<{
+    businessName: string;
+    businessAddress: string;
+    placeId: string;
+  } | null>(null);
 
-  const handleResolveUrl = async () => {
-    if (!destinationUrl.trim()) {
-      setError('Masukkan URL Google Maps terlebih dahulu.');
+  const handleSearch = async () => {
+    if (!searchQuery.trim() || searchQuery.trim().length < 2) {
+      setError('Masukkan minimal 2 karakter untuk mencari bisnis.');
       return;
     }
     setError('');
-    setResolvingUrl(true);
+    setSearching(true);
+    setHasSearched(true);
+    setSearchResults([]);
+
     try {
-      const res = await fetch('/api/resolve-url', {
+      const res = await fetch('/api/places/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: destinationUrl.trim() }),
+        body: JSON.stringify({ query: searchQuery.trim() }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Gagal generate link.');
-      if (data.resolvedUrl) {
-        setDestinationUrl(data.resolvedUrl);
-      }
-    } catch (err: any) {
-      setError(err.message || 'Gagal mengonversi link.');
+      if (!res.ok) throw new Error(data.error || 'Gagal mencari bisnis.');
+      setSearchResults(data.results || []);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal mencari bisnis.';
+      setError(message);
     } finally {
-      setResolvingUrl(false);
+      setSearching(false);
     }
+  };
+
+  const handleSelectBusiness = (place: PlaceResult) => {
+    setSelectedBusiness(place);
+    setSearchResults([]);
+    setHasSearched(false);
+    setError('');
+  };
+
+  const handleChangeBusiness = () => {
+    setSelectedBusiness(null);
+    setSearchQuery('');
+    setSearchResults([]);
+    setHasSearched(false);
+    setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (!businessName.trim()) {
-      setError('Nama bisnis wajib diisi.');
-      return;
-    }
-
-    if (!destinationUrl.trim()) {
-      setError('URL Google Review wajib diisi.');
+    if (!selectedBusiness) {
+      setError('Silakan cari dan pilih bisnis Anda terlebih dahulu.');
       return;
     }
 
@@ -80,8 +109,9 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cardId,
-          businessName: businessName.trim(),
-          destinationUrl: destinationUrl.trim(),
+          businessName: selectedBusiness.name,
+          placeId: selectedBusiness.placeId,
+          businessAddress: selectedBusiness.address,
           email: email.trim(),
           pin,
           confirmPin,
@@ -95,18 +125,22 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
       }
 
       setActivatedData({
-        businessName: businessName.trim(),
-        destinationUrl: destinationUrl.trim(),
+        businessName: selectedBusiness.name,
+        businessAddress: selectedBusiness.address,
+        placeId: selectedBusiness.placeId,
       });
       setSuccess(true);
-    } catch (err: any) {
-      setError(err.message || 'Terjadi kesalahan saat aktivasi.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Terjadi kesalahan saat aktivasi.';
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
 
+  // Success screen
   if (success && activatedData) {
+    const reviewUrl = `https://search.google.com/local/writereview?placeid=${activatedData.placeId}`;
     return (
       <div className="text-center animate-fade-in">
         <div className="success-icon mb-4">
@@ -119,16 +153,22 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
 
         <div className="summary-box mb-4">
           <div className="summary-item">
-            <span className="label">Nama Bisnis</span>
+            <span className="label">Bisnis</span>
             <span className="value">{activatedData.businessName}</span>
           </div>
+          {activatedData.businessAddress && (
+            <div className="summary-item">
+              <span className="label">Alamat</span>
+              <span className="value">{activatedData.businessAddress}</span>
+            </div>
+          )}
           <div className="summary-item">
             <span className="label">ID Kartu</span>
             <span className="value font-mono">{cardId}</span>
           </div>
           <div className="summary-item">
-            <span className="label">URL Tujuan</span>
-            <span className="value text-truncate">{activatedData.destinationUrl}</span>
+            <span className="label">Tujuan</span>
+            <span className="value">Google Review</span>
           </div>
         </div>
 
@@ -136,14 +176,24 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
           <p>Simpan PIN Anda dengan aman! Anda akan membutuhkan PIN dan ID Kartu <strong>{cardId}</strong> untuk mengedit pengaturan ini di masa depan melalui halaman <code>/manage</code>.</p>
         </div>
 
-        <a
-          href={`/c/${cardId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn btn-primary w-full text-center py-3 font-semibold"
-        >
-          Tes Kartu Saya
-        </a>
+        <div className="flex gap-2 flex-col">
+          <a
+            href={reviewUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-primary w-full text-center py-3 font-semibold"
+          >
+            Test Review ⭐
+          </a>
+          <a
+            href={`/c/${cardId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-secondary w-full text-center py-3 font-semibold"
+          >
+            Tes Kartu Saya
+          </a>
+        </div>
       </div>
     );
   }
@@ -152,95 +202,146 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
     <form onSubmit={handleSubmit} className="form-group animate-fade-in">
       {error && <div className="error-alert">{error}</div>}
 
-      <div className="input-group">
-        <label htmlFor="businessName">Nama Bisnis</label>
-        <input
-          type="text"
-          id="businessName"
-          placeholder="contoh: Kopi Kenangan Sudirman"
-          value={businessName}
-          onChange={(e) => setBusinessName(e.target.value)}
-          disabled={loading}
-          required
-        />
-      </div>
-
-      <div className="input-group">
-        <label htmlFor="destinationUrl">URL Google Review / Maps</label>
-        <input
-          type="url"
-          id="destinationUrl"
-          placeholder="https://search.google.com/local/writereview?placeid=..."
-          value={destinationUrl}
-          onChange={(e) => setDestinationUrl(e.target.value)}
-          disabled={loading || resolvingUrl}
-          required
-        />
-        <button
-          type="button"
-          onClick={handleResolveUrl}
-          disabled={resolvingUrl || !destinationUrl}
-          className="btn btn-secondary mt-2 w-full py-2 font-semibold"
-          style={{ fontSize: '0.875rem' }}
-        >
-          {resolvingUrl ? 'Memproses Link...' : 'Generate Link Review Otomatis'}
-        </button>
-        <span className="help-text mt-1">Link langsung tempat pelanggan menulis ulasan. Jika Anda memasukkan link pendek (maps.app.goo.gl), klik tombol Generate di atas.</span>
-      </div>
-
-      <div className="input-group">
-        <label htmlFor="email">Email Pemulihan</label>
-        <input
-          type="email"
-          id="email"
-          placeholder="pemilik@bisnisku.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          disabled={loading}
-          required
-        />
-        <span className="help-text">Digunakan untuk memulihkan PIN jika Anda lupa.</span>
-      </div>
-
-      <div className="grid-2">
+      {/* Business Search Section */}
+      {!selectedBusiness ? (
         <div className="input-group">
-          <label htmlFor="pin">Buat PIN</label>
-          <input
-            type="password"
-            id="pin"
-            pattern="\d*"
-            maxLength={6}
-            placeholder="4 hingga 6 digit"
-            value={pin}
-            onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-            disabled={loading}
-            required
-          />
-        </div>
+          <label htmlFor="businessSearch">Cari Bisnis Anda</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              id="businessSearch"
+              placeholder="contoh: Kopi Kenangan Senayan"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSearch();
+                }
+              }}
+              disabled={searching || loading}
+              style={{ flex: 1 }}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={handleSearch}
+            disabled={searching || !searchQuery.trim()}
+            className="btn btn-secondary mt-2 w-full py-2 font-semibold"
+          >
+            {searching ? 'Mencari...' : '🔍 Cari Bisnis'}
+          </button>
 
+          {/* Search Results */}
+          {searchResults.length > 0 && (
+            <div className="search-results mt-3">
+              {searchResults.map((place) => (
+                <div key={place.placeId} className="search-result-item">
+                  <div className="search-result-info">
+                    <span className="search-result-name">{place.name}</span>
+                    <span className="search-result-address">{place.address}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectBusiness(place)}
+                    className="btn btn-primary py-1 font-semibold"
+                    style={{ fontSize: '0.8rem', whiteSpace: 'nowrap', paddingLeft: '16px', paddingRight: '16px' }}
+                  >
+                    Pilih
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* No results */}
+          {hasSearched && !searching && searchResults.length === 0 && (
+            <div className="info-alert mt-3">
+              <p>Tidak ditemukan bisnis dengan kata kunci tersebut. Coba kata kunci lain.</p>
+            </div>
+          )}
+        </div>
+      ) : (
+        /* Selected Business Confirmation */
         <div className="input-group">
-          <label htmlFor="confirmPin">Konfirmasi PIN</label>
-          <input
-            type="password"
-            id="confirmPin"
-            pattern="\d*"
-            maxLength={6}
-            placeholder="Ulangi PIN"
-            value={confirmPin}
-            onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ''))}
+          <label>Bisnis Terpilih</label>
+          <div className="selected-business-box">
+            <div className="selected-business-check">✓</div>
+            <div className="selected-business-info">
+              <span className="selected-business-name">{selectedBusiness.name}</span>
+              <span className="selected-business-address">{selectedBusiness.address}</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleChangeBusiness}
+            className="btn btn-secondary mt-2 w-full py-2 font-semibold"
+            style={{ fontSize: '0.875rem' }}
             disabled={loading}
-            required
-          />
+          >
+            Ganti Bisnis
+          </button>
         </div>
-      </div>
+      )}
 
-      <button
-        type="submit"
-        className="btn btn-primary w-full py-3 font-semibold mt-2"
-        disabled={loading}
-      >
-        {loading ? 'Mengaktifkan Kartu...' : 'Aktifkan Kartu Saya'}
-      </button>
+      {/* Only show remaining fields after business is selected */}
+      {selectedBusiness && (
+        <>
+          <div className="input-group">
+            <label htmlFor="email">Email Pemulihan</label>
+            <input
+              type="email"
+              id="email"
+              placeholder="pemilik@bisnisku.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
+              required
+            />
+            <span className="help-text">Digunakan untuk memulihkan PIN jika Anda lupa.</span>
+          </div>
+
+          <div className="grid-2">
+            <div className="input-group">
+              <label htmlFor="pin">Buat PIN</label>
+              <input
+                type="password"
+                id="pin"
+                pattern="\d*"
+                maxLength={6}
+                placeholder="4 hingga 6 digit"
+                value={pin}
+                onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+                disabled={loading}
+                required
+              />
+            </div>
+
+            <div className="input-group">
+              <label htmlFor="confirmPin">Konfirmasi PIN</label>
+              <input
+                type="password"
+                id="confirmPin"
+                pattern="\d*"
+                maxLength={6}
+                placeholder="Ulangi PIN"
+                value={confirmPin}
+                onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ''))}
+                disabled={loading}
+                required
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="btn btn-primary w-full py-3 font-semibold mt-2"
+            disabled={loading}
+          >
+            {loading ? 'Mengaktifkan Kartu...' : 'Aktifkan Kartu Saya'}
+          </button>
+        </>
+      )}
     </form>
   );
 }

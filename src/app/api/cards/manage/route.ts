@@ -47,6 +47,8 @@ export async function POST(request: NextRequest) {
         cardId: card.card_id,
         businessName: card.business_name,
         destinationUrl: card.destination_url,
+        placeId: card.place_id,
+        businessAddress: card.business_address,
         status: card.status,
         email: card.email,
         activatedAt: card.activated_at,

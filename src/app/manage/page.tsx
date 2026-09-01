@@ -2,6 +2,12 @@
 
 import React, { useState } from 'react';
 
+interface PlaceResult {
+  placeId: string;
+  name: string;
+  address: string;
+}
+
 export default function ManagePage() {
   // Login phase state
   const [cardId, setCardId] = useState('');
@@ -10,10 +16,9 @@ export default function ManagePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
-  const [resolvingUrl, setResolvingUrl] = useState(false);
 
-  // Tab state within dashboard: 'details' | 'destination' | 'pin'
-  const [dashTab, setDashTab] = useState<'details' | 'destination' | 'pin'>('details');
+  // Tab state within dashboard: 'details' | 'business' | 'pin'
+  const [dashTab, setDashTab] = useState<'details' | 'business' | 'pin'>('details');
 
   // Forgot PIN state
   const [isForgotMode, setIsForgotMode] = useState(false);
@@ -24,8 +29,14 @@ export default function ManagePage() {
   const [newForgotPin, setNewForgotPin] = useState('');
   const [confirmForgotPin, setConfirmForgotPin] = useState('');
 
+  // Business search state (for "Ganti Bisnis" tab)
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<PlaceResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [selectedBusiness, setSelectedBusiness] = useState<PlaceResult | null>(null);
+
   // Dashboard edits state
-  const [newDestinationUrl, setNewDestinationUrl] = useState('');
   const [currentPinInput, setCurrentPinInput] = useState('');
   const [newPinInput, setNewPinInput] = useState('');
   const [confirmNewPinInput, setConfirmNewPinInput] = useState('');
@@ -51,10 +62,10 @@ export default function ManagePage() {
       }
 
       setLoggedInCard(data.card);
-      setNewDestinationUrl(data.card.destinationUrl || '');
       setDashTab('details');
-    } catch (err: any) {
-      setError(err.message || 'ID Kartu atau PIN salah.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'ID Kartu atau PIN salah.';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -82,8 +93,9 @@ export default function ManagePage() {
 
       setOtpSent(true);
       setSuccessMsg(data.message);
-    } catch (err: any) {
-      setError(err.message || 'Gagal mengirim kode OTP.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal mengirim kode OTP.';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -129,43 +141,56 @@ export default function ManagePage() {
       setOtp('');
       setNewForgotPin('');
       setConfirmForgotPin('');
-    } catch (err: any) {
-      setError(err.message || 'Gagal mengatur ulang PIN.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal mengatur ulang PIN.';
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle update destination
-  const handleResolveUrl = async () => {
-    if (!newDestinationUrl.trim()) {
-      setError('Masukkan URL Google Maps terlebih dahulu.');
+  // Handle business search
+  const handleSearch = async () => {
+    if (!searchQuery.trim() || searchQuery.trim().length < 2) {
+      setError('Masukkan minimal 2 karakter untuk mencari bisnis.');
       return;
     }
     setError('');
     setSuccessMsg('');
-    setResolvingUrl(true);
+    setSearching(true);
+    setHasSearched(true);
+    setSearchResults([]);
+
     try {
-      const res = await fetch('/api/resolve-url', {
+      const res = await fetch('/api/places/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: newDestinationUrl.trim() }),
+        body: JSON.stringify({ query: searchQuery.trim() }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Gagal generate link.');
-      if (data.resolvedUrl) {
-        setNewDestinationUrl(data.resolvedUrl);
-        setSuccessMsg('Link berhasil di-generate! Silakan perbarui tujuan.');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Gagal mengonversi link.');
+      if (!res.ok) throw new Error(data.error || 'Gagal mencari bisnis.');
+      setSearchResults(data.results || []);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal mencari bisnis.';
+      setError(message);
     } finally {
-      setResolvingUrl(false);
+      setSearching(false);
     }
   };
 
-  const handleUpdateDestination = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSelectBusiness = (place: PlaceResult) => {
+    setSelectedBusiness(place);
+    setSearchResults([]);
+    setHasSearched(false);
+    setError('');
+  };
+
+  // Handle update business (destination)
+  const handleUpdateBusiness = async () => {
+    if (!selectedBusiness) {
+      setError('Silakan cari dan pilih bisnis terlebih dahulu.');
+      return;
+    }
     setError('');
     setSuccessMsg('');
     setLoading(true);
@@ -177,21 +202,32 @@ export default function ManagePage() {
         body: JSON.stringify({
           cardId: loggedInCard.cardId,
           pin: pin,
-          newDestinationUrl: newDestinationUrl.trim(),
+          placeId: selectedBusiness.placeId,
+          businessName: selectedBusiness.name,
+          businessAddress: selectedBusiness.address,
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Gagal memperbarui URL tujuan.');
+        throw new Error(data.error || 'Gagal memperbarui bisnis.');
       }
 
-      setLoggedInCard((prev: any) => ({ ...prev, destinationUrl: newDestinationUrl.trim() }));
-      setSuccessMsg('URL tujuan berhasil diperbarui.');
+      setLoggedInCard((prev: any) => ({
+        ...prev,
+        businessName: selectedBusiness.name,
+        businessAddress: selectedBusiness.address,
+        placeId: selectedBusiness.placeId,
+        destinationUrl: `https://search.google.com/local/writereview?placeid=${selectedBusiness.placeId}`,
+      }));
+      setSuccessMsg('Bisnis berhasil diperbarui.');
+      setSelectedBusiness(null);
+      setSearchQuery('');
       setDashTab('details');
-    } catch (err: any) {
-      setError(err.message || 'Gagal memperbarui URL tujuan.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal memperbarui bisnis.';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -234,8 +270,9 @@ export default function ManagePage() {
       setNewPinInput('');
       setConfirmNewPinInput('');
       setDashTab('details');
-    } catch (err: any) {
-      setError(err.message || 'Gagal mengubah PIN.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal mengubah PIN.';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -247,6 +284,10 @@ export default function ManagePage() {
     setPin('');
     setError('');
     setSuccessMsg('');
+    setSelectedBusiness(null);
+    setSearchQuery('');
+    setSearchResults([]);
+    setHasSearched(false);
   };
 
   return (
@@ -465,26 +506,26 @@ export default function ManagePage() {
           <div className="animate-fade-in">
             <div className="text-center mb-4">
               <h1 className="h2 font-bold mb-1">Dashboard Kartu</h1>
-              <p className="text-muted">Kelola tautan tujuan dan kontrol akses.</p>
+              <p className="text-muted">Kelola bisnis dan kontrol akses.</p>
             </div>
 
             {/* Tab Selector */}
             <div className="flex justify-between border-b pb-2 mb-4">
               <button
                 className={`tab-btn font-semibold ${dashTab === 'details' ? 'active' : ''}`}
-                onClick={() => setDashTab('details')}
+                onClick={() => { setDashTab('details'); setError(''); setSuccessMsg(''); }}
               >
                 Ringkasan
               </button>
               <button
-                className={`tab-btn font-semibold ${dashTab === 'destination' ? 'active' : ''}`}
-                onClick={() => setDashTab('destination')}
+                className={`tab-btn font-semibold ${dashTab === 'business' ? 'active' : ''}`}
+                onClick={() => { setDashTab('business'); setError(''); setSuccessMsg(''); setSelectedBusiness(null); setSearchQuery(''); setSearchResults([]); setHasSearched(false); }}
               >
-                Ubah URL
+                Ganti Bisnis
               </button>
               <button
                 className={`tab-btn font-semibold ${dashTab === 'pin' ? 'active' : ''}`}
-                onClick={() => setDashTab('pin')}
+                onClick={() => { setDashTab('pin'); setError(''); setSuccessMsg(''); }}
               >
                 Ganti PIN
               </button>
@@ -498,6 +539,12 @@ export default function ManagePage() {
                     <span className="label">Nama Bisnis</span>
                     <span className="value">{loggedInCard.businessName}</span>
                   </div>
+                  {loggedInCard.businessAddress && (
+                    <div className="summary-item">
+                      <span className="label">Alamat</span>
+                      <span className="value">{loggedInCard.businessAddress}</span>
+                    </div>
+                  )}
                   <div className="summary-item">
                     <span className="label">ID Kartu</span>
                     <span className="value font-mono">{loggedInCard.cardId}</span>
@@ -513,12 +560,22 @@ export default function ManagePage() {
                     <span className="value">{loggedInCard.email}</span>
                   </div>
                   <div className="summary-item">
-                    <span className="label">URL Redirect Ulasan</span>
-                    <span className="value text-truncate">{loggedInCard.destinationUrl}</span>
+                    <span className="label">Tujuan</span>
+                    <span className="value">Google Review</span>
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-col">
+                  {loggedInCard.destinationUrl && (
+                    <a
+                      href={loggedInCard.destinationUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-primary w-full text-center py-2 font-semibold"
+                    >
+                      Test Review ⭐
+                    </a>
+                  )}
                   <a
                     href={`/c/${loggedInCard.cardId}`}
                     target="_blank"
@@ -537,50 +594,111 @@ export default function ManagePage() {
               </div>
             )}
 
-            {/* TAB: UBAH URL TUJUAN */}
-            {dashTab === 'destination' && (
-              <form onSubmit={handleUpdateDestination} className="form-group animate-fade-in">
-                <div className="input-group">
-                  <label htmlFor="newDestinationUrl">URL Google Review / Maps</label>
-                  <input
-                    type="url"
-                    id="newDestinationUrl"
-                    placeholder="https://search.google.com/local/writereview?placeid=..."
-                    value={newDestinationUrl}
-                    onChange={(e) => setNewDestinationUrl(e.target.value)}
-                    disabled={loading || resolvingUrl}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={handleResolveUrl}
-                    disabled={resolvingUrl || !newDestinationUrl}
-                    className="btn btn-secondary mt-2 w-full py-2 font-semibold"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    {resolvingUrl ? 'Memproses Link...' : 'Generate Link Review Otomatis'}
-                  </button>
-                  <span className="help-text mt-1">Jika Anda memasukkan link pendek (maps.app.goo.gl), klik tombol Generate sebelum memperbarui.</span>
-                </div>
+            {/* TAB: GANTI BISNIS */}
+            {dashTab === 'business' && (
+              <div className="form-group animate-fade-in">
+                {!selectedBusiness ? (
+                  <div className="input-group">
+                    <label htmlFor="businessSearchManage">Cari Bisnis Baru</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        id="businessSearchManage"
+                        placeholder="contoh: Kopi Kenangan Senayan"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleSearch();
+                          }
+                        }}
+                        disabled={searching || loading}
+                        style={{ flex: 1 }}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleSearch}
+                      disabled={searching || !searchQuery.trim()}
+                      className="btn btn-secondary mt-2 w-full py-2 font-semibold"
+                    >
+                      {searching ? 'Mencari...' : '🔍 Cari Bisnis'}
+                    </button>
 
-                <div className="flex gap-2 mt-4">
-                  <button
-                    type="submit"
-                    className="btn btn-primary w-full py-2 font-semibold"
-                    disabled={loading}
-                  >
-                    {loading ? 'Menyimpan...' : 'Perbarui Tujuan'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDashTab('details')}
-                    className="btn btn-secondary w-full py-2 font-semibold"
-                    disabled={loading}
-                  >
-                    Batal
-                  </button>
-                </div>
-              </form>
+                    {/* Search Results */}
+                    {searchResults.length > 0 && (
+                      <div className="search-results mt-3">
+                        {searchResults.map((place) => (
+                          <div key={place.placeId} className="search-result-item">
+                            <div className="search-result-info">
+                              <span className="search-result-name">{place.name}</span>
+                              <span className="search-result-address">{place.address}</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleSelectBusiness(place)}
+                              className="btn btn-primary py-1 font-semibold"
+                              style={{ fontSize: '0.8rem', whiteSpace: 'nowrap', paddingLeft: '16px', paddingRight: '16px' }}
+                            >
+                              Pilih
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* No results */}
+                    {hasSearched && !searching && searchResults.length === 0 && (
+                      <div className="info-alert mt-3">
+                        <p>Tidak ditemukan bisnis dengan kata kunci tersebut. Coba kata kunci lain.</p>
+                      </div>
+                    )}
+
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        onClick={() => setDashTab('details')}
+                        className="btn btn-secondary w-full py-2 font-semibold"
+                        disabled={loading}
+                      >
+                        Batal
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Selected business confirmation + update button */
+                  <div className="input-group">
+                    <label>Bisnis Baru Terpilih</label>
+                    <div className="selected-business-box">
+                      <div className="selected-business-check">✓</div>
+                      <div className="selected-business-info">
+                        <span className="selected-business-name">{selectedBusiness.name}</span>
+                        <span className="selected-business-address">{selectedBusiness.address}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 mt-4">
+                      <button
+                        type="button"
+                        onClick={handleUpdateBusiness}
+                        className="btn btn-primary w-full py-2 font-semibold"
+                        disabled={loading}
+                      >
+                        {loading ? 'Menyimpan...' : 'Perbarui Bisnis'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setSelectedBusiness(null); setSearchQuery(''); }}
+                        className="btn btn-secondary w-full py-2 font-semibold"
+                        disabled={loading}
+                      >
+                        Cari Lagi
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
 
             {/* TAB: GANTI PIN */}

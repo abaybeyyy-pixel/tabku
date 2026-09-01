@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { findCardById, activateCard } from '@/lib/db-helpers';
-import { resolveGoogleMapsReviewUrl } from '@/lib/url-resolver';
-import { hashPin, isValidPin, isValidGoogleReviewUrl, isValidEmail } from '@/lib/auth';
+import { hashPin, isValidPin, isValidEmail } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { cardId, businessName, destinationUrl, pin, confirmPin, email } = body;
+    const { cardId, businessName, placeId, businessAddress, email, pin, confirmPin } = body;
 
     // Validate card ID
     if (!cardId) {
@@ -27,9 +26,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Business name is required.' }, { status: 400 });
     }
 
-    // Validate destination URL
-    if (!destinationUrl || !isValidGoogleReviewUrl(destinationUrl)) {
-      return NextResponse.json({ error: 'Please enter a valid Google Review URL.' }, { status: 400 });
+    // Validate place ID
+    if (!placeId || placeId.trim().length === 0) {
+      return NextResponse.json({ error: 'Please search and select a business.' }, { status: 400 });
     }
 
     // Validate email
@@ -46,12 +45,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'PINs do not match.' }, { status: 400 });
     }
 
+    // Generate Google Review URL from Place ID
+    const destinationUrl = `https://search.google.com/local/writereview?placeid=${placeId}`;
+
     // Hash PIN and activate
     const pinHash = await hashPin(pin);
-    // Auto-resolve Google Maps link to a review pop-up link
-    const finalDestinationUrl = await resolveGoogleMapsReviewUrl(destinationUrl.trim());
 
-    const success = await activateCard(cardId, businessName.trim(), finalDestinationUrl, pinHash, email.trim().toLowerCase());
+    const success = await activateCard(
+      cardId,
+      businessName.trim(),
+      destinationUrl,
+      pinHash,
+      email.trim().toLowerCase(),
+      placeId,
+      businessAddress?.trim()
+    );
 
     if (!success) {
       return NextResponse.json({ error: 'Failed to activate card. Please try again.' }, { status: 500 });
@@ -63,6 +71,8 @@ export async function POST(request: NextRequest) {
       card: {
         cardId,
         businessName: businessName.trim(),
+        businessAddress: businessAddress?.trim() || '',
+        placeId,
         status: 'ACTIVE',
       },
     });

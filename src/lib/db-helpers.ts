@@ -18,21 +18,27 @@ export async function activateCard(
   businessName: string,
   destinationUrl: string,
   pinHash: string,
-  email: string
+  email: string,
+  placeId?: string,
+  businessAddress?: string
 ): Promise<boolean> {
   const supabase = await createClient();
   const now = new Date().toISOString();
+  const updateData: Record<string, unknown> = {
+    status: 'ACTIVE',
+    business_name: businessName,
+    destination_url: destinationUrl,
+    pin_hash: pinHash,
+    email: email,
+    activated_at: now,
+    updated_at: now,
+  };
+  if (placeId) updateData.place_id = placeId;
+  if (businessAddress) updateData.business_address = businessAddress;
+
   const { data, error } = await supabase
     .from('cards')
-    .update({
-      status: 'ACTIVE',
-      business_name: businessName,
-      destination_url: destinationUrl,
-      pin_hash: pinHash,
-      email: email,
-      activated_at: now,
-      updated_at: now,
-    })
+    .update(updateData)
     .eq('card_id', cardId)
     .eq('status', 'UNACTIVATED')
     .select();
@@ -40,12 +46,26 @@ export async function activateCard(
   return !error && data && data.length > 0;
 }
 
-export async function updateDestination(cardId: string, newUrl: string): Promise<boolean> {
+export async function updateDestination(
+  cardId: string,
+  newUrl: string,
+  placeId?: string,
+  businessName?: string,
+  businessAddress?: string
+): Promise<boolean> {
   const supabase = await createClient();
   const now = new Date().toISOString();
+  const updateData: Record<string, unknown> = {
+    destination_url: newUrl,
+    updated_at: now,
+  };
+  if (placeId) updateData.place_id = placeId;
+  if (businessName) updateData.business_name = businessName;
+  if (businessAddress) updateData.business_address = businessAddress;
+
   const { data, error } = await supabase
     .from('cards')
-    .update({ destination_url: newUrl, updated_at: now })
+    .update(updateData)
     .eq('card_id', cardId)
     .eq('status', 'ACTIVE')
     .select();
