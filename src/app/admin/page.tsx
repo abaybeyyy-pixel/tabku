@@ -59,14 +59,14 @@ export default function AdminPage() {
           router.push('/admin/login');
           return;
         }
-        throw new Error('Failed to fetch cards data.');
+        throw new Error('Gagal mengambil data kartu.');
       }
 
       const data = await response.json();
       setCards(data.cards || []);
       setStats(data.stats || { total: 0, active: 0, unactivated: 0, disabled: 0 });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'An error occurred.';
+      const message = err instanceof Error ? err.message : 'Terjadi kesalahan sistem.';
       setError(message);
     } finally {
       setLoading(false);
@@ -105,13 +105,13 @@ export default function AdminPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to generate cards.');
+        throw new Error(data.error || 'Gagal membuat kartu baru.');
       }
 
-      setSuccess(`✓ Berhasil membuat ${data.count} kartu baru.`);
+      setSuccess(`Berhasil membuat ${data.count} kartu baru.`);
       fetchData(password);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to generate cards.';
+      const message = err instanceof Error ? err.message : 'Gagal membuat kartu baru.';
       setError(message);
     } finally {
       setGenerating(false);
@@ -133,13 +133,13 @@ export default function AdminPage() {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || 'Action failed.');
+        throw new Error(data.error || 'Aksi gagal dijalankan.');
       }
 
       setSuccess(data.message);
       fetchData(password);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Action failed.';
+      const message = err instanceof Error ? err.message : 'Aksi gagal dijalankan.';
       setError(message);
     }
   };
@@ -163,15 +163,15 @@ export default function AdminPage() {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to reset PIN.');
+        throw new Error(data.error || 'Gagal memperbarui PIN.');
       }
 
-      setSuccess(`✓ PIN kartu ${selectedCard.card_id} berhasil diubah.`);
+      setSuccess(`PIN kartu ${selectedCard.card_id} berhasil diubah.`);
       setSelectedCard(null);
       setNewPinInput('');
       fetchData(password);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to reset PIN.';
+      const message = err instanceof Error ? err.message : 'Gagal memperbarui PIN.';
       setError(message);
     } finally {
       setUpdatingCard(false);
@@ -216,7 +216,7 @@ export default function AdminPage() {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to generate QRs for PDF.');
+        throw new Error(data.error || 'Gagal membuat QR untuk PDF.');
       }
 
       const qrResults = data.results || [];
@@ -263,9 +263,9 @@ export default function AdminPage() {
       }
 
       doc.save(`tapku_qr_codes_${Date.now()}.pdf`);
-      setSuccess('✓ PDF lembar QR berhasil diunduh.');
+      setSuccess('PDF lembar QR berhasil diunduh.');
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to export QRs to PDF.';
+      const message = err instanceof Error ? err.message : 'Gagal mengekspor QR ke PDF.';
       setError(message);
     } finally {
       setLoading(false);
@@ -287,10 +287,10 @@ export default function AdminPage() {
         body: JSON.stringify({ cardIds: [cardId], format: 'png' }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Failed to generate QR.');
+      if (!response.ok) throw new Error(data.error || 'Gagal memuat QR.');
       setShowQrDataUrl(data.results[0].data);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to show QR.';
+      const message = err instanceof Error ? err.message : 'Gagal menampilkan QR.';
       setError(message);
       setShowQrCardId('');
     } finally {
@@ -313,7 +313,7 @@ export default function AdminPage() {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to generate QR PNG.');
+        throw new Error(data.error || 'Gagal membuat gambar QR PNG.');
       }
 
       const qrBase64 = data.results[0].data;
@@ -333,7 +333,7 @@ export default function AdminPage() {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, padding, padding, qrSize, qrSize);
 
-        ctx.fillStyle = '#18181b';
+        ctx.fillStyle = '#1e293b';
         ctx.textAlign = 'center';
         ctx.font = 'bold 22px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         ctx.fillText(cardId, canvas.width / 2, qrSize + padding + 28);
@@ -352,7 +352,7 @@ export default function AdminPage() {
       };
       img.src = qrBase64;
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to export Print PNG.';
+      const message = err instanceof Error ? err.message : 'Gagal mengekspor file PNG.';
       setError(message);
     }
   };
@@ -393,16 +393,13 @@ export default function AdminPage() {
     <main className="container py-4" style={{ maxWidth: '980px' }}>
       {/* TOPBAR */}
       <header className="flex justify-between items-center mb-4 flex-wrap gap-2">
-        <div className="flex items-center gap-2">
-          <div className="logo-icon">G</div>
-          <div>
-            <h1 className="text-lg font-bold">Tapku Dashboard</h1>
-            <p className="text-muted text-xs">Pusat Manajemen Kartu NFC &amp; QR</p>
-          </div>
+        <div>
+          <h1 className="text-lg font-bold tracking-tight">Tapku Dashboard</h1>
+          <p className="text-muted text-xs">Pusat Manajemen Kartu NFC &amp; QR</p>
         </div>
         <div className="flex gap-2">
           <a href="/" className="btn btn-secondary py-1.5 px-3 text-xs font-semibold">
-            Lihat Web ↗
+            Buka Beranda
           </a>
           <button onClick={handleLogout} className="btn btn-secondary py-1.5 px-3 text-xs font-semibold">
             Keluar
@@ -417,14 +414,13 @@ export default function AdminPage() {
       <div className="grid-4 mb-4">
         {[
           { label: 'Total Kartu', value: stats.total, color: 'var(--foreground)' },
-          { label: 'Kartu Aktif', value: stats.active, color: '#10b981' },
-          { label: 'Pending (Belum Aktif)', value: stats.unactivated, color: '#f59e0b' },
-          { label: 'Dinonaktifkan', value: stats.disabled, color: '#ef4444' },
+          { label: 'Kartu Aktif', value: stats.active, color: 'var(--success-accent)' },
+          { label: 'Pending (Belum Aktif)', value: stats.unactivated, color: 'var(--accent-gold)' },
+          { label: 'Dinonaktifkan', value: stats.disabled, color: 'var(--danger-accent)' },
         ].map((s, i) => (
           <div
             key={i}
             className="feature-card-minimal p-3"
-            style={{ border: '1px solid var(--border)' }}
           >
             <span className="text-xs text-muted font-medium">{s.label}</span>
             <span className="text-2xl font-bold font-mono" style={{ color: s.color }}>
@@ -438,7 +434,7 @@ export default function AdminPage() {
       <div className="grid-2 mb-4">
         {/* Bulk Generator */}
         <div className="feature-card-minimal p-4">
-          <h2 className="text-sm font-bold mb-2">⚡ Generate ID Kartu Baru</h2>
+          <h2 className="text-sm font-bold mb-2">Generate ID Kartu Baru</h2>
           <form onSubmit={handleBulkGenerate} className="flex gap-2 flex-wrap">
             <input
               type="text"
@@ -446,7 +442,7 @@ export default function AdminPage() {
               maxLength={4}
               value={genPrefix}
               onChange={(e) => setGenPrefix(e.target.value.toUpperCase())}
-              style={{ flex: '1 1 80px', padding: '0.45rem 0.65rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', background: 'var(--background)', color: 'var(--foreground)' }}
+              style={{ flex: '1 1 80px', padding: '0.45rem 0.65rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', background: '#ffffff', color: 'var(--foreground)' }}
             />
             <input
               type="number"
@@ -454,33 +450,33 @@ export default function AdminPage() {
               max={100}
               value={genCount}
               onChange={(e) => setGenCount(parseInt(e.target.value) || 1)}
-              style={{ width: '70px', padding: '0.45rem 0.65rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', background: 'var(--background)', color: 'var(--foreground)' }}
+              style={{ width: '70px', padding: '0.45rem 0.65rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', background: '#ffffff', color: 'var(--foreground)' }}
             />
             <button
               type="submit"
               className="btn btn-primary text-xs font-semibold py-2 px-3"
               disabled={generating}
             >
-              {generating ? 'Membuat...' : '+ Buat Batch'}
+              {generating ? 'Membuat...' : 'Buat Batch'}
             </button>
           </form>
         </div>
 
         {/* Export Data */}
         <div className="feature-card-minimal p-4">
-          <h2 className="text-sm font-bold mb-2">📁 Ekspor & Cetak QR</h2>
+          <h2 className="text-sm font-bold mb-2">Ekspor &amp; Cetak QR</h2>
           <div className="flex gap-2">
             <button
               onClick={handleExportCSV}
               className="btn btn-secondary flex-1 py-2 text-xs font-semibold"
             >
-              📄 Data CSV
+              Data CSV
             </button>
             <button
               onClick={handleExportPDF}
               className="btn btn-secondary flex-1 py-2 text-xs font-semibold"
             >
-              📋 Lembar Cetak PDF
+              Lembar Cetak PDF
             </button>
           </div>
         </div>
@@ -501,7 +497,7 @@ export default function AdminPage() {
               border: '1px solid var(--border)',
               borderRadius: 'var(--radius-sm)',
               fontSize: '0.85rem',
-              background: 'var(--background)',
+              background: '#ffffff',
               color: 'var(--foreground)',
               minWidth: 0,
             }}
@@ -514,7 +510,7 @@ export default function AdminPage() {
               border: '1px solid var(--border)',
               borderRadius: 'var(--radius-sm)',
               fontSize: '0.85rem',
-              background: 'var(--background)',
+              background: '#ffffff',
               color: 'var(--foreground)',
             }}
           >
@@ -542,7 +538,7 @@ export default function AdminPage() {
                   padding: '0.75rem 1rem',
                   borderRadius: 'var(--radius-md)',
                   border: '1px solid var(--border)',
-                  background: 'var(--background-card)',
+                  background: 'var(--background)',
                   flexWrap: 'wrap',
                 }}
               >
@@ -578,21 +574,21 @@ export default function AdminPage() {
                     title="Lihat QR Code"
                     className="btn btn-secondary py-1 px-2.5 text-xs font-semibold"
                   >
-                    👁 QR
+                    Lihat QR
                   </button>
                   <button
                     onClick={() => handleDownloadPrintPNG(card.card_id)}
                     title="Download PNG Cetak"
                     className="btn btn-secondary py-1 px-2 text-xs font-semibold"
                   >
-                    ⬇ PNG
+                    PNG
                   </button>
                   <button
                     onClick={() => { setSelectedCard(card); setNewPinInput(''); }}
                     title="Reset PIN"
                     className="btn btn-secondary py-1 px-2 text-xs font-semibold"
                   >
-                    🔑 PIN
+                    PIN
                   </button>
                   {card.status === 'ACTIVE' && (
                     <button
@@ -600,17 +596,17 @@ export default function AdminPage() {
                       title="Nonaktifkan Kartu"
                       className="btn btn-danger py-1 px-2 text-xs font-semibold"
                     >
-                      Off
+                      Nonaktifkan
                     </button>
                   )}
                   {card.status === 'DISABLED' && (
                     <button
                       onClick={() => handleCardAction(card.card_id, 'reactivate')}
                       title="Aktifkan Kartu"
-                      className="btn btn-secondary py-1 px-2 text-xs font-semibold"
-                      style={{ color: '#10b981', borderColor: '#a7f3d0' }}
+                      className="btn btn-secondary py-1 px-2 text-xs font-semibold text-success"
+                      style={{ borderColor: 'var(--success-border)' }}
                     >
-                      On
+                      Aktifkan
                     </button>
                   )}
                 </div>

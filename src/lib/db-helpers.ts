@@ -48,7 +48,7 @@ export async function activateCard(
 
 export async function updateDestination(
   cardId: string,
-  newUrl: string,
+  newUrl?: string,
   placeId?: string,
   businessName?: string,
   businessAddress?: string
@@ -56,12 +56,12 @@ export async function updateDestination(
   const supabase = await createClient();
   const now = new Date().toISOString();
   const updateData: Record<string, unknown> = {
-    destination_url: newUrl,
     updated_at: now,
   };
+  if (newUrl) updateData.destination_url = newUrl;
   if (placeId) updateData.place_id = placeId;
-  if (businessName) updateData.business_name = businessName;
-  if (businessAddress) updateData.business_address = businessAddress;
+  if (businessName !== undefined) updateData.business_name = businessName;
+  if (businessAddress !== undefined) updateData.business_address = businessAddress;
 
   const { data, error } = await supabase
     .from('cards')

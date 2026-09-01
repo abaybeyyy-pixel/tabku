@@ -29,9 +29,8 @@ export default async function OnboardingPage({
     <main className="min-vh flex align-items-center justify-content-center py-5 px-3">
       <div className="onboarding-card">
         <div className="header-logo">
-          <a href="/" className="flex items-center gap-2">
-            <div className="logo-icon">G</div>
-            <span className="font-bold text-sm">TAPKU AKTIVASI</span>
+          <a href="/" className="font-bold text-sm text-primary tracking-wide">
+            TAPKU AKTIVASI
           </a>
           <span className="card-badge">{upperCardId}</span>
         </div>

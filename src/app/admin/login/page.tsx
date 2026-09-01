@@ -46,9 +46,8 @@ export default function AdminLoginPage() {
     <main className="min-vh flex align-items-center justify-content-center py-5 px-3">
       <div className="onboarding-card">
         <div className="header-logo">
-          <a href="/" className="flex items-center gap-2">
-            <div className="logo-icon">A</div>
-            <span className="font-bold text-sm">TAPKU ADMIN</span>
+          <a href="/" className="font-bold text-sm text-primary tracking-wide">
+            TAPKU ADMIN
           </a>
           <span className="card-badge">Portal Akses</span>
         </div>

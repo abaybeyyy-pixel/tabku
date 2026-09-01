@@ -19,8 +19,9 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
   const [searching, setSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
-  // Selected business state
+  // Selected business state & customizable name
   const [selectedBusiness, setSelectedBusiness] = useState<PlaceResult | null>(null);
+  const [businessName, setBusinessName] = useState('');
 
   // Form state
   const [email, setEmail] = useState('');
@@ -64,6 +65,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
 
   const handleSelectBusiness = (place: PlaceResult) => {
     setSelectedBusiness(place);
+    setBusinessName(place.name);
     setSearchResults([]);
     setHasSearched(false);
     setError('');
@@ -71,6 +73,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
 
   const handleChangeBusiness = () => {
     setSelectedBusiness(null);
+    setBusinessName('');
     setSearchQuery('');
     setSearchResults([]);
     setHasSearched(false);
@@ -83,6 +86,11 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
 
     if (!selectedBusiness) {
       setError('Silakan cari dan pilih bisnis Anda terlebih dahulu.');
+      return;
+    }
+
+    if (!businessName.trim()) {
+      setError('Nama bisnis wajib diisi.');
       return;
     }
 
@@ -109,7 +117,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cardId,
-          businessName: selectedBusiness.name,
+          businessName: businessName.trim(),
           placeId: selectedBusiness.placeId,
           businessAddress: selectedBusiness.address,
           email: email.trim(),
@@ -125,7 +133,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
       }
 
       setActivatedData({
-        businessName: selectedBusiness.name,
+        businessName: businessName.trim(),
         businessAddress: selectedBusiness.address,
         placeId: selectedBusiness.placeId,
       });
@@ -144,22 +152,22 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
     return (
       <div className="text-center animate-fade-in">
         <div className="success-icon mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clipRule="evenodd" />
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
-        <h2 className="h3 font-bold mb-2">Kartu Review Anda Siap Digunakan!</h2>
-        <p className="text-muted mb-4">Kartu NFC dan kode QR Anda sudah aktif dan terhubung.</p>
+        <h2 className="text-xl font-bold mb-2">Kartu Review Anda Telah Aktif</h2>
+        <p className="text-muted text-xs mb-4">Kartu fisik NFC dan kode QR Anda sudah terhubung ke ulasan Google.</p>
 
         <div className="summary-box mb-4">
           <div className="summary-item">
-            <span className="label">Bisnis</span>
+            <span className="label">Nama Bisnis</span>
             <span className="value">{activatedData.businessName}</span>
           </div>
           {activatedData.businessAddress && (
             <div className="summary-item">
               <span className="label">Alamat</span>
-              <span className="value">{activatedData.businessAddress}</span>
+              <span className="value text-xs text-muted">{activatedData.businessAddress}</span>
             </div>
           )}
           <div className="summary-item">
@@ -168,12 +176,12 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
           </div>
           <div className="summary-item">
             <span className="label">Tujuan</span>
-            <span className="value">Google Review</span>
+            <span className="value text-success font-semibold">Google Write a Review</span>
           </div>
         </div>
 
         <div className="info-alert mb-4">
-          <p>Simpan PIN Anda dengan aman! Anda akan membutuhkan PIN dan ID Kartu <strong>{cardId}</strong> untuk mengedit pengaturan ini di masa depan melalui halaman <code>/manage</code>.</p>
+          Simpan PIN Anda dengan aman. PIN dan ID Kartu <strong>{cardId}</strong> digunakan untuk mengedit pengaturan di portal kelola.
         </div>
 
         <div className="flex gap-2 flex-col">
@@ -181,17 +189,17 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
             href={reviewUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn btn-primary w-full text-center py-3 font-semibold"
+            className="btn btn-primary w-full text-center py-2.5 font-semibold text-xs"
           >
-            Test Review ⭐
+            Buka Halaman Ulasan Google
           </a>
           <a
             href={`/c/${cardId}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn btn-secondary w-full text-center py-3 font-semibold"
+            className="btn btn-secondary w-full text-center py-2.5 font-semibold text-xs"
           >
-            Tes Kartu Saya
+            Tes Redirect Kartu
           </a>
         </div>
       </div>
@@ -205,7 +213,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
       {/* Business Search Section */}
       {!selectedBusiness ? (
         <div className="input-group">
-          <label htmlFor="businessSearch">Cari Bisnis Anda</label>
+          <label htmlFor="businessSearch">Cari Tempat / Usaha Anda</label>
           <div className="flex gap-2">
             <input
               type="text"
@@ -227,14 +235,14 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
             type="button"
             onClick={handleSearch}
             disabled={searching || !searchQuery.trim()}
-            className="btn btn-secondary mt-2 w-full py-2 font-semibold"
+            className="btn btn-secondary mt-1 w-full py-2 text-xs font-semibold"
           >
-            {searching ? 'Mencari...' : '🔍 Cari Bisnis'}
+            {searching ? 'Mencari di Google Maps...' : 'Cari Tempat'}
           </button>
 
           {/* Search Results */}
           {searchResults.length > 0 && (
-            <div className="search-results mt-3">
+            <div className="search-results">
               {searchResults.map((place) => (
                 <div key={place.placeId} className="search-result-item">
                   <div className="search-result-info">
@@ -244,8 +252,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
                   <button
                     type="button"
                     onClick={() => handleSelectBusiness(place)}
-                    className="btn btn-primary py-1 font-semibold"
-                    style={{ fontSize: '0.8rem', whiteSpace: 'nowrap', paddingLeft: '16px', paddingRight: '16px' }}
+                    className="btn btn-primary py-1 px-3 text-xs font-semibold"
                   >
                     Pilih
                   </button>
@@ -256,30 +263,48 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
 
           {/* No results */}
           {hasSearched && !searching && searchResults.length === 0 && (
-            <div className="info-alert mt-3">
-              <p>Tidak ditemukan bisnis dengan kata kunci tersebut. Coba kata kunci lain.</p>
+            <div className="info-alert mt-2">
+              Tidak ditemukan tempat dengan nama tersebut. Coba kata kunci atau lokasi yang lebih spesifik.
             </div>
           )}
         </div>
       ) : (
-        /* Selected Business Confirmation */
+        /* Selected Business Confirmation & Name Customization */
         <div className="input-group">
-          <label>Bisnis Terpilih</label>
-          <div className="selected-business-box">
-            <div className="selected-business-check">✓</div>
+          <label>Lokasi Google Review Terpilih</label>
+          <div className="selected-business-box mb-2">
+            <div className="selected-business-check">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
             <div className="selected-business-info">
               <span className="selected-business-name">{selectedBusiness.name}</span>
               <span className="selected-business-address">{selectedBusiness.address}</span>
             </div>
           </div>
+
+          <div className="input-group mb-2">
+            <label htmlFor="businessNameInput">Nama Usaha pada Kartu</label>
+            <input
+              type="text"
+              id="businessNameInput"
+              value={businessName}
+              onChange={(e) => setBusinessName(e.target.value)}
+              placeholder="Nama usaha Anda"
+              disabled={loading}
+              required
+            />
+            <span className="help-text">Anda dapat menyesuaikan nama yang tampil sesuai kebutuhan.</span>
+          </div>
+
           <button
             type="button"
             onClick={handleChangeBusiness}
-            className="btn btn-secondary mt-2 w-full py-2 font-semibold"
-            style={{ fontSize: '0.875rem' }}
+            className="btn btn-secondary w-full py-1.5 font-semibold text-xs"
             disabled={loading}
           >
-            Ganti Bisnis
+            Pilih Lokasi Lain
           </button>
         </div>
       )}
@@ -298,18 +323,18 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
               disabled={loading}
               required
             />
-            <span className="help-text">Digunakan untuk memulihkan PIN jika Anda lupa.</span>
+            <span className="help-text">Digunakan untuk verifikasi dan pemulihan PIN kartu jika lupa.</span>
           </div>
 
           <div className="grid-2">
             <div className="input-group">
-              <label htmlFor="pin">Buat PIN</label>
+              <label htmlFor="pin">Buat PIN (4-6 digit)</label>
               <input
                 type="password"
                 id="pin"
                 pattern="\d*"
                 maxLength={6}
-                placeholder="4 hingga 6 digit"
+                placeholder="4-6 digit angka"
                 value={pin}
                 onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
                 disabled={loading}
@@ -335,10 +360,10 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
 
           <button
             type="submit"
-            className="btn btn-primary w-full py-3 font-semibold mt-2"
+            className="btn btn-primary w-full py-3 font-semibold mt-1"
             disabled={loading}
           >
-            {loading ? 'Mengaktifkan Kartu...' : 'Aktifkan Kartu Saya'}
+            {loading ? 'Mengaktifkan Kartu...' : 'Aktifkan Kartu Sekarang'}
           </button>
         </>
       )}

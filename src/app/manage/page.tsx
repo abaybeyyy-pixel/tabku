@@ -21,6 +21,11 @@ export default function ManagePage() {
   // Tab state within dashboard: 'details' | 'business' | 'pin'
   const [dashTab, setDashTab] = useState<'details' | 'business' | 'pin'>('details');
 
+  // Edit Business Name state
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [customBusinessName, setCustomBusinessName] = useState('');
+  const [savingName, setSavingName] = useState(false);
+
   // Forgot PIN state
   const [isForgotMode, setIsForgotMode] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
@@ -30,7 +35,7 @@ export default function ManagePage() {
   const [newForgotPin, setNewForgotPin] = useState('');
   const [confirmForgotPin, setConfirmForgotPin] = useState('');
 
-  // Business search state (for "Ganti Bisnis" tab)
+  // Business search state (for "Ganti Lokasi Bisnis" tab)
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<PlaceResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -63,12 +68,55 @@ export default function ManagePage() {
       }
 
       setLoggedInCard(data.card);
+      setCustomBusinessName(data.card.businessName || '');
       setDashTab('details');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'ID Kartu atau PIN salah.';
       setError(message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle edit business name only
+  const handleSaveBusinessName = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customBusinessName.trim()) {
+      setError('Nama bisnis tidak boleh kosong.');
+      return;
+    }
+    setError('');
+    setSuccessMsg('');
+    setSavingName(true);
+
+    try {
+      const response = await fetch('/api/cards/update-destination', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cardId: loggedInCard.cardId,
+          pin: pin,
+          businessName: customBusinessName.trim(),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal memperbarui nama bisnis.');
+      }
+
+      setLoggedInCard((prev: any) => ({
+        ...prev,
+        businessName: customBusinessName.trim(),
+      }));
+      setSuccessMsg('Nama usaha berhasil diperbarui.');
+      setIsEditingName(false);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal memperbarui nama bisnis.';
+      setError(message);
+    } finally {
+      setSavingName(false);
     }
   };
 
@@ -222,7 +270,8 @@ export default function ManagePage() {
         placeId: selectedBusiness.placeId,
         destinationUrl: `https://search.google.com/local/writereview?placeid=${selectedBusiness.placeId}`,
       }));
-      setSuccessMsg('✓ Bisnis berhasil diperbarui ke lokasi baru.');
+      setCustomBusinessName(selectedBusiness.name);
+      setSuccessMsg('Lokasi bisnis berhasil diperbarui.');
       setSelectedBusiness(null);
       setSearchQuery('');
       setDashTab('details');
@@ -266,7 +315,7 @@ export default function ManagePage() {
       }
 
       setPin(newPinInput);
-      setSuccessMsg('✓ PIN berhasil diubah.');
+      setSuccessMsg('PIN keamanan berhasil diperbarui.');
       setCurrentPinInput('');
       setNewPinInput('');
       setConfirmNewPinInput('');
@@ -297,6 +346,7 @@ export default function ManagePage() {
     setSearchQuery('');
     setSearchResults([]);
     setHasSearched(false);
+    setIsEditingName(false);
   };
 
   return (
@@ -304,9 +354,8 @@ export default function ManagePage() {
       <div className="onboarding-card">
         {/* HEADER */}
         <div className="header-logo">
-          <a href="/" className="flex items-center gap-2">
-            <div className="logo-icon">G</div>
-            <span className="font-bold text-sm">TAPKU PORTAL</span>
+          <a href="/" className="font-bold text-sm text-primary tracking-wide">
+            TAPKU PORTAL
           </a>
           {loggedInCard && (
             <span className="card-badge">{loggedInCard.cardId}</span>
@@ -324,7 +373,7 @@ export default function ManagePage() {
               <div className="animate-fade-in">
                 <div className="text-center mb-4">
                   <h1 className="text-xl font-bold mb-1">Kelola Kartu Anda</h1>
-                  <p className="text-muted text-xs">Masukkan ID Kartu & PIN untuk mengatur tujuan ulasan.</p>
+                  <p className="text-muted text-xs">Masukkan ID Kartu & PIN untuk mengatur ulasan dan profil bisnis.</p>
                 </div>
 
                 <form onSubmit={handleLogin} className="form-group">
@@ -360,11 +409,11 @@ export default function ManagePage() {
                     className="btn btn-primary w-full py-3 font-semibold mt-1"
                     disabled={loading}
                   >
-                    {loading ? 'Memverifikasi...' : 'Masuk ke Pengaturan →'}
+                    {loading ? 'Memverifikasi...' : 'Masuk ke Pengaturan'}
                   </button>
 
                   <div className="flex justify-between items-center text-xs mt-2">
-                    <a href="/" className="text-muted hover:underline">← Kembali ke Beranda</a>
+                    <a href="/" className="text-muted hover:underline">Kembali ke Beranda</a>
                     <button
                       type="button"
                       className="link-btn text-xs font-semibold"
@@ -421,7 +470,7 @@ export default function ManagePage() {
                       className="btn btn-primary w-full py-3 font-semibold mt-1"
                       disabled={loading}
                     >
-                      {loading ? 'Mengirim Kode...' : 'Kirim Kode OTP →'}
+                      {loading ? 'Mengirim Kode...' : 'Kirim Kode OTP'}
                     </button>
 
                     <div className="text-center mt-2">
@@ -522,7 +571,7 @@ export default function ManagePage() {
           <div className="animate-fade-in">
             <div className="text-center mb-4">
               <h1 className="text-xl font-bold mb-1">Pengaturan Kartu</h1>
-              <p className="text-muted text-xs">Kelola lokasi ulasan Google dan keamanan kartu Anda.</p>
+              <p className="text-muted text-xs">Kelola profil usaha, link ulasan Google, dan keamanan kartu Anda.</p>
             </div>
 
             {/* TAB SELECTOR */}
@@ -545,7 +594,7 @@ export default function ManagePage() {
                   setHasSearched(false);
                 }}
               >
-                Ganti Bisnis
+                Ganti Lokasi
               </button>
               <button
                 className={`tab-btn ${dashTab === 'pin' ? 'active' : ''}`}
@@ -555,13 +604,58 @@ export default function ManagePage() {
               </button>
             </div>
 
-            {/* TAB 1: RINGKASAN */}
+            {/* TAB 1: RINGKASAN & EDIT NAMA USAHA */}
             {dashTab === 'details' && (
               <div className="animate-fade-in flex flex-col gap-3">
+                {/* Form Edit Nama Usaha Inline */}
+                {isEditingName ? (
+                  <form onSubmit={handleSaveBusinessName} className="p-3 border rounded-md" style={{ background: 'var(--background-accent)' }}>
+                    <div className="input-group mb-2">
+                      <label htmlFor="editNameInput">Nama Usaha Baru</label>
+                      <input
+                        type="text"
+                        id="editNameInput"
+                        value={customBusinessName}
+                        onChange={(e) => setCustomBusinessName(e.target.value)}
+                        placeholder="contoh: Kopi Kenangan Senayan City"
+                        disabled={savingName}
+                        required
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        className="btn btn-primary flex-1 py-1.5 text-xs font-semibold"
+                        disabled={savingName}
+                      >
+                        {savingName ? 'Menyimpan...' : 'Simpan Nama'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setIsEditingName(false); setCustomBusinessName(loggedInCard.businessName || ''); }}
+                        className="btn btn-secondary flex-1 py-1.5 text-xs font-semibold"
+                        disabled={savingName}
+                      >
+                        Batal
+                      </button>
+                    </div>
+                  </form>
+                ) : null}
+
                 <div className="summary-box">
                   <div className="summary-item">
                     <span className="label">Nama Usaha</span>
-                    <span className="value text-truncate">{loggedInCard.businessName || '-'}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="value text-truncate">{loggedInCard.businessName || '-'}</span>
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingName(!isEditingName)}
+                        className="link-btn text-xs"
+                        style={{ fontSize: '0.75rem' }}
+                      >
+                        Edit
+                      </button>
+                    </div>
                   </div>
                   {loggedInCard.businessAddress && (
                     <div className="summary-item">
@@ -581,8 +675,8 @@ export default function ManagePage() {
                   </div>
                   <div className="summary-item">
                     <span className="label">Tujuan Redirect</span>
-                    <span className="value text-xs font-semibold" style={{ color: '#10b981' }}>
-                      ✓ Google Write a Review
+                    <span className="value text-xs font-semibold text-success">
+                      Google Write a Review
                     </span>
                   </div>
                 </div>
@@ -595,7 +689,7 @@ export default function ManagePage() {
                       rel="noopener noreferrer"
                       className="btn btn-primary w-full py-2.5 font-semibold text-xs"
                     >
-                      Test Review Page (⭐⭐⭐⭐⭐) ↗
+                      Buka Halaman Ulasan Google
                     </a>
                   )}
 
@@ -605,7 +699,7 @@ export default function ManagePage() {
                       onClick={handleCopyLink}
                       className="btn btn-secondary py-2 text-xs font-semibold"
                     >
-                      {copiedLink ? '✓ Disalin!' : '📋 Salin Link Kartu'}
+                      {copiedLink ? 'Tersalin' : 'Salin Link Kartu'}
                     </button>
                     <a
                       href={`/c/${loggedInCard.cardId}`}
@@ -613,7 +707,7 @@ export default function ManagePage() {
                       rel="noopener noreferrer"
                       className="btn btn-secondary py-2 text-xs font-semibold"
                     >
-                      Tes Tap NFC ↗
+                      Tes Redirect Kartu
                     </a>
                   </div>
 
@@ -627,12 +721,12 @@ export default function ManagePage() {
               </div>
             )}
 
-            {/* TAB 2: GANTI BISNIS */}
+            {/* TAB 2: GANTI LOKASI BISNIS VIA GOOGLE PLACES */}
             {dashTab === 'business' && (
               <div className="form-group animate-fade-in">
                 {!selectedBusiness ? (
                   <div className="input-group">
-                    <label htmlFor="businessSearchManage">Cari Nama Bisnis Baru</label>
+                    <label htmlFor="businessSearchManage">Cari Nama Tempat / Cabang Baru</label>
                     <input
                       type="text"
                       id="businessSearchManage"
@@ -654,7 +748,7 @@ export default function ManagePage() {
                       disabled={searching || !searchQuery.trim()}
                       className="btn btn-secondary mt-1 w-full py-2 text-xs font-semibold"
                     >
-                      {searching ? 'Sedang Mencari via Google API...' : '🔍 Cari Bisnis'}
+                      {searching ? 'Mencari di Google Maps...' : 'Cari Tempat'}
                     </button>
 
                     {/* Search Results List */}
@@ -681,7 +775,7 @@ export default function ManagePage() {
                     {/* No results */}
                     {hasSearched && !searching && searchResults.length === 0 && (
                       <div className="info-alert mt-2">
-                        Tidak ditemukan bisnis dengan nama tersebut. Coba kata kunci yang lebih spesifik.
+                        Tidak ditemukan tempat dengan nama tersebut. Coba gunakan kata kunci atau lokasi yang lebih spesifik.
                       </div>
                     )}
 
@@ -696,9 +790,13 @@ export default function ManagePage() {
                 ) : (
                   /* Selected business confirmation */
                   <div className="flex flex-col gap-3">
-                    <label className="text-xs font-semibold text-muted">Lokasi Baru Terpilih:</label>
+                    <label className="text-xs font-semibold text-muted">Lokasi Google Review Terpilih:</label>
                     <div className="selected-business-box">
-                      <div className="selected-business-check">✓</div>
+                      <div className="selected-business-check">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </div>
                       <div className="selected-business-info">
                         <span className="selected-business-name">{selectedBusiness.name}</span>
                         <span className="selected-business-address">{selectedBusiness.address}</span>
@@ -712,7 +810,7 @@ export default function ManagePage() {
                         className="btn btn-primary w-full py-2.5 text-xs font-semibold"
                         disabled={loading}
                       >
-                        {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
+                        {loading ? 'Menyimpan...' : 'Simpan Lokasi Baru'}
                       </button>
                       <button
                         type="button"
@@ -781,7 +879,7 @@ export default function ManagePage() {
                     className="btn btn-primary w-full py-2.5 text-xs font-semibold"
                     disabled={loading}
                   >
-                    {loading ? 'Menyimpan...' : 'Ubah PIN'}
+                    {loading ? 'Menyimpan...' : 'Ubah PIN Keamanan'}
                   </button>
                   <button
                     type="button"

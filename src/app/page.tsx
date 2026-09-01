@@ -39,7 +39,7 @@ export default function Homepage() {
     {
       step: '02',
       title: 'Cari Lokasi Bisnis',
-      description: 'Ketik nama usaha Anda langsung di form pencarian Google Places API. Pilih cabang yang sesuai tanpa repot copy-paste link manual.',
+      description: 'Ketik nama usaha Anda langsung di form pencarian Google Places API. Pilih cabang yang sesuai tanpa repot salin link manual.',
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="11" cy="11" r="8" />
@@ -50,7 +50,7 @@ export default function Homepage() {
     {
       step: '03',
       title: 'Kunci dengan PIN',
-      description: 'Atur 4-6 digit PIN pengaman & email pemulihan. Pengaturan kartu terlindungi dan dapat Anda ganti kapan saja di masa depan.',
+      description: 'Atur 4-6 digit PIN pengaman dan email pemulihan. Pengaturan kartu terlindungi dan dapat Anda ganti kapan saja di masa depan.',
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -61,7 +61,7 @@ export default function Homepage() {
     {
       step: '04',
       title: 'Langsung Tulis Review',
-      description: 'Taruh kartu di kasir. Sekali tap oleh pelanggan, popup Google Write a Review langsung terbuka dengan pilihan 5 bintang.',
+      description: 'Taruh kartu di kasir. Sekali tap oleh pelanggan, formulir ulasan Google langsung terbuka dengan opsi rating bintang 5.',
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -77,13 +77,13 @@ export default function Homepage() {
       badge: 'Baru',
     },
     {
-      title: 'Chip NFC NTAG Ultra-Fast',
-      description: 'Responsivitas instan tanpa jeda. Bekerja mulus di seluruh iPhone (iOS 13+) dan Android berfitur NFC.',
+      title: 'Chip NFC NTAG Respon Cepat',
+      description: 'Responsivitas instan tanpa jeda. Bekerja mulus di seluruh iPhone dan Android berfitur NFC.',
       badge: 'Hardware',
     },
     {
-      title: 'QR Code Dinamis Beresolusi Tinggi',
-      description: 'Alternatif cepat bagi pelanggan yang ponselnya belum mendukung NFC. Tetap terarah ke link yang sama.',
+      title: 'QR Code Dinamis Resolusi Tinggi',
+      description: 'Alternatif praktis bagi pelanggan yang ponselnya belum mendukung NFC. Tetap terarah ke link yang sama.',
       badge: 'Fleksibel',
     },
     {
@@ -92,37 +92,117 @@ export default function Homepage() {
       badge: 'Cloud Sync',
     },
     {
-      title: 'Tanpa Install Aplikasi',
-      description: 'Pelanggan tidak perlu mendownload aplikasi apa pun. Langsung terbuka di browser bawaan Safari atau Chrome.',
-      badge: 'Zero Friction',
+      title: 'Tanpa Unduh Aplikasi',
+      description: 'Pelanggan tidak perlu mengunduh aplikasi apa pun. Langsung terbuka di browser bawaan Safari atau Chrome.',
+      badge: 'Praktis',
     },
     {
       title: 'Keamanan OTP Email',
-      description: 'Lupa PIN pengelolaan? Sistem pemulihan email OTP otomatis siap mengirimkan kode reset 6 digit secara instan.',
+      description: 'Lupa PIN pengelolaan? Sistem pemulihan email OTP otomatis siap mengirimkan kode verifikasi 6 digit secara instan.',
       badge: 'Aman',
     },
   ];
 
-  const testimonials = [
+  // Marquee Row 1 Reviews (Moving Left)
+  const marqueeReviewsRow1 = [
     {
-      quote: 'Dulu susah banget minta review ke customer karena mereka malas ketik nama cafe di Google Maps. Sekarang tinggal tap di meja kasir, ulasan naik 400% dalam sebulan!',
+      quote: 'Dulu customer sering lupa kasih ulasan meskipun puas. Sejak taruh kartu Tapku di meja kasir, tiap hari rata-rata masuk 6 sampai 8 review bintang 5.',
       author: 'Reza Fahrezi',
-      role: 'Owner, Kopi Dua Musim',
+      role: 'Owner',
+      business: 'Kopi Dua Musim',
       location: 'Jakarta Selatan',
       rating: 5,
     },
     {
-      quote: 'Fitur ganti bisnisnya canggih banget. Waktu kami rebrand nama klinik, kartu fisik tidak perlu dibuang. Cukup ubah di dashboard dan langsung update.',
+      quote: 'Sangat praktis saat rebrand nama klinik. Cukup ubah nama di portal kelola dan Place ID baru langsung tersambung tanpa perlu cetak ulang kartu.',
       author: 'drg. Melani Wijaya',
-      role: 'Founder, DentaCare Clinic',
+      role: 'Founder',
+      business: 'DentaCare Clinic',
       location: 'Surabaya',
       rating: 5,
     },
     {
-      quote: 'Kualitas kartu fisiknya matte premium, bukan stiker murahan. Sangat cocok ditaruh di front desk hotel kami.',
+      quote: 'Kartu fisiknya kokoh dan estetik. Tamu hotel yang check-out tinggal tap waktu mengembalikan kunci kamar, ulasan langsung naik drastis.',
       author: 'Budi Santoso',
-      role: 'Operations Manager, De Prime Villa',
+      role: 'Operations Manager',
+      business: 'De Prime Villa',
       location: 'Bali',
+      rating: 5,
+    },
+    {
+      quote: 'Bengkel kami sekarang ranking nomor 1 di Google Maps area BSD. Customer merasa gampang karena tidak perlu repot cari link manual.',
+      author: 'Hendri Gunawan',
+      role: 'Head Workshop',
+      business: 'Garasi Auto BSD',
+      location: 'Tangerang Selatan',
+      rating: 5,
+    },
+    {
+      quote: 'Barbershop kami jadi jauh lebih dipercaya pelanggan baru. Ulasan bintang 5 bertambah puluhan dalam hitungan 2 minggu pertama.',
+      author: 'Fajar Nugraha',
+      role: 'Owner',
+      business: 'Gentlemen Cut Barber',
+      location: 'Bandung',
+      rating: 5,
+    },
+    {
+      quote: 'Pelanggan bakery kami yang ibu-ibu pun tidak kesulitan. Tinggal tempel HP ke kartu di etalase kasir, langsung muncul bintang 5.',
+      author: 'Siti Rahmawati',
+      role: 'Head Baker',
+      business: 'Delice Artisanal Pastry',
+      location: 'Yogyakarta',
+      rating: 5,
+    },
+  ];
+
+  // Marquee Row 2 Reviews (Moving Right)
+  const marqueeReviewsRow2 = [
+    {
+      quote: 'Investasi terbaik untuk bisnis kuliner fisik kami. Peringkat Google Maps naik, dan omzet dine-in terasa ikut terdorong karena rating tinggi.',
+      author: 'William Tanuwidjaja',
+      role: 'Co-Founder',
+      business: 'Nasi Goreng Kebon Sirih',
+      location: 'Jakarta Pusat',
+      rating: 5,
+    },
+    {
+      quote: 'Pasien estetik kami senang karena reviewernya cepat tidak sampai 10 detik. Fitur edit nama dan linknya juga gampang dipahami staf kasir.',
+      author: 'dr. Stephanie',
+      role: 'Medical Director',
+      business: 'Glow Aesthetic Studio',
+      location: 'Medan',
+      rating: 5,
+    },
+    {
+      quote: 'Kami pasang di 4 cabang laundry sekaligus. Kartunya awet, respon tap-nya cepat di iPhone maupun Android merk apa pun.',
+      author: 'Agus Salim',
+      role: 'Owner',
+      business: 'CleanXpress Laundry',
+      location: 'Semarang',
+      rating: 5,
+    },
+    {
+      quote: 'Pet shop kami sering ramai saat weekend. Customer yang nunggu grooming selesai biasanya santai tap kartu ulasan sambil nunggu.',
+      author: 'Claudia Monita',
+      role: 'Manager',
+      business: 'Paws & Paws Pet Clinic',
+      location: 'Jakarta Barat',
+      rating: 5,
+    },
+    {
+      quote: 'Pelanggan studio gym kami banyak yang aktif di sosial media. Begitu disuruh tap kartu ulasan, mereka langsung kasih bintang 5 dengan senang hati.',
+      author: 'Rian Pratama',
+      role: 'Lead Coach',
+      business: 'Pulse Fitness Center',
+      location: 'Malang',
+      rating: 5,
+    },
+    {
+      quote: 'Pengalihan URL Google Review-nya sangat cepat dan mulus. Customer tidak perlu login ulang jika sudah punya akun Google di HP.',
+      author: 'Doni Kurniawan',
+      role: 'Marketing Lead',
+      business: 'Ruang Hijau Coworking',
+      location: 'Depok',
       rating: 5,
     },
   ];
@@ -133,31 +213,30 @@ export default function Homepage() {
       a: 'Kartu dilengkapi dengan chip NFC dan kode QR dinamis. Saat pelanggan menempelkan ponselnya atau scan QR, sistem Tapku langsung mengarahkan browser pelanggan ke halaman "Write a Review" resmi Google tempat pelanggan bisa langsung memberi rating bintang 5 dan ulasan.',
     },
     {
-      q: 'Apakah saya bisa mengganti link bisnis di kemudian hari?',
-      a: 'Bisa! Ini keunggulan utama kartu dinamis Tapku. Anda cukup membuka menu "Kelola Kartu" (/manage), masukkan ID Kartu dan PIN Anda, lalu cari bisnis baru melalui Google Places API. Kartu fisik tetap sama tanpa perlu beli baru.',
+      q: 'Apakah saya bisa mengganti nama usaha dan link bisnis di kemudian hari?',
+      a: 'Bisa. Ini keunggulan utama platform Tapku. Melalui menu "Kelola Kartu" (/manage) dengan memasukkan ID Kartu dan PIN Anda, Anda dapat memperbarui nama bisnis dan lokasi tujuan ulasan kapan saja.',
     },
     {
       q: 'Apakah semua smartphone bisa menggunakan kartu ini?',
-      a: 'Ya. Untuk iPhone XR hingga seri terbaru dan Android modern, fitur NFC aktif secara otomatis tanpa perlu membuka aplikasi apa pun. Untuk ponsel tanpa NFC, pelanggan cukup scan QR code di bagian belakang kartu menggunakan kamera biasa.',
+      a: 'Ya. Untuk iPhone XR ke atas dan sebagian besar Android modern, fitur NFC aktif secara otomatis. Untuk ponsel tanpa NFC, pelanggan cukup memindai kode QR pada kartu menggunakan kamera biasa.',
     },
     {
       q: 'Bagaimana jika saya lupa PIN kartu saya?',
-      a: 'Gunakan tombol "Lupa PIN" di halaman /manage. Sistem akan mengirimkan kode verifikasi OTP 6 digit ke email pemulihan yang Anda daftarkan saat pertama kali mengaktifkan kartu.',
+      a: 'Gunakan tombol "Lupa PIN" di halaman /manage. Sistem akan mengirimkan kode verifikasi OTP 6 digit ke email pemulihan yang Anda daftarkan saat aktivasi kartu.',
     },
     {
-      q: 'Apakah kartu membutuhkan baterai atau pengisian daya?',
-      a: 'Sama sekali tidak. Chip NFC bersifat pasif dan ditenagai oleh sinyal induksi dari smartphone pelanggan saat ditempelkan, sehingga dapat digunakan selamanya tanpa baterai.',
+      q: 'Apakah kartu membutuhkan baterai?',
+      a: 'Tidak. Chip NFC bersifat pasif dan ditenagai oleh sinyal induksi dari smartphone pelanggan saat ditempelkan, sehingga dapat digunakan selamanya tanpa baterai.',
     },
   ];
 
   return (
     <div className="home-container">
-      {/* NAVBAR */}
+      {/* NAVBAR (No Logo Icon) */}
       <nav className="navbar">
         <div className="navbar-container">
-          <a href="/" className="nav-logo">
-            <span className="nav-logo-badge">G</span>
-            <span>TAPKU</span>
+          <a href="/" className="nav-logo font-bold">
+            TAPKU
           </a>
           <div className="nav-links">
             <a href="#workflow" className="nav-link">Cara Kerja</a>
@@ -176,20 +255,18 @@ export default function Homepage() {
 
       {/* HERO SECTION */}
       <section className="hero-section text-center">
-        <div className="hero-glow"></div>
-        <div className="container-sm relative" style={{ zIndex: 1 }}>
+        <div className="container-sm relative">
           <div className="hero-badge-pill">
-            <span style={{ color: '#10b981' }}>●</span>
-            <span>Google Review NFC & QR Card Platform</span>
+            <span className="text-primary font-bold">Platform Kartu Google Review NFC & QR</span>
           </div>
 
           <h1 className="hero-title font-extrabold mb-3">
-            Kumpulkan Ulasan Google Bintang 5 <br />
-            <span className="text-gradient">Cukup Satu Ketukan.</span>
+            Tingkatkan Ulasan Google Bisnis <br />
+            <span className="text-gradient">Cukup dengan Satu Ketukan</span>
           </h1>
 
           <p className="hero-subtitle max-w-xl mx-auto mb-5">
-            Tingkatkan reputasi dan peringkat SEO Google Maps bisnis Anda. Pelanggan cukup menempelkan ponsel ke kartu fisik untuk langsung membuka formulir ulasan.
+            Tingkatkan reputasi dan peringkat pencarian Google Maps bisnis Anda. Pelanggan cukup menempelkan ponsel ke kartu fisik untuk langsung membuka formulir ulasan.
           </p>
 
           {/* QUICK ACTIVATION CTA */}
@@ -206,18 +283,18 @@ export default function Homepage() {
                 className="card-id-input"
               />
               <button type="submit" className="btn btn-primary py-3 px-5 font-semibold">
-                Aktifkan Sekarang →
+                Aktifkan Sekarang
               </button>
             </form>
           </div>
           {error && <p className="error-alert max-w-md mx-auto mb-3 text-xs">{error}</p>}
 
-          <div className="flex justify-center items-center gap-4 text-xs text-muted mt-3">
-            <span>✓ Tanpa Aplikasi Tambahan</span>
+          <div className="flex justify-center items-center gap-4 text-xs text-muted mt-3 flex-wrap">
+            <span>Tanpa Aplikasi Tambahan</span>
             <span>•</span>
-            <span>✓ Cari Bisnis Otomatis</span>
+            <span>Cari Bisnis Otomatis</span>
             <span>•</span>
-            <span>✓ Ganti Link Kapan Saja</span>
+            <span>Bisa Ganti Lokasi & Nama</span>
           </div>
         </div>
       </section>
@@ -227,15 +304,15 @@ export default function Homepage() {
         <div className="container">
           <div className="stats-grid">
             <div className="stat-item">
-              <span className="stat-num">4.9 / 5</span>
-              <span className="text-xs text-muted font-medium mt-1">Rata-rata Rating Customer</span>
+              <span className="stat-num text-primary">4.9 / 5.0</span>
+              <span className="text-xs text-muted font-medium mt-1">Kepuasan Pemilik Bisnis</span>
             </div>
             <div className="stat-item">
-              <span className="stat-num">&lt; 3 Detik</span>
-              <span className="text-xs text-muted font-medium mt-1">Kecepatan Membuka Review</span>
+              <span className="stat-num text-primary">&lt; 3 Detik</span>
+              <span className="text-xs text-muted font-medium mt-1">Kecepatan Buka Halaman Review</span>
             </div>
             <div className="stat-item">
-              <span className="stat-num">100%</span>
+              <span className="stat-num text-primary">100%</span>
               <span className="text-xs text-muted font-medium mt-1">Kompatibel iOS & Android</span>
             </div>
           </div>
@@ -246,10 +323,10 @@ export default function Homepage() {
       <section id="demo" className="py-6 border-b">
         <div className="container">
           <div className="text-center mb-5">
-            <span className="section-badge mb-2">Simulasi Interaktif</span>
-            <h2 className="section-title font-bold mt-1">Lihat Betapa Mudahnya Flow Pelanggan</h2>
+            <span className="section-badge mb-2">Simulasi Alur</span>
+            <h2 className="section-title font-bold mt-1">Alur Singkat Pengalaman Pelanggan</h2>
             <p className="text-muted max-w-lg mx-auto text-sm mt-2">
-              Cobalah simulasi di bawah ini untuk melihat bagaimana pengalaman pelanggan Anda saat menyentuh kartu.
+              Pilih tahapan di bawah untuk melihat simulasi interaktif kartu ulasan.
             </p>
           </div>
 
@@ -266,7 +343,7 @@ export default function Homepage() {
                 className={`tab-btn ${activeDemoTab === 'search' ? 'active' : ''}`}
                 onClick={() => setActiveDemoTab('search')}
               >
-                2. Cari Bisnis
+                2. Lokasi Bisnis
               </button>
               <button
                 className={`tab-btn ${activeDemoTab === 'review' ? 'active' : ''}`}
@@ -282,10 +359,10 @@ export default function Homepage() {
                 <div className="nfc-card-mock mb-4">
                   <div className="nfc-card-top">
                     <div className="nfc-card-chip"></div>
-                    <span className="nfc-wave-icon font-mono text-xs">))) NFC</span>
+                    <span className="font-mono text-xs" style={{ opacity: 0.8 }}>NFC TAP</span>
                   </div>
                   <div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 800 }}>TAP FOR REVIEW</div>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '0.05em' }}>TAP FOR REVIEW</div>
                     <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>Google Review Smart Card</div>
                   </div>
                   <div className="nfc-card-bottom">
@@ -295,13 +372,13 @@ export default function Homepage() {
                 </div>
 
                 <p className="text-sm text-muted mb-3">
-                  Pelanggan cukup menempelkan bagian atas ponsel ke kartu ini.
+                  Pelanggan cukup menempelkan bagian atas ponsel ke kartu fisik.
                 </p>
                 <button
                   onClick={() => setActiveDemoTab('search')}
                   className="btn btn-primary py-2 px-4 text-xs font-semibold"
                 >
-                  Lihat Cara Hubungkan Lokasi →
+                  Lanjut ke Hubungkan Lokasi
                 </button>
               </div>
             )}
@@ -310,21 +387,25 @@ export default function Homepage() {
             {activeDemoTab === 'search' && (
               <div className="text-left animate-fade-in max-w-md mx-auto py-2">
                 <div className="selected-business-box mb-3">
-                  <div className="selected-business-check">✓</div>
+                  <div className="selected-business-check">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
                   <div className="selected-business-info">
                     <span className="selected-business-name">Kopi Kenangan - Senayan City</span>
                     <span className="selected-business-address">Jl. Asia Afrika No.19, Gelora, Jakarta Selatan</span>
                   </div>
                 </div>
                 <p className="text-xs text-muted mb-4">
-                  Sistem otomatis menarik <strong>Place ID</strong> resmi dari Google Places API untuk membuka modal ulasan langsung.
+                  Sistem otomatis menarik Place ID resmi dari Google Places API untuk membuka modal ulasan secara langsung.
                 </p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setActiveDemoTab('review')}
                     className="btn btn-primary py-2 px-4 text-xs font-semibold w-full"
                   >
-                    Simulasikan Review Pelanggan →
+                    Simulasikan Review Pelanggan
                   </button>
                 </div>
               </div>
@@ -335,8 +416,7 @@ export default function Homepage() {
               <div className="text-center animate-fade-in max-w-md mx-auto py-2">
                 <div style={{ background: 'var(--background-subtle)', padding: '1.25rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#4285F4', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.8rem' }}>G</div>
-                    <span className="font-bold text-sm">Google Review Composer</span>
+                    <span className="font-bold text-sm text-primary">Google Review Composer</span>
                   </div>
                   <p className="text-xs text-muted mb-3">Beri nilai untuk <strong>Kopi Kenangan Senayan</strong></p>
 
@@ -349,24 +429,31 @@ export default function Homepage() {
                         style={{
                           background: 'none',
                           border: 'none',
-                          fontSize: '1.8rem',
+                          padding: '4px',
                           cursor: 'pointer',
-                          color: star <= selectedStars ? '#f59e0b' : '#d4d4d8',
-                          transition: 'transform 0.15s',
                         }}
                       >
-                        ★
+                        <svg
+                          width="26"
+                          height="26"
+                          viewBox="0 0 24 24"
+                          fill={star <= selectedStars ? '#d97706' : '#e2e8f0'}
+                          stroke={star <= selectedStars ? '#d97706' : '#cbd5e1'}
+                          strokeWidth="1.5"
+                        >
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
                       </button>
                     ))}
                   </div>
 
-                  <div style={{ background: 'var(--background-card)', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', fontSize: '0.8rem', color: 'var(--foreground-muted)' }}>
-                    "Kopinya mantap, baristanya ramah banget. Pasti bakal balik lagi ke sini!"
+                  <div style={{ background: '#ffffff', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', fontSize: '0.8rem', color: 'var(--foreground-muted)' }}>
+                    "Pelayanan sangat ramah dan tempatnya nyaman. Rekomendasi ulasan terbaik."
                   </div>
 
                   <div className="mt-3">
                     <span className="status-tag active" style={{ fontSize: '0.7rem' }}>
-                      ✓ Ulasan Siap Dikirim ke Google
+                      Ulasan Siap Dikirim ke Google
                     </span>
                   </div>
                 </div>
@@ -375,7 +462,7 @@ export default function Homepage() {
                   onClick={() => setActiveDemoTab('tap')}
                   className="btn btn-secondary py-2 px-4 text-xs font-semibold mt-3"
                 >
-                  Ulangi Simulasi ↺
+                  Ulangi Simulasi
                 </button>
               </div>
             )}
@@ -399,7 +486,7 @@ export default function Homepage() {
               <div key={idx} className="step-card-minimal">
                 <div className="flex justify-between items-center mb-3">
                   <div className="step-badge">{item.step}</div>
-                  <div style={{ color: 'var(--foreground-muted)' }}>{item.icon}</div>
+                  <div style={{ color: 'var(--primary-color)' }}>{item.icon}</div>
                 </div>
                 <h3 className="text-sm font-bold mb-2">{item.title}</h3>
                 <p className="text-muted text-xs leading-relaxed">{item.description}</p>
@@ -416,7 +503,7 @@ export default function Homepage() {
             <span className="section-badge mb-2">Keunggulan</span>
             <h2 className="section-title font-bold mt-1">Fitur Dirancang untuk Bisnis Fisik</h2>
             <p className="text-muted max-w-lg mx-auto text-sm mt-2">
-              Didesain khusus untuk kafe, restoran, klinik, salon, bengkel, hotel, dan toko retail.
+              Didesain khusus untuk kafe, restoran, klinik, salon, bengkel, hotel, dan retail.
             </p>
           </div>
 
@@ -434,31 +521,78 @@ export default function Homepage() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
+      {/* MARQUEE TESTIMONIALS (Dual-Direction Opposite Scrolling) */}
       <section id="testimonials" className="py-6 border-b" style={{ background: 'var(--background-subtle)' }}>
-        <div className="container">
-          <div className="text-center mb-5">
-            <span className="section-badge mb-2">Testimoni</span>
-            <h2 className="section-title font-bold mt-1">Dipercaya Pemilik Usaha di Indonesia</h2>
+        <div className="container mb-4">
+          <div className="text-center">
+            <span className="section-badge mb-2">Testimoni Pelanggan</span>
+            <h2 className="section-title font-bold mt-1">Dipercaya Berbagai Pelaku Usaha di Indonesia</h2>
             <p className="text-muted max-w-lg mx-auto text-sm mt-2">
-              Kisah nyata peningkatan rating dan visibilitas pencarian Google Maps.
+              Pengalaman nyata peningkatan reputasi, rating, dan visibilitas pencarian Google Maps.
             </p>
           </div>
+        </div>
 
-          <div className="grid-3">
-            {testimonials.map((t, idx) => (
-              <div key={idx} className="testimonial-card">
-                <div>
-                  <div className="quote-stars mb-2">{'★'.repeat(t.rating)}</div>
-                  <p className="quote-text text-sm">"{t.quote}"</p>
+        {/* DUAL DIRECTION MARQUEE WRAPPER */}
+        <div className="marquee-wrapper">
+          {/* ROW 1: SCROLL LEFT */}
+          <div className="marquee-row">
+            <div className="marquee-track marquee-left">
+              {[...marqueeReviewsRow1, ...marqueeReviewsRow1].map((t, idx) => (
+                <div key={`row1-${idx}`} className="marquee-card">
+                  <div>
+                    <div className="quote-stars-svg mb-2">
+                      {[...Array(t.rating)].map((_, i) => (
+                        <svg key={i} width="14" height="14" viewBox="0 0 24 24" fill="#d97706" stroke="#d97706">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                      ))}
+                    </div>
+                    <p className="quote-text">"{t.quote}"</p>
+                  </div>
+                  <div className="author-details">
+                    <div className="flex justify-between items-center">
+                      <span className="author-name">{t.author}</span>
+                      <span className="text-xs text-primary font-semibold">{t.business}</span>
+                    </div>
+                    <div className="flex justify-between items-center mt-1">
+                      <span className="author-role">{t.role}</span>
+                      <span className="text-xs text-subtle font-mono">{t.location}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="author-details">
-                  <span className="author-name block">{t.author}</span>
-                  <span className="author-role block">{t.role}</span>
-                  <span className="text-xs text-subtle font-mono block mt-1">{t.location}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* ROW 2: SCROLL RIGHT (Opposite Direction) */}
+          <div className="marquee-row">
+            <div className="marquee-track marquee-right">
+              {[...marqueeReviewsRow2, ...marqueeReviewsRow2].map((t, idx) => (
+                <div key={`row2-${idx}`} className="marquee-card">
+                  <div>
+                    <div className="quote-stars-svg mb-2">
+                      {[...Array(t.rating)].map((_, i) => (
+                        <svg key={i} width="14" height="14" viewBox="0 0 24 24" fill="#d97706" stroke="#d97706">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                      ))}
+                    </div>
+                    <p className="quote-text">"{t.quote}"</p>
+                  </div>
+                  <div className="author-details">
+                    <div className="flex justify-between items-center">
+                      <span className="author-name">{t.author}</span>
+                      <span className="text-xs text-primary font-semibold">{t.business}</span>
+                    </div>
+                    <div className="flex justify-between items-center mt-1">
+                      <span className="author-role">{t.role}</span>
+                      <span className="text-xs text-subtle font-mono">{t.location}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -479,7 +613,19 @@ export default function Homepage() {
                   className="faq-question"
                 >
                   <span>{faq.q}</span>
-                  <span className={`faq-icon-chevron ${faqOpen[idx] ? 'open' : ''}`}>▼</span>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={`faq-icon-svg ${faqOpen[idx] ? 'open' : ''}`}
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
                 </button>
                 {faqOpen[idx] && (
                   <div className="faq-answer animate-fade-in">
@@ -493,15 +639,15 @@ export default function Homepage() {
       </section>
 
       {/* FINAL CTA */}
-      <section className="py-6 text-center" style={{ background: 'var(--background-card)' }}>
+      <section className="py-6 text-center" style={{ background: '#ffffff' }}>
         <div className="container-sm">
-          <h2 className="text-2xl font-extrabold mb-2">Siap Meledakkan Ulasan Bisnis Anda?</h2>
+          <h2 className="text-2xl font-extrabold mb-2">Siap Mengembangkan Ulasan Bisnis Anda?</h2>
           <p className="text-muted text-sm mb-4 max-w-md mx-auto">
-            Masukkan ID Kartu Anda untuk mulai mengatur lokasi bisnis Anda sekarang juga.
+            Masukkan ID Kartu Anda untuk mulai menghubungkan lokasi bisnis sekarang.
           </p>
           <div className="flex justify-center gap-2 max-w-xs mx-auto">
             <a href="#hero" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="btn btn-primary py-3 px-6 font-semibold w-full">
-              Mulai Aktivasi Kartu ↑
+              Mulai Aktivasi Kartu
             </a>
           </div>
         </div>
@@ -510,7 +656,7 @@ export default function Homepage() {
       {/* FOOTER */}
       <footer className="py-4 border-t text-center text-xs text-muted" style={{ background: 'var(--background-subtle)' }}>
         <div className="container flex justify-between items-center flex-wrap gap-2">
-          <span>&copy; {new Date().getFullYear()} Tapku. All rights reserved.</span>
+          <span>&copy; {new Date().getFullYear()} Tapku. Hak cipta dilindungi undang-undang.</span>
           <div className="flex gap-4">
             <a href="/manage" className="hover:underline">Kelola Kartu</a>
             <a href="/admin/login" className="hover:underline">Portal Admin</a>
