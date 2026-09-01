@@ -74,7 +74,6 @@ export default function AdminPage() {
       const data = await response.json();
       setCards(data.cards || []);
       setStats(data.stats || { total: 0, active: 0, unactivated: 0, disabled: 0 });
-      // Reset selection if cards list changes
       setSelectedCardIds([]);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Terjadi kesalahan sistem.';
@@ -459,58 +458,61 @@ export default function AdminPage() {
   const isAllSelected = cards.length > 0 && selectedCardIds.length === cards.length;
 
   return (
-    <main className="container py-4" style={{ maxWidth: '980px' }}>
-      {/* TOPBAR */}
-      <header className="flex justify-between items-center mb-4 flex-wrap gap-2">
+    <main className="container py-3" style={{ maxWidth: '860px' }}>
+      {/* COMPACT TOPBAR */}
+      <header className="flex justify-between items-center mb-3 flex-wrap gap-2">
         <div>
-          <h1 className="text-lg font-bold tracking-tight">Tapku Dashboard</h1>
-          <p className="text-muted text-xs">Pusat Manajemen Kartu NFC &amp; QR</p>
+          <h1 className="text-base font-bold tracking-tight">Tapku Dashboard</h1>
+          <p className="text-muted text-xs" style={{ fontSize: '0.72rem' }}>Pusat Manajemen Kartu NFC &amp; QR</p>
         </div>
-        <div className="flex gap-2">
-          <a href="/" className="btn btn-secondary py-1.5 px-3 text-xs font-semibold">
-            Buka Beranda
+        <div className="flex gap-1.5">
+          <a href="/" className="btn btn-secondary py-1 px-2.5 text-xs font-semibold">
+            Beranda
           </a>
-          <button onClick={handleLogout} className="btn btn-secondary py-1.5 px-3 text-xs font-semibold">
+          <button onClick={handleLogout} className="btn btn-secondary py-1 px-2.5 text-xs font-semibold">
             Keluar
           </button>
         </div>
       </header>
 
-      {error && <div className="error-alert mb-3">{error}</div>}
-      {success && <div className="success-alert mb-3">{success}</div>}
+      {error && <div className="error-alert mb-2.5 py-2 px-3 text-xs">{error}</div>}
+      {success && <div className="success-alert mb-2.5 py-2 px-3 text-xs">{success}</div>}
 
-      {/* STATS OVERVIEW */}
-      <div className="grid-3 mb-4">
-        {[
-          { label: 'Total Kartu', value: stats.total, color: 'var(--foreground)' },
-          { label: 'Kartu Aktif', value: stats.active, color: 'var(--success-accent)' },
-          { label: 'Pending (Belum Aktif)', value: stats.unactivated, color: 'var(--accent-gold)' },
-        ].map((s, i) => (
-          <div
-            key={i}
-            className="feature-card-minimal p-3"
-          >
-            <span className="text-xs text-muted font-medium">{s.label}</span>
-            <span className="text-2xl font-bold font-mono" style={{ color: s.color }}>
-              {s.value}
-            </span>
-          </div>
-        ))}
+      {/* COMPACT 3-COLUMN STATS ROW (Always 1 row on mobile & desktop) */}
+      <div className="admin-stats-grid mb-3">
+        <div className="admin-stat-box">
+          <span className="admin-stat-label">Total Kartu</span>
+          <span className="admin-stat-value" style={{ color: 'var(--foreground)' }}>
+            {stats.total}
+          </span>
+        </div>
+        <div className="admin-stat-box">
+          <span className="admin-stat-label">Kartu Aktif</span>
+          <span className="admin-stat-value" style={{ color: 'var(--success-accent)' }}>
+            {stats.active}
+          </span>
+        </div>
+        <div className="admin-stat-box">
+          <span className="admin-stat-label">Pending</span>
+          <span className="admin-stat-value" style={{ color: 'var(--accent-gold)' }}>
+            {stats.unactivated}
+          </span>
+        </div>
       </div>
 
-      {/* GENERATOR & EXPORT TOOLS */}
-      <div className="grid-2 mb-4">
+      {/* COMPACT TOOLS (Generate & Export) */}
+      <div className="admin-tools-grid mb-3">
         {/* Bulk Generator */}
-        <div className="feature-card-minimal p-4">
-          <h2 className="text-sm font-bold mb-2">Generate ID Kartu Baru</h2>
-          <form onSubmit={handleBulkGenerate} className="flex gap-2 flex-wrap">
+        <div className="feature-card-minimal p-3">
+          <h2 className="text-xs font-bold mb-1.5 text-muted uppercase tracking-wider" style={{ fontSize: '0.7rem' }}>Generate ID Kartu</h2>
+          <form onSubmit={handleBulkGenerate} className="flex gap-1.5">
             <input
               type="text"
-              placeholder="Prefix (GR)"
+              placeholder="Prefix"
               maxLength={4}
               value={genPrefix}
               onChange={(e) => setGenPrefix(e.target.value.toUpperCase())}
-              style={{ flex: '1 1 80px', padding: '0.45rem 0.65rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', background: '#ffffff', color: 'var(--foreground)' }}
+              style={{ flex: '1 1 60px', minWidth: 0, padding: '0.35rem 0.5rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', background: '#ffffff', color: 'var(--foreground)' }}
             />
             <input
               type="number"
@@ -518,54 +520,55 @@ export default function AdminPage() {
               max={100}
               value={genCount}
               onChange={(e) => setGenCount(parseInt(e.target.value) || 1)}
-              style={{ width: '70px', padding: '0.45rem 0.65rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', background: '#ffffff', color: 'var(--foreground)' }}
+              style={{ width: '55px', padding: '0.35rem 0.4rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', background: '#ffffff', color: 'var(--foreground)', textAlign: 'center' }}
             />
             <button
               type="submit"
-              className="btn btn-primary text-xs font-semibold py-2 px-3"
+              className="btn btn-primary text-xs font-semibold py-1.5 px-3"
               disabled={generating}
+              style={{ whiteSpace: 'nowrap' }}
             >
-              {generating ? 'Membuat...' : 'Buat Batch'}
+              {generating ? '...' : '+ Buat'}
             </button>
           </form>
         </div>
 
         {/* Export Data */}
-        <div className="feature-card-minimal p-4">
-          <h2 className="text-sm font-bold mb-2">Ekspor &amp; Cetak QR</h2>
-          <div className="flex gap-2">
+        <div className="feature-card-minimal p-3">
+          <h2 className="text-xs font-bold mb-1.5 text-muted uppercase tracking-wider" style={{ fontSize: '0.7rem' }}>Ekspor &amp; Cetak</h2>
+          <div className="flex gap-1.5">
             <button
               onClick={handleExportCSV}
-              className="btn btn-secondary flex-1 py-2 text-xs font-semibold"
+              className="btn btn-secondary flex-1 py-1.5 text-xs font-semibold"
             >
               Data CSV
             </button>
             <button
               onClick={handleExportPDF}
-              className="btn btn-secondary flex-1 py-2 text-xs font-semibold"
+              className="btn btn-secondary flex-1 py-1.5 text-xs font-semibold"
             >
-              Lembar Cetak PDF
+              Lembar PDF
             </button>
           </div>
         </div>
       </div>
 
       {/* CARD REGISTRY LIST */}
-      <div className="feature-card-minimal p-4">
+      <div className="feature-card-minimal p-3">
         {/* Search, Filter & Bulk Actions Bar */}
-        <div className="flex gap-2 mb-3 flex-wrap items-center justify-between">
-          <div className="flex gap-2 flex-1 flex-wrap" style={{ minWidth: '240px' }}>
+        <div className="flex gap-2 mb-2.5 flex-wrap items-center justify-between">
+          <div className="flex gap-1.5 flex-1 flex-wrap" style={{ minWidth: '220px' }}>
             <input
               type="text"
-              placeholder="Cari ID kartu atau nama bisnis..."
+              placeholder="Cari ID / bisnis..."
               value={search}
               onChange={handleSearchChange}
               style={{
-                flex: '1 1 200px',
-                padding: '0.5rem 0.75rem',
+                flex: '1 1 160px',
+                padding: '0.4rem 0.65rem',
                 border: '1px solid var(--border)',
                 borderRadius: 'var(--radius-sm)',
-                fontSize: '0.85rem',
+                fontSize: '0.8rem',
                 background: '#ffffff',
                 color: 'var(--foreground)',
                 minWidth: 0,
@@ -575,15 +578,15 @@ export default function AdminPage() {
               value={statusFilter}
               onChange={(e) => handleStatusFilterChange(e.target.value)}
               style={{
-                padding: '0.5rem 0.75rem',
+                padding: '0.4rem 0.65rem',
                 border: '1px solid var(--border)',
                 borderRadius: 'var(--radius-sm)',
-                fontSize: '0.85rem',
+                fontSize: '0.8rem',
                 background: '#ffffff',
                 color: 'var(--foreground)',
               }}
             >
-              <option value="ALL">Semua Status</option>
+              <option value="ALL">Semua</option>
               <option value="ACTIVE">Aktif</option>
               <option value="UNACTIVATED">Pending</option>
             </select>
@@ -591,16 +594,16 @@ export default function AdminPage() {
 
           {/* Bulk Selection Actions */}
           {selectedCardIds.length > 0 && (
-            <div className="flex items-center gap-2 animate-fade-in">
-              <span className="text-xs font-semibold text-muted">
-                {selectedCardIds.length} kartu dipilih
+            <div className="flex items-center gap-1.5 animate-fade-in">
+              <span className="text-xs font-semibold text-muted" style={{ fontSize: '0.75rem' }}>
+                {selectedCardIds.length} dipilih
               </span>
               <button
                 type="button"
                 onClick={() => setShowBulkDeleteConfirm(true)}
-                className="btn btn-danger py-1.5 px-3 text-xs font-semibold"
+                className="btn btn-danger py-1 px-2.5 text-xs font-semibold"
               >
-                Hapus Terpilih ({selectedCardIds.length})
+                Hapus ({selectedCardIds.length})
               </button>
             </div>
           )}
@@ -608,13 +611,13 @@ export default function AdminPage() {
 
         {/* Selection Bar (Select All Toggle) */}
         {cards.length > 0 && (
-          <div className="flex items-center gap-2 mb-2 p-2 rounded-sm" style={{ background: 'var(--background-subtle)', border: '1px solid var(--border-subtle)' }}>
-            <label className="flex items-center gap-2 text-xs font-semibold text-muted cursor-pointer">
+          <div className="flex items-center gap-2 mb-2 py-1 px-2 rounded-sm" style={{ background: 'var(--background-subtle)', border: '1px solid var(--border-subtle)' }}>
+            <label className="flex items-center gap-2 text-xs font-semibold text-muted cursor-pointer" style={{ fontSize: '0.72rem' }}>
               <input
                 type="checkbox"
                 checked={isAllSelected}
                 onChange={handleToggleSelectAll}
-                style={{ width: '15px', height: '15px', accentColor: 'var(--primary-color)', cursor: 'pointer' }}
+                style={{ width: '14px', height: '14px', accentColor: 'var(--primary-color)', cursor: 'pointer' }}
               />
               <span>Pilih Semua ({cards.length} kartu)</span>
             </label>
@@ -622,72 +625,62 @@ export default function AdminPage() {
         )}
 
         {loading ? (
-          <div className="text-center py-5 text-muted text-xs">Memuat data kartu...</div>
+          <div className="text-center py-4 text-muted text-xs">Memuat data kartu...</div>
         ) : cards.length === 0 ? (
-          <div className="text-center py-5 text-muted text-xs">Tidak ditemukan kartu yang cocok.</div>
+          <div className="text-center py-4 text-muted text-xs">Tidak ditemukan kartu yang cocok.</div>
         ) : (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             {cards.map((card) => {
               const isChecked = selectedCardIds.includes(card.card_id);
               return (
                 <div
                   key={card.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '0.75rem',
-                    padding: '0.75rem 1rem',
-                    borderRadius: 'var(--radius-md)',
-                    border: isChecked ? '1px solid var(--primary-color)' : '1px solid var(--border)',
-                    background: isChecked ? 'var(--background-accent)' : 'var(--background)',
-                    flexWrap: 'wrap',
-                    transition: 'all 0.15s ease',
-                  }}
+                  className={`admin-card-item ${isChecked ? 'selected' : ''}`}
                 >
                   {/* Left: Checkbox + ID + Status */}
-                  <div className="flex items-center gap-3" style={{ minWidth: '130px' }}>
+                  <div className="flex items-center gap-2.5" style={{ minWidth: '110px' }}>
                     <input
                       type="checkbox"
                       checked={isChecked}
                       onChange={() => handleToggleSelectCard(card.card_id)}
-                      style={{ width: '16px', height: '16px', accentColor: 'var(--primary-color)', cursor: 'pointer' }}
+                      style={{ width: '15px', height: '15px', accentColor: 'var(--primary-color)', cursor: 'pointer' }}
                     />
                     <div>
-                      <span className="font-mono font-bold text-sm block">{card.card_id}</span>
-                      <span className={`status-tag ${card.status.toLowerCase()} mt-1`} style={{ fontSize: '0.65rem' }}>
+                      <span className="font-mono font-bold text-xs block">{card.card_id}</span>
+                      <span className={`status-tag ${card.status.toLowerCase()}`} style={{ fontSize: '0.6rem', padding: '0.1rem 0.4rem' }}>
                         {card.status === 'ACTIVE' ? 'Aktif' : 'Pending'}
                       </span>
                     </div>
                   </div>
 
                   {/* Middle: Business details */}
-                  <div style={{ flex: '1 1 180px', minWidth: 0 }}>
-                    <div className="text-xs font-semibold text-truncate">
-                      {card.business_name || <span className="text-muted italic">Belum diaktivasi</span>}
+                  <div style={{ flex: '1 1 120px', minWidth: 0 }}>
+                    <div className="text-xs font-semibold text-truncate" style={{ fontSize: '0.8rem' }}>
+                      {card.business_name || <span className="text-muted italic" style={{ fontSize: '0.75rem' }}>Belum diaktivasi</span>}
                     </div>
                     {card.business_address && (
-                      <div className="text-xs text-muted text-truncate" style={{ fontSize: '0.72rem' }}>
+                      <div className="text-muted text-truncate" style={{ fontSize: '0.68rem' }}>
                         {card.business_address}
                       </div>
                     )}
                     {card.activated_at && (
-                      <div className="text-subtle" style={{ fontSize: '0.68rem' }}>
-                        Aktif: {new Date(card.activated_at).toLocaleDateString('id-ID')}
+                      <div className="text-subtle" style={{ fontSize: '0.65rem' }}>
+                        {new Date(card.activated_at).toLocaleDateString('id-ID')}
                       </div>
                     )}
                   </div>
 
                   {/* Right: Minimalist Action Icon Buttons */}
-                  <div className="flex gap-2 items-center">
+                  <div className="flex gap-1.5 items-center">
                     <button
                       type="button"
                       onClick={() => handleShowQR(card.card_id)}
                       title="Lihat QR Code"
                       aria-label="Lihat QR Code"
                       className="action-icon-btn btn-qr"
+                      style={{ width: '30px', height: '30px', minWidth: '30px' }}
                     >
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <rect x="3" y="3" width="7" height="7" rx="1" />
                         <rect x="14" y="3" width="7" height="7" rx="1" />
                         <rect x="3" y="14" width="7" height="7" rx="1" />
@@ -701,8 +694,9 @@ export default function AdminPage() {
                       title="Download PNG Cetak"
                       aria-label="Download PNG Cetak"
                       className="action-icon-btn btn-download"
+                      style={{ width: '30px', height: '30px', minWidth: '30px' }}
                     >
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                         <polyline points="7 10 12 15 17 10" />
                         <line x1="12" y1="15" x2="12" y2="3" />
@@ -715,8 +709,9 @@ export default function AdminPage() {
                       title="Atur Ulang PIN"
                       aria-label="Atur Ulang PIN"
                       className="action-icon-btn btn-pin"
+                      style={{ width: '30px', height: '30px', minWidth: '30px' }}
                     >
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                         <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                       </svg>
@@ -728,8 +723,9 @@ export default function AdminPage() {
                       title="Hapus Kartu Ini"
                       aria-label="Hapus Kartu Ini"
                       className="action-icon-btn btn-delete"
+                      style={{ width: '30px', height: '30px', minWidth: '30px' }}
                     >
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="3 6 5 6 21 6" />
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                         <line x1="10" y1="11" x2="10" y2="17" />
@@ -747,24 +743,24 @@ export default function AdminPage() {
       {/* POPUP MODAL: SINGLE DELETE CONFIRMATION */}
       {cardToDelete && (
         <div className="modal-backdrop">
-          <div className="onboarding-card modal-content animate-fade-in" style={{ maxWidth: '420px' }}>
-            <h3 className="text-base font-bold mb-1 text-danger">Hapus Kartu Ini?</h3>
-            <p className="text-muted text-xs mb-4">
-              Apakah Anda yakin ingin menghapus kartu <strong className="font-mono">{cardToDelete}</strong>? Tindakan ini permanen dan kartu tidak akan bisa di-scan lagi.
+          <div className="onboarding-card modal-content animate-fade-in" style={{ maxWidth: '380px', padding: '1.25rem' }}>
+            <h3 className="text-sm font-bold mb-1 text-danger">Hapus Kartu Ini?</h3>
+            <p className="text-muted text-xs mb-3">
+              Hapus kartu <strong className="font-mono">{cardToDelete}</strong> secara permanen dari database?
             </p>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={handleConfirmSingleDelete}
-                className="btn btn-danger w-full py-2 font-semibold text-xs"
+                className="btn btn-danger w-full py-1.5 font-semibold text-xs"
                 disabled={deletingSingle}
               >
-                {deletingSingle ? 'Menghapus...' : 'Ya, Hapus Kartu'}
+                {deletingSingle ? 'Menghapus...' : 'Ya, Hapus'}
               </button>
               <button
                 type="button"
                 onClick={() => setCardToDelete(null)}
-                className="btn btn-secondary w-full py-2 font-semibold text-xs"
+                className="btn btn-secondary w-full py-1.5 font-semibold text-xs"
                 disabled={deletingSingle}
               >
                 Batal
@@ -777,19 +773,19 @@ export default function AdminPage() {
       {/* POPUP MODAL: BULK DELETE CONFIRMATION */}
       {showBulkDeleteConfirm && (
         <div className="modal-backdrop">
-          <div className="onboarding-card modal-content animate-fade-in" style={{ maxWidth: '440px' }}>
-            <h3 className="text-base font-bold mb-1 text-danger">Hapus {selectedCardIds.length} Kartu Terpilih?</h3>
-            <p className="text-muted text-xs mb-3">
-              Semua data {selectedCardIds.length} kartu berikut akan dihapus permanen dari database:
+          <div className="onboarding-card modal-content animate-fade-in" style={{ maxWidth: '400px', padding: '1.25rem' }}>
+            <h3 className="text-sm font-bold mb-1 text-danger">Hapus {selectedCardIds.length} Kartu Terpilih?</h3>
+            <p className="text-muted text-xs mb-2">
+              Daftar ID kartu berikut akan dihapus permanen:
             </p>
-            <div className="p-2 border rounded-sm mb-4 max-h-32 overflow-y-auto font-mono text-xs text-muted" style={{ background: 'var(--background-subtle)' }}>
+            <div className="p-2 border rounded-sm mb-3 max-h-28 overflow-y-auto font-mono text-xs text-muted" style={{ background: 'var(--background-subtle)', fontSize: '0.72rem' }}>
               {selectedCardIds.join(', ')}
             </div>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={handleConfirmBulkDelete}
-                className="btn btn-danger w-full py-2 font-semibold text-xs"
+                className="btn btn-danger w-full py-1.5 font-semibold text-xs"
                 disabled={deletingBulk}
               >
                 {deletingBulk ? 'Menghapus...' : `Hapus ${selectedCardIds.length} Kartu`}
@@ -797,7 +793,7 @@ export default function AdminPage() {
               <button
                 type="button"
                 onClick={() => setShowBulkDeleteConfirm(false)}
-                className="btn btn-secondary w-full py-2 font-semibold text-xs"
+                className="btn btn-secondary w-full py-1.5 font-semibold text-xs"
                 disabled={deletingBulk}
               >
                 Batal
@@ -810,27 +806,28 @@ export default function AdminPage() {
       {/* POPUP MODAL: PIN RESET */}
       {selectedCard && (
         <div className="modal-backdrop">
-          <div className="onboarding-card modal-content animate-fade-in">
-            <h3 className="text-base font-bold mb-1">Atur Ulang PIN Kartu</h3>
+          <div className="onboarding-card modal-content animate-fade-in" style={{ maxWidth: '380px', padding: '1.25rem' }}>
+            <h3 className="text-sm font-bold mb-1">Atur Ulang PIN</h3>
             <p className="text-muted text-xs mb-3">
-              Membuat kode sandi baru untuk kartu <strong className="font-mono">{selectedCard.card_id}</strong>.
+              Kode sandi baru untuk kartu <strong className="font-mono">{selectedCard.card_id}</strong>:
             </p>
             <form onSubmit={handleResetPin} className="form-group">
               <div className="input-group">
-                <label>PIN Baru (4-6 digit angka)</label>
+                <label style={{ fontSize: '0.72rem' }}>PIN Baru (4-6 digit angka)</label>
                 <input
                   type="password"
                   maxLength={6}
                   value={newPinInput}
                   onChange={(e) => setNewPinInput(e.target.value.replace(/\D/g, ''))}
-                  placeholder="Masukkan PIN baru"
+                  placeholder="Masukkan PIN"
+                  style={{ padding: '0.45rem 0.65rem', fontSize: '0.85rem' }}
                   required
                 />
               </div>
               <div className="flex gap-2">
                 <button
                   type="submit"
-                  className="btn btn-primary w-full py-2 font-semibold text-xs"
+                  className="btn btn-primary w-full py-1.5 font-semibold text-xs"
                   disabled={updatingCard}
                 >
                   {updatingCard ? 'Menyimpan...' : 'Simpan PIN'}
@@ -838,7 +835,7 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedCard(null)}
-                  className="btn btn-secondary w-full py-2 font-semibold text-xs"
+                  className="btn btn-secondary w-full py-1.5 font-semibold text-xs"
                   disabled={updatingCard}
                 >
                   Batal
@@ -852,29 +849,29 @@ export default function AdminPage() {
       {/* POPUP MODAL: SHOW QR PREVIEW */}
       {showQrCardId && (
         <div className="modal-backdrop">
-          <div className="onboarding-card modal-content animate-fade-in text-center" style={{ maxWidth: '380px' }}>
-            <h3 className="text-base font-bold mb-1">QR Code: {showQrCardId}</h3>
-            <p className="text-muted text-xs mb-3">
-              Scan kode QR di bawah ini dengan kamera ponsel untuk menguji tautan.
+          <div className="onboarding-card modal-content animate-fade-in text-center" style={{ maxWidth: '340px', padding: '1.25rem' }}>
+            <h3 className="text-sm font-bold mb-1">QR Code: {showQrCardId}</h3>
+            <p className="text-muted text-xs mb-2.5">
+              Scan dengan kamera HP untuk menguji tautan kartu.
             </p>
             
             {loadingQr ? (
-              <div className="py-4 text-muted text-xs">Memuat QR Code...</div>
+              <div className="py-3 text-muted text-xs">Memuat QR...</div>
             ) : showQrDataUrl ? (
-              <div className="mb-3 flex flex-col items-center">
+              <div className="mb-2.5 flex flex-col items-center">
                 <img 
                   src={showQrDataUrl} 
                   alt={`QR ${showQrCardId}`}
                   style={{ 
-                    width: '240px', 
-                    height: '240px', 
+                    width: '200px', 
+                    height: '200px', 
                     border: '1px solid var(--border)',
                     borderRadius: 'var(--radius-md)',
                     background: '#ffffff',
-                    padding: '8px',
+                    padding: '6px',
                   }} 
                 />
-                <p className="font-mono font-bold mt-2 text-sm">{showQrCardId}</p>
+                <p className="font-mono font-bold mt-1.5 text-xs">{showQrCardId}</p>
               </div>
             ) : null}
 
@@ -882,7 +879,7 @@ export default function AdminPage() {
               <button
                 type="button"
                 onClick={() => handleDownloadPrintPNG(showQrCardId)}
-                className="btn btn-primary w-full py-2 text-xs font-semibold"
+                className="btn btn-primary w-full py-1.5 text-xs font-semibold"
               >
                 Download PNG
               </button>
@@ -892,7 +889,7 @@ export default function AdminPage() {
                   setShowQrCardId('');
                   setShowQrDataUrl('');
                 }}
-                className="btn btn-secondary w-full py-2 text-xs font-semibold"
+                className="btn btn-secondary w-full py-1.5 text-xs font-semibold"
               >
                 Tutup
               </button>
@@ -904,19 +901,19 @@ export default function AdminPage() {
       {/* POPUP MODAL: PRINT PREVIEW */}
       {printLabelCardId && printLabelDataUrl && (
         <div className="modal-backdrop">
-          <div className="onboarding-card modal-content animate-fade-in" style={{ maxWidth: '540px' }}>
-            <h3 className="text-base font-bold mb-1">Pratinjau Label Cetak</h3>
-            <p className="text-muted text-xs mb-3">
+          <div className="onboarding-card modal-content animate-fade-in" style={{ maxWidth: '460px', padding: '1.25rem' }}>
+            <h3 className="text-sm font-bold mb-1">Pratinjau Label Cetak</h3>
+            <p className="text-muted text-xs mb-2.5">
               Label cetak resolusi tinggi siap dipasang pada kartu fisik.
             </p>
             
-            <div className="mb-3 flex justify-center">
+            <div className="mb-2.5 flex justify-center">
               <img 
                 src={printLabelDataUrl} 
                 alt={`Label ${printLabelCardId}`}
                 style={{ 
                   width: '100%', 
-                  maxHeight: '320px',
+                  maxHeight: '260px',
                   objectFit: 'contain',
                   border: '1px solid var(--border)',
                   borderRadius: 'var(--radius-md)',
@@ -929,7 +926,7 @@ export default function AdminPage() {
               <button
                 type="button"
                 onClick={() => handlePrintDirectly(printLabelCardId, printLabelDataUrl)}
-                className="btn btn-primary w-full py-2 text-xs font-semibold"
+                className="btn btn-primary w-full py-1.5 text-xs font-semibold"
               >
                 Cetak Langsung
               </button>
@@ -939,7 +936,7 @@ export default function AdminPage() {
                   setPrintLabelCardId('');
                   setPrintLabelDataUrl('');
                 }}
-                className="btn btn-secondary w-full py-2 text-xs font-semibold"
+                className="btn btn-secondary w-full py-1.5 text-xs font-semibold"
               >
                 Tutup
               </button>
