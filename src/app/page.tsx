@@ -38,8 +38,9 @@ export default function Homepage() {
     }, 2500);
   };
 
-  const waUrl = 'https://wa.me/6281211156965?text=Halo%20Tapku,%20saya%20ingin%20pesan%20Smart%20Card%20Google%20Review%20NFC%20untuk%20bisnis%20saya.';
-  const waResellerUrl = 'https://wa.me/6281211156965?text=Halo%20Tapku,%20saya%20tertarik%20untuk%20bergabung%20menjadi%20Reseller%20/%20Mitra%20resmi%20Tapku.';
+  const waUrl = 'https://wa.me/6281211156865?text=Halo%20Tapku,%20saya%20ingin%20pesan%20Smart%20Card%20Google%20Review%20NFC%20untuk%20bisnis%20saya.';
+  const waResellerUrl = 'https://wa.me/6281211156865?text=Halo%20Tapku,%20saya%20tertarik%20untuk%20bergabung%20menjadi%20Reseller%20/%20Mitra%20resmi%20Tapku.';
+  const waInfoUrl = 'https://wa.me/6281211156865?text=Halo%20Tapku,%20saya%20ingin%20tanya%20informasi%20lengkap%20seputar%20Kartu%20Google%20Review%20NFC.';
 
   // Target Markets Data
   const targetMarkets = [
@@ -348,6 +349,51 @@ export default function Homepage() {
 
   return (
     <div className="home-container">
+      {/* WHATSAPP LIVE MARQUEE ANNOUNCEMENT BANNER */}
+      <a
+        href={waInfoUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="wa-marquee-banner"
+        title="Klik untuk chat WhatsApp Customer Support Tapku"
+      >
+        <div className="wa-marquee-badge">
+          <span className="wa-live-dot"></span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.174.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.392-10.416c-5.514 0-10 4.486-10 10 0 1.761.459 3.417 1.258 4.865l-1.297 4.735 4.856-1.273c1.393.759 2.977 1.173 4.683 1.173 5.514 0 10-4.486 10-10s-4.486-10-10-10z" />
+          </svg>
+          <span>CS ONLINE</span>
+        </div>
+        <div className="wa-marquee-track-container">
+          <div className="wa-marquee-content">
+            <span className="wa-marquee-item">
+              💬 <strong>Punya pertanyaan atau butuh informasi produk?</strong> Chat Customer Support kami via WhatsApp (Respon Cepat).
+            </span>
+            <span className="wa-marquee-sep">•</span>
+            <span className="wa-marquee-item">
+              🚀 <strong>Konsultasi Gratis &amp; Dapatkan Penawaran Khusus!</strong> Klik untuk langsung chat via WhatsApp ➜
+            </span>
+            <span className="wa-marquee-sep">•</span>
+            <span className="wa-marquee-item">
+              ⭐ <strong>Tapku Smart Card Google Review NFC:</strong> Praktis sekali tap langsung buka review bintang 5 bisnis Anda!
+            </span>
+            <span className="wa-marquee-sep">•</span>
+            <span className="wa-marquee-item">
+              💬 <strong>Punya pertanyaan atau butuh informasi produk?</strong> Chat Customer Support kami via WhatsApp (Respon Cepat).
+            </span>
+            <span className="wa-marquee-sep">•</span>
+            <span className="wa-marquee-item">
+              🚀 <strong>Konsultasi Gratis &amp; Dapatkan Penawaran Khusus!</strong> Klik untuk langsung chat via WhatsApp ➜
+            </span>
+            <span className="wa-marquee-sep">•</span>
+            <span className="wa-marquee-item">
+              ⭐ <strong>Tapku Smart Card Google Review NFC:</strong> Praktis sekali tap langsung buka review bintang 5 bisnis Anda!
+            </span>
+            <span className="wa-marquee-sep">•</span>
+          </div>
+        </div>
+      </a>
+
       {/* NAVBAR */}
       <nav className="navbar">
         <div className="navbar-container">
@@ -1086,9 +1132,17 @@ export default function Homepage() {
             <div>
               <div className="footer-col-title">Kontak &amp; Bantuan</div>
               <div className="footer-col-links">
-                <span className="text-xs text-muted">WhatsApp Dukungan Pelanggan:</span>
-                <a href={waUrl} target="_blank" rel="noopener noreferrer" className="footer-col-link font-bold text-slate-800">
-                  +62 812-1115-6965
+                <span className="text-xs text-muted">Dukungan Pelanggan:</span>
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="footer-col-link font-bold text-slate-800 flex items-center gap-1.5"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#16a34a">
+                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.174.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.392-10.416c-5.514 0-10 4.486-10 10 0 1.761.459 3.417 1.258 4.865l-1.297 4.735 4.856-1.273c1.393.759 2.977 1.173 4.683 1.173 5.514 0 10-4.486 10-10s-4.486-10-10-10z" />
+                  </svg>
+                  <span>Chat CS WhatsApp</span>
                 </a>
                 <span className="text-xs text-muted mt-1">Jam Operasional:</span>
                 <span className="text-xs font-semibold text-slate-700">Senin - Minggu: 08.00 - 21.00 WIB</span>
@@ -1106,6 +1160,36 @@ export default function Homepage() {
           </div>
         </div>
       </footer>
+
+      {/* FLOATING WHATSAPP MARQUEE BUTTON (BOTTOM RIGHT) */}
+      <a
+        href={waInfoUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="floating-wa-widget"
+        aria-label="Chat WhatsApp untuk informasi produk"
+      >
+        <div className="floating-wa-pulse-ring"></div>
+        <div className="floating-wa-icon-box">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#ffffff">
+            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.174.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.392-10.416c-5.514 0-10 4.486-10 10 0 1.761.459 3.417 1.258 4.865l-1.297 4.735 4.856-1.273c1.393.759 2.977 1.173 4.683 1.173 5.514 0 10-4.486 10-10s-4.486-10-10-10z" />
+          </svg>
+          <span className="floating-wa-online-dot"></span>
+        </div>
+        
+        <div className="floating-wa-marquee-body">
+          <div className="floating-wa-label-top">
+            <span className="floating-wa-badge">Online</span>
+            <span className="floating-wa-phone">Tanya CS Tapku</span>
+          </div>
+          <div className="floating-wa-marquee-track">
+            <div className="floating-wa-marquee-anim">
+              <span>💬 Butuh info produk? Tanya langsung via WhatsApp! • Fast response &amp; konsultasi gratis ➜</span>
+              <span>💬 Butuh info produk? Tanya langsung via WhatsApp! • Fast response &amp; konsultasi gratis ➜</span>
+            </div>
+          </div>
+        </div>
+      </a>
     </div>
   );
 }
