@@ -1440,14 +1440,17 @@ a {
   border: 1px solid transparent;
   cursor: pointer;
   font-family: var(--font-primary);
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   font-size: 0.875rem;
+  padding: 0.75rem 1.25rem;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   text-decoration: none;
   user-select: none;
+  font-weight: 700;
 }
 
 .btn:active {
@@ -1458,12 +1461,14 @@ a {
   background: var(--primary-color);
   color: var(--primary-text);
   border-color: var(--primary-color);
-  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(30, 58, 138, 0.2);
 }
 
 .btn-primary:hover {
   background: var(--primary-hover);
   border-color: var(--primary-hover);
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25);
+  transform: translateY(-1px);
 }
 
 .btn-primary:disabled {
@@ -1473,25 +1478,28 @@ a {
 }
 
 .btn-secondary {
-  background: var(--secondary-bg);
-  color: var(--secondary-text);
+  background: #ffffff;
+  color: var(--foreground);
   border-color: var(--border);
-  font-weight: 600;
+  box-shadow: var(--shadow-xs);
 }
 
 .btn-secondary:hover {
-  background: var(--secondary-hover);
+  background: var(--background-subtle);
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
 }
 
 .btn-danger {
   background: var(--danger-bg);
   border-color: var(--danger-border);
   color: var(--danger-text);
-  font-weight: 600;
 }
 
 .btn-danger:hover {
-  filter: brightness(0.97);
+  background: #fee2e2;
+  border-color: #fca5a5;
+  transform: translateY(-1px);
 }
 
 .link-btn {
@@ -1500,9 +1508,12 @@ a {
   color: var(--primary-color);
   cursor: pointer;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   transition: opacity 0.15s;
   font-family: var(--font-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .link-btn:hover {
@@ -1510,11 +1521,11 @@ a {
   text-decoration: underline;
 }
 
-/* Minimalist Action Icon Buttons */
+/* Touch-Friendly Action Icon Buttons */
 .action-icon-btn {
-  width: 34px;
-  height: 34px;
-  min-width: 34px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1563,7 +1574,7 @@ a {
   padding: 0.75rem 1rem;
   border-radius: var(--radius-md);
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .success-alert {
@@ -1573,7 +1584,7 @@ a {
   padding: 0.75rem 1rem;
   border-radius: var(--radius-md);
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .info-alert {
@@ -1679,37 +1690,69 @@ a {
   color: var(--foreground-muted);
 }
 
-/* Summary Box */
+/* Enhanced Summary Box */
 .summary-box {
-  background: var(--background-subtle);
+  background: #ffffff;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 1rem;
+  padding: 1rem 1.15rem;
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: 0.85rem;
+  box-shadow: var(--shadow-xs);
 }
 
-.summary-item {
+.summary-card-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.85rem;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
-.summary-item .label {
+.summary-card-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.summary-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--foreground-muted);
-  font-size: 0.78rem;
 }
 
-.summary-item .value {
-  font-weight: 600;
+.summary-val-main {
+  font-size: 0.95rem;
+  font-weight: 800;
   color: var(--foreground);
-  text-align: right;
-  max-width: 60%;
+  line-height: 1.35;
+  word-break: break-word;
 }
+
+.summary-val-sub {
+  font-size: 0.8rem;
+  color: var(--foreground-muted);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.summary-card-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 480px) {
+  .summary-card-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 /* Status Tags */
 .status-tag {

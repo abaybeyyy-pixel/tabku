@@ -644,79 +644,122 @@ export default function ManagePage() {
                   </form>
                 ) : null}
 
+                {/* DETAIL INFORMASI KARTU */}
                 <div className="summary-box">
-                  <div className="summary-item">
-                    <span className="label">Nama Usaha</span>
-                    <div className="flex items-center gap-2">
-                      <span className="value text-truncate">{loggedInCard.businessName || '-'}</span>
+                  {/* Nama Usaha */}
+                  <div className="summary-card-row">
+                    <div className="flex justify-between items-center">
+                      <span className="summary-label">Nama Usaha</span>
                       <button
                         type="button"
                         onClick={() => setIsEditingName(!isEditingName)}
-                        className="link-btn text-xs"
-                        style={{ fontSize: '0.75rem' }}
+                        className="link-btn text-xs font-bold"
+                        style={{ fontSize: '0.78rem' }}
                       >
-                        Edit
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M12 20h9" />
+                          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                        </svg>
+                        Edit Nama
                       </button>
                     </div>
+                    <div className="summary-val-main">
+                      {loggedInCard.businessName || '-'}
+                    </div>
                   </div>
+
+                  {/* Alamat Google Maps */}
                   {loggedInCard.businessAddress && (
-                    <div className="summary-item">
-                      <span className="label">Alamat</span>
-                      <span className="value text-xs text-muted text-truncate">{loggedInCard.businessAddress}</span>
+                    <div className="summary-card-row">
+                      <span className="summary-label">Alamat Terdaftar</span>
+                      <div className="summary-val-sub">
+                        {loggedInCard.businessAddress}
+                      </div>
                     </div>
                   )}
-                  <div className="summary-item">
-                    <span className="label">Status Kartu</span>
-                    <span className={`status-tag ${loggedInCard.status.toLowerCase()}`}>
-                      {loggedInCard.status === 'ACTIVE' ? 'Aktif' : loggedInCard.status === 'DISABLED' ? 'Nonaktif' : loggedInCard.status}
-                    </span>
+
+                  {/* Status & Email */}
+                  <div className="summary-card-grid-2">
+                    <div>
+                      <span className="summary-label block mb-1">Status Kartu</span>
+                      <span className={`status-tag ${loggedInCard.status.toLowerCase()}`}>
+                        {loggedInCard.status === 'ACTIVE' ? 'Aktif' : loggedInCard.status === 'DISABLED' ? 'Nonaktif' : loggedInCard.status}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="summary-label block mb-1">Email Pemulihan</span>
+                      <div className="summary-val-sub font-mono" style={{ fontSize: '0.78rem' }}>
+                        {loggedInCard.email}
+                      </div>
+                    </div>
                   </div>
-                  <div className="summary-item">
-                    <span className="label">Email Pemulihan</span>
-                    <span className="value text-xs">{loggedInCard.email}</span>
-                  </div>
-                  <div className="summary-item">
-                    <span className="label">Tujuan Redirect</span>
-                    <span className="value text-xs font-semibold text-success">
-                      Google Write a Review
-                    </span>
+
+                  {/* Tujuan Redirect */}
+                  <div className="summary-card-row">
+                    <span className="summary-label">Tujuan Redirect</span>
+                    <div className="text-xs font-bold text-success flex items-center gap-1 mt-0.5">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                      Google Write a Review (Bintang 5 Langsung)
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2 mt-1">
+                {/* TOMBOL AKSI UTAMA (Ukuran Mantap & Nyaman Ditap) */}
+                <div className="flex flex-col gap-2.5 mt-2">
                   {loggedInCard.destinationUrl && (
                     <a
                       href={loggedInCard.destinationUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn btn-primary w-full py-2.5 font-semibold text-xs"
+                      className="btn btn-primary w-full py-3.5 px-4 font-bold text-sm"
+                      style={{ fontSize: '0.9rem' }}
                     >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                      </svg>
                       Buka Halaman Ulasan Google
                     </a>
                   )}
 
-                  <div className="grid-2">
+                  <div className="grid-2 gap-2">
                     <button
                       type="button"
                       onClick={handleCopyLink}
-                      className="btn btn-secondary py-2 text-xs font-semibold"
+                      className="btn btn-secondary py-3 px-3 text-xs font-bold"
                     >
-                      {copiedLink ? 'Tersalin' : 'Salin Link Kartu'}
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                      </svg>
+                      {copiedLink ? 'Link Tersalin!' : 'Salin Link Kartu'}
                     </button>
                     <a
                       href={`/c/${loggedInCard.cardId}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn btn-secondary py-2 text-xs font-semibold"
+                      className="btn btn-secondary py-3 px-3 text-xs font-bold"
                     >
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M5 12.55a11 11 0 0 1 14.08 0" />
+                        <path d="M1.42 9a16 16 0 0 1 21.16 0" />
+                        <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+                        <line x1="12" y1="20" x2="12.01" y2="20" />
+                      </svg>
                       Tes Redirect Kartu
                     </a>
                   </div>
 
                   <button
                     onClick={handleLogout}
-                    className="btn btn-danger w-full py-2 font-semibold text-xs mt-2"
+                    className="btn btn-danger w-full py-3 font-bold text-xs mt-1"
                   >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
                     Keluar dari Akun
                   </button>
                 </div>
