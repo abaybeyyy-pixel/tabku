@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { findCardById } from '@/lib/db-helpers';
+import { findCardById, incrementCardTap } from '@/lib/db-helpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -165,6 +165,9 @@ export async function GET(
       }
     );
   }
+
+  // Track tap asynchronously without blocking redirect response
+  incrementCardTap(card.card_id).catch(() => {});
 
   // Successful redirect to Google Review / Destination URL without caching
   const redirectResponse = NextResponse.redirect(card.destination_url, 307);

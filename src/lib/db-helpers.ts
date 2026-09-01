@@ -264,3 +264,35 @@ export async function adminResetPin(cardId: string, newPinHash: string): Promise
 
   return !error && data && data.length > 0;
 }
+
+export async function incrementCardTap(cardId: string): Promise<void> {
+  try {
+    const supabase = await createClient();
+    const now = new Date().toISOString();
+    
+    // First attempt to call RPC if registered
+    const { error: rpcError } = await supabase.rpc('increment_card_tap', { target_card_id: cardId });
+    
+    // If RPC is not available in Postgres, fallback to direct query increment
+    if (rpcError) {
+      const { data } = await supabase
+        .from('cards')
+        .select('tap_count')
+        .eq('card_id', cardId)
+        .single();
+      
+      const currentCount = data && data.tap_count ? Number(data.tap_count) : 0;
+      await supabase
+        .from('cards')
+        .update({
+          tap_count: currentCount + 1,
+          last_tapped_at: now,
+        })
+        .eq('card_id', cardId);
+    }
+  } catch (err) {
+    // Non-blocking for client redirect
+    console.error('[Tap Tracking Error]', err);
+  }
+}
+

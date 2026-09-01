@@ -8,6 +8,8 @@ export interface Card {
   business_address: string | null;
   pin_hash: string | null;
   email: string | null;
+  tap_count?: number;
+  last_tapped_at?: string | null;
   created_at: string;
   activated_at: string | null;
   updated_at: string | null;

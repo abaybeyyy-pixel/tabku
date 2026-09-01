@@ -47,6 +47,24 @@ export default function ManagePage() {
   const [newPinInput, setNewPinInput] = useState('');
   const [confirmNewPinInput, setConfirmNewPinInput] = useState('');
 
+  const formatDateTime = (dateStr?: string | null) => {
+    if (!dateStr) return 'Belum ada interaksi tap';
+    try {
+      const d = new Date(dateStr);
+      return (
+        d.toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }) + ' WIB'
+      );
+    } catch {
+      return dateStr;
+    }
+  };
+
   // Handle standard management login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -609,6 +627,52 @@ export default function ManagePage() {
             {/* TAB 1: RINGKASAN & EDIT NAMA USAHA */}
             {dashTab === 'details' && (
               <div className="animate-fade-in flex flex-col gap-3">
+                {/* WIDGET STATISTIK INTERAKSI & TOTAL TAP */}
+                <div
+                  className="summary-box"
+                  style={{
+                    background: 'linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%)',
+                    borderColor: '#bbf7d0',
+                    boxShadow: '0 2px 8px rgba(22, 163, 74, 0.06)',
+                  }}
+                >
+                  <div className="flex justify-between items-center mb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          background: '#22c55e',
+                          display: 'inline-block',
+                          boxShadow: '0 0 6px #22c55e',
+                        }}
+                      ></span>
+                      <span className="font-extrabold text-xs" style={{ color: '#15803d', letterSpacing: '0.04em' }}>
+                        STATISTIK TAP KARTU
+                      </span>
+                    </div>
+                    <span className="text-xs font-semibold text-muted">ID: {loggedInCard.cardId}</span>
+                  </div>
+
+                  <div className="grid-2 gap-2.5">
+                    <div className="p-3 rounded-lg bg-white border border-slate-200/80 shadow-xs">
+                      <span className="summary-label block mb-1">Total Pelanggan Tap Ulasan</span>
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-2xl font-black text-slate-900">{loggedInCard.tapCount || 0}</span>
+                        <span className="text-xs font-bold text-emerald-600">Kali Tap</span>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-lg bg-white border border-slate-200/80 shadow-xs">
+                      <span className="summary-label block mb-1">Terakhir Kali Ditempel</span>
+                      <div className="text-xs font-bold text-slate-800 mt-1">
+                        {formatDateTime(loggedInCard.lastTappedAt)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Form Edit Nama Usaha Inline */}
                 {isEditingName ? (
                   <form onSubmit={handleSaveBusinessName} className="p-3 border rounded-md" style={{ background: 'var(--background-accent)' }}>

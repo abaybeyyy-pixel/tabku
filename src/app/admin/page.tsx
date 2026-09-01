@@ -41,6 +41,12 @@ export default function AdminPage() {
   const [showQrDataUrl, setShowQrDataUrl] = useState<string>('');
   const [loadingQr, setLoadingQr] = useState(false);
 
+  // SMTP Test Modal state
+  const [showSmtpModal, setShowSmtpModal] = useState(false);
+  const [testEmailInput, setTestEmailInput] = useState('');
+  const [testingSmtp, setTestingSmtp] = useState(false);
+  const [smtpTestResult, setSmtpTestResult] = useState<any>(null);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -466,6 +472,17 @@ export default function AdminPage() {
           <p className="text-muted text-xs" style={{ fontSize: '0.72rem' }}>Pusat Manajemen Kartu NFC &amp; Dynamic QR</p>
         </div>
         <div className="admin-header-actions">
+          <button
+            type="button"
+            onClick={() => {
+              setShowSmtpModal(true);
+              setSmtpTestResult(null);
+            }}
+            className="admin-header-btn"
+            style={{ borderColor: '#22c55e', color: '#15803d', fontWeight: 600 }}
+          >
+            Tes SMTP Email
+          </button>
           <a href="/" className="admin-header-btn">
             Beranda
           </a>
@@ -941,6 +958,101 @@ export default function AdminPage() {
                 Tutup
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* POPUP MODAL: SMTP TEST & DIAGNOSTICS */}
+      {showSmtpModal && (
+        <div className="modal-backdrop">
+          <div className="onboarding-card modal-content animate-fade-in" style={{ maxWidth: '440px', padding: '1.25rem' }}>
+            <h3 className="text-sm font-bold mb-1">Uji Koneksi &amp; Kirim Email SMTP</h3>
+            <p className="text-muted text-xs mb-3">
+              Verifikasi kredensial SMTP yang terpasang di file <code>.env.local</code> untuk pengiriman OTP.
+            </p>
+
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setTestingSmtp(true);
+                setSmtpTestResult(null);
+                try {
+                  const res = await fetch('/api/admin/test-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ testEmail: testEmailInput.trim() || undefined }),
+                  });
+                  const data = await res.json();
+                  setSmtpTestResult(data);
+                } catch (err: unknown) {
+                  setSmtpTestResult({
+                    success: false,
+                    message: 'Gagal menghubungi server.',
+                    error: err instanceof Error ? err.message : String(err),
+                  });
+                } finally {
+                  setTestingSmtp(false);
+                }
+              }}
+              className="space-y-3"
+            >
+              <div>
+                <label className="text-xs font-semibold block mb-1">Kirim Email Uji Coba ke (Opsional):</label>
+                <input
+                  type="email"
+                  placeholder="contoh: admin@tapku.com"
+                  value={testEmailInput}
+                  onChange={(e) => setTestEmailInput(e.target.value)}
+                  disabled={testingSmtp}
+                  style={{
+                    width: '100%',
+                    padding: '0.45rem 0.65rem',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-sm)',
+                    fontSize: '0.8rem',
+                    background: '#ffffff',
+                    color: 'var(--foreground)',
+                  }}
+                />
+              </div>
+
+              {smtpTestResult && (
+                <div
+                  className={`p-2.5 rounded-md text-xs ${
+                    smtpTestResult.success
+                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                      : 'bg-rose-50 text-rose-800 border border-rose-200'
+                  }`}
+                >
+                  <p className="font-bold mb-1">
+                    {smtpTestResult.success ? '✓ Berhasil Terkoneksi' : '✕ Uji Koneksi Gagal'}
+                  </p>
+                  <p>{smtpTestResult.message || smtpTestResult.error}</p>
+                  {smtpTestResult.details && (
+                    <p className="mt-1 font-mono text-xs opacity-75">
+                      Host: {smtpTestResult.details.host}:{smtpTestResult.details.port} | User: {smtpTestResult.details.user}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="submit"
+                  disabled={testingSmtp}
+                  className="btn btn-primary w-full py-1.5 text-xs font-semibold"
+                >
+                  {testingSmtp ? 'Menguji Koneksi...' : 'Mulai Uji SMTP'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowSmtpModal(false)}
+                  className="btn btn-secondary w-full py-1.5 text-xs font-semibold"
+                >
+                  Tutup
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
