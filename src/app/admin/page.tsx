@@ -678,35 +678,63 @@ export default function AdminPage() {
                     )}
                   </div>
 
-                  {/* Right: Actions */}
-                  <div className="flex gap-1.5 flex-wrap items-center">
+                  {/* Right: Minimalist Action Icon Buttons */}
+                  <div className="flex gap-2 items-center">
                     <button
+                      type="button"
                       onClick={() => handleShowQR(card.card_id)}
                       title="Lihat QR Code"
-                      className="btn btn-secondary py-1 px-2.5 text-xs font-semibold"
+                      aria-label="Lihat QR Code"
+                      className="action-icon-btn btn-qr"
                     >
-                      Lihat QR
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="7" height="7" rx="1" />
+                        <rect x="14" y="3" width="7" height="7" rx="1" />
+                        <rect x="3" y="14" width="7" height="7" rx="1" />
+                        <rect x="14" y="14" width="7" height="7" rx="1" />
+                      </svg>
                     </button>
+
                     <button
+                      type="button"
                       onClick={() => handleDownloadPrintPNG(card.card_id)}
                       title="Download PNG Cetak"
-                      className="btn btn-secondary py-1 px-2 text-xs font-semibold"
+                      aria-label="Download PNG Cetak"
+                      className="action-icon-btn btn-download"
                     >
-                      PNG
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
                     </button>
+
                     <button
+                      type="button"
                       onClick={() => { setSelectedCard(card); setNewPinInput(''); }}
-                      title="Reset PIN"
-                      className="btn btn-secondary py-1 px-2 text-xs font-semibold"
+                      title="Atur Ulang PIN"
+                      aria-label="Atur Ulang PIN"
+                      className="action-icon-btn btn-pin"
                     >
-                      PIN
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                      </svg>
                     </button>
+
                     <button
+                      type="button"
                       onClick={() => setCardToDelete(card.card_id)}
                       title="Hapus Kartu Ini"
-                      className="btn btn-danger py-1 px-2.5 text-xs font-semibold"
+                      aria-label="Hapus Kartu Ini"
+                      className="action-icon-btn btn-delete"
                     >
-                      Hapus
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        <line x1="10" y1="11" x2="10" y2="17" />
+                        <line x1="14" y1="11" x2="14" y2="17" />
+                      </svg>
                     </button>
                   </div>
                 </div>
