@@ -43,19 +43,22 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <main className="min-vh flex align-items-center justify-content-center py-4 px-3 light-landing">
+    <main className="min-vh flex align-items-center justify-content-center py-5 px-3">
       <div className="onboarding-card">
         <div className="header-logo">
-          <div className="logo-icon admin">A</div>
-          <span className="card-badge">Keamanan</span>
+          <a href="/" className="flex items-center gap-2">
+            <div className="logo-icon">A</div>
+            <span className="font-bold text-sm">TAPKU ADMIN</span>
+          </a>
+          <span className="card-badge">Portal Akses</span>
         </div>
 
         <div className="text-center mb-4">
-          <h1 className="h2 font-bold mb-1">Portal Admin</h1>
-          <p className="text-muted">Masukkan kata sandi administrator untuk mengakses dashboard.</p>
+          <h1 className="text-xl font-bold mb-1">Masuk Dashboard Admin</h1>
+          <p className="text-muted text-xs">Masukkan kata sandi administrator untuk mengelola database kartu.</p>
         </div>
 
-        {error && <div className="error-alert">{error}</div>}
+        {error && <div className="error-alert mb-3">{error}</div>}
 
         <form onSubmit={handleSubmit} className="form-group">
           <div className="input-group">
@@ -63,7 +66,7 @@ export default function AdminLoginPage() {
             <input
               type="password"
               id="password"
-              placeholder="Masukkan kata sandi"
+              placeholder="Masukkan password admin"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
@@ -73,11 +76,17 @@ export default function AdminLoginPage() {
 
           <button
             type="submit"
-            className="btn btn-primary w-full py-3 font-semibold mt-2"
+            className="btn btn-primary w-full py-3 font-semibold text-xs mt-1"
             disabled={loading}
           >
-            {loading ? 'Memverifikasi...' : 'Masuk Dashboard'}
+            {loading ? 'Memverifikasi...' : 'Masuk ke Dashboard →'}
           </button>
+
+          <div className="text-center mt-2">
+            <a href="/" className="text-xs text-muted hover:underline">
+              ← Kembali ke Beranda
+            </a>
+          </div>
         </form>
       </div>
     </main>

@@ -16,6 +16,7 @@ export default function ManagePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [copiedLink, setCopiedLink] = useState(false);
 
   // Tab state within dashboard: 'details' | 'business' | 'pin'
   const [dashTab, setDashTab] = useState<'details' | 'business' | 'pin'>('details');
@@ -52,7 +53,7 @@ export default function ManagePage() {
       const response = await fetch('/api/cards/manage', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cardId: cardId.trim(), pin }),
+        body: JSON.stringify({ cardId: cardId.trim().toUpperCase(), pin }),
       });
 
       const data = await response.json();
@@ -82,7 +83,7 @@ export default function ManagePage() {
       const response = await fetch('/api/cards/forgot-pin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cardId: forgotCardId.trim(), email: forgotEmail.trim() }),
+        body: JSON.stringify({ cardId: forgotCardId.trim().toUpperCase(), email: forgotEmail.trim() }),
       });
 
       const data = await response.json();
@@ -119,7 +120,7 @@ export default function ManagePage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          cardId: forgotCardId.trim(),
+          cardId: forgotCardId.trim().toUpperCase(),
           otp: otp.trim(),
           newPin: newForgotPin,
           confirmNewPin: confirmForgotPin,
@@ -185,7 +186,7 @@ export default function ManagePage() {
     setError('');
   };
 
-  // Handle update business (destination)
+  // Handle update business
   const handleUpdateBusiness = async () => {
     if (!selectedBusiness) {
       setError('Silakan cari dan pilih bisnis terlebih dahulu.');
@@ -221,7 +222,7 @@ export default function ManagePage() {
         placeId: selectedBusiness.placeId,
         destinationUrl: `https://search.google.com/local/writereview?placeid=${selectedBusiness.placeId}`,
       }));
-      setSuccessMsg('Bisnis berhasil diperbarui.');
+      setSuccessMsg('✓ Bisnis berhasil diperbarui ke lokasi baru.');
       setSelectedBusiness(null);
       setSearchQuery('');
       setDashTab('details');
@@ -265,7 +266,7 @@ export default function ManagePage() {
       }
 
       setPin(newPinInput);
-      setSuccessMsg('PIN berhasil diubah.');
+      setSuccessMsg('✓ PIN berhasil diubah.');
       setCurrentPinInput('');
       setNewPinInput('');
       setConfirmNewPinInput('');
@@ -276,6 +277,14 @@ export default function ManagePage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCopyLink = () => {
+    if (!loggedInCard) return;
+    const url = `${window.location.origin}/c/${loggedInCard.cardId}`;
+    navigator.clipboard.writeText(url);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
   };
 
   const handleLogout = () => {
@@ -291,15 +300,21 @@ export default function ManagePage() {
   };
 
   return (
-    <main className="min-vh flex align-items-center justify-content-center py-4 px-3 light-landing">
+    <main className="min-vh flex align-items-center justify-content-center py-5 px-3">
       <div className="onboarding-card">
+        {/* HEADER */}
         <div className="header-logo">
-          <div className="logo-icon">G</div>
-          <span className="card-badge">Portal</span>
+          <a href="/" className="flex items-center gap-2">
+            <div className="logo-icon">G</div>
+            <span className="font-bold text-sm">TAPKU PORTAL</span>
+          </a>
+          {loggedInCard && (
+            <span className="card-badge">{loggedInCard.cardId}</span>
+          )}
         </div>
 
-        {error && <div className="error-alert">{error}</div>}
-        {successMsg && <div className="success-alert">{successMsg}</div>}
+        {error && <div className="error-alert mb-4">{error}</div>}
+        {successMsg && <div className="success-alert mb-4">{successMsg}</div>}
 
         {/* BELUM LOGIN */}
         {!loggedInCard && (
@@ -308,8 +323,8 @@ export default function ManagePage() {
               /* FORM LOGIN */
               <div className="animate-fade-in">
                 <div className="text-center mb-4">
-                  <h1 className="h2 font-bold mb-1">Kelola Kartu Anda</h1>
-                  <p className="text-muted">Masukkan detail kartu untuk memperbarui pengaturan.</p>
+                  <h1 className="text-xl font-bold mb-1">Kelola Kartu Anda</h1>
+                  <p className="text-muted text-xs">Masukkan ID Kartu & PIN untuk mengatur tujuan ulasan.</p>
                 </div>
 
                 <form onSubmit={handleLogin} className="form-group">
@@ -318,7 +333,7 @@ export default function ManagePage() {
                     <input
                       type="text"
                       id="cardId"
-                      placeholder="contoh: AB1234"
+                      placeholder="contoh: GR0001"
                       value={cardId}
                       onChange={(e) => setCardId(e.target.value.toUpperCase())}
                       disabled={loading}
@@ -327,12 +342,12 @@ export default function ManagePage() {
                   </div>
 
                   <div className="input-group">
-                    <label htmlFor="pin">PIN</label>
+                    <label htmlFor="pin">PIN Keamanan</label>
                     <input
                       type="password"
                       id="pin"
                       maxLength={6}
-                      placeholder="Masukkan PIN 4-6 digit"
+                      placeholder="Masukkan 4-6 digit angka"
                       value={pin}
                       onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
                       disabled={loading}
@@ -342,16 +357,17 @@ export default function ManagePage() {
 
                   <button
                     type="submit"
-                    className="btn btn-primary w-full py-3 font-semibold mt-2"
+                    className="btn btn-primary w-full py-3 font-semibold mt-1"
                     disabled={loading}
                   >
-                    {loading ? 'Memverifikasi...' : 'Kelola Kartu'}
+                    {loading ? 'Memverifikasi...' : 'Masuk ke Pengaturan →'}
                   </button>
 
-                  <div className="text-center mt-3">
+                  <div className="flex justify-between items-center text-xs mt-2">
+                    <a href="/" className="text-muted hover:underline">← Kembali ke Beranda</a>
                     <button
                       type="button"
-                      className="link-btn font-semibold"
+                      className="link-btn text-xs font-semibold"
                       onClick={() => {
                         setIsForgotMode(true);
                         setError('');
@@ -367,8 +383,8 @@ export default function ManagePage() {
               /* MODUL LUPA PIN */
               <div className="animate-fade-in">
                 <div className="text-center mb-4">
-                  <h1 className="h2 font-bold mb-1">Atur Ulang PIN</h1>
-                  <p className="text-muted">Pulihkan menggunakan alamat email terdaftar Anda.</p>
+                  <h1 className="text-xl font-bold mb-1">Atur Ulang PIN</h1>
+                  <p className="text-muted text-xs">Pulihkan akses melalui email yang terdaftar pada kartu.</p>
                 </div>
 
                 {!otpSent ? (
@@ -379,7 +395,7 @@ export default function ManagePage() {
                       <input
                         type="text"
                         id="forgotCardId"
-                        placeholder="contoh: AB1234"
+                        placeholder="contoh: GR0001"
                         value={forgotCardId}
                         onChange={(e) => setForgotCardId(e.target.value.toUpperCase())}
                         disabled={loading}
@@ -402,31 +418,31 @@ export default function ManagePage() {
 
                     <button
                       type="submit"
-                      className="btn btn-primary w-full py-3 font-semibold mt-2"
+                      className="btn btn-primary w-full py-3 font-semibold mt-1"
                       disabled={loading}
                     >
-                      {loading ? 'Mengirim Kode...' : 'Kirim Kode OTP'}
+                      {loading ? 'Mengirim Kode...' : 'Kirim Kode OTP →'}
                     </button>
 
-                    <div className="text-center mt-3">
+                    <div className="text-center mt-2">
                       <button
                         type="button"
-                        className="link-btn font-semibold"
+                        className="link-btn text-xs font-semibold"
                         onClick={() => {
                           setIsForgotMode(false);
                           setError('');
                           setSuccessMsg('');
                         }}
                       >
-                        Kembali ke Login
+                        Kembali ke Form Masuk
                       </button>
                     </div>
                   </form>
                 ) : (
                   /* MASUKKAN OTP DAN RESET PIN */
                   <form onSubmit={handleResetPin} className="form-group">
-                    <div className="info-alert mb-3">
-                      Periksa email Anda (atau log konsol terminal pada mode MVP) untuk mendapatkan kode OTP 6 digit.
+                    <div className="info-alert mb-2">
+                      Kode OTP 6 digit telah dikirimkan ke email terdaftar Anda.
                     </div>
 
                     <div className="input-group">
@@ -464,7 +480,7 @@ export default function ManagePage() {
                           type="password"
                           id="confirmForgotPin"
                           maxLength={6}
-                          placeholder="Ulangi"
+                          placeholder="Ulangi PIN"
                           value={confirmForgotPin}
                           onChange={(e) => setConfirmForgotPin(e.target.value.replace(/\D/g, ''))}
                           disabled={loading}
@@ -475,16 +491,16 @@ export default function ManagePage() {
 
                     <button
                       type="submit"
-                      className="btn btn-primary w-full py-3 font-semibold mt-2"
+                      className="btn btn-primary w-full py-3 font-semibold mt-1"
                       disabled={loading}
                     >
-                      {loading ? 'Memperbarui PIN...' : 'Atur Ulang PIN'}
+                      {loading ? 'Menyimpan PIN...' : 'Simpan PIN Baru'}
                     </button>
 
-                    <div className="text-center mt-3">
+                    <div className="text-center mt-2">
                       <button
                         type="button"
-                        className="link-btn font-semibold"
+                        className="link-btn text-xs font-semibold"
                         onClick={() => {
                           setOtpSent(false);
                           setError('');
@@ -505,130 +521,145 @@ export default function ManagePage() {
         {loggedInCard && (
           <div className="animate-fade-in">
             <div className="text-center mb-4">
-              <h1 className="h2 font-bold mb-1">Dashboard Kartu</h1>
-              <p className="text-muted">Kelola bisnis dan kontrol akses.</p>
+              <h1 className="text-xl font-bold mb-1">Pengaturan Kartu</h1>
+              <p className="text-muted text-xs">Kelola lokasi ulasan Google dan keamanan kartu Anda.</p>
             </div>
 
-            {/* Tab Selector */}
-            <div className="flex justify-between border-b pb-2 mb-4">
+            {/* TAB SELECTOR */}
+            <div className="tab-container">
               <button
-                className={`tab-btn font-semibold ${dashTab === 'details' ? 'active' : ''}`}
+                className={`tab-btn ${dashTab === 'details' ? 'active' : ''}`}
                 onClick={() => { setDashTab('details'); setError(''); setSuccessMsg(''); }}
               >
                 Ringkasan
               </button>
               <button
-                className={`tab-btn font-semibold ${dashTab === 'business' ? 'active' : ''}`}
-                onClick={() => { setDashTab('business'); setError(''); setSuccessMsg(''); setSelectedBusiness(null); setSearchQuery(''); setSearchResults([]); setHasSearched(false); }}
+                className={`tab-btn ${dashTab === 'business' ? 'active' : ''}`}
+                onClick={() => {
+                  setDashTab('business');
+                  setError('');
+                  setSuccessMsg('');
+                  setSelectedBusiness(null);
+                  setSearchQuery('');
+                  setSearchResults([]);
+                  setHasSearched(false);
+                }}
               >
                 Ganti Bisnis
               </button>
               <button
-                className={`tab-btn font-semibold ${dashTab === 'pin' ? 'active' : ''}`}
+                className={`tab-btn ${dashTab === 'pin' ? 'active' : ''}`}
                 onClick={() => { setDashTab('pin'); setError(''); setSuccessMsg(''); }}
               >
                 Ganti PIN
               </button>
             </div>
 
-            {/* TAB: RINGKASAN */}
+            {/* TAB 1: RINGKASAN */}
             {dashTab === 'details' && (
-              <div className="animate-fade-in">
-                <div className="summary-box mb-4">
+              <div className="animate-fade-in flex flex-col gap-3">
+                <div className="summary-box">
                   <div className="summary-item">
-                    <span className="label">Nama Bisnis</span>
-                    <span className="value">{loggedInCard.businessName}</span>
+                    <span className="label">Nama Usaha</span>
+                    <span className="value text-truncate">{loggedInCard.businessName || '-'}</span>
                   </div>
                   {loggedInCard.businessAddress && (
                     <div className="summary-item">
                       <span className="label">Alamat</span>
-                      <span className="value">{loggedInCard.businessAddress}</span>
+                      <span className="value text-xs text-muted text-truncate">{loggedInCard.businessAddress}</span>
                     </div>
                   )}
                   <div className="summary-item">
-                    <span className="label">ID Kartu</span>
-                    <span className="value font-mono">{loggedInCard.cardId}</span>
-                  </div>
-                  <div className="summary-item">
-                    <span className="label">Status</span>
+                    <span className="label">Status Kartu</span>
                     <span className={`status-tag ${loggedInCard.status.toLowerCase()}`}>
-                      {loggedInCard.status === 'ACTIVE' ? 'AKTIF' : loggedInCard.status === 'DISABLED' ? 'NONAKTIF' : loggedInCard.status}
+                      {loggedInCard.status === 'ACTIVE' ? 'Aktif' : loggedInCard.status === 'DISABLED' ? 'Nonaktif' : loggedInCard.status}
                     </span>
                   </div>
                   <div className="summary-item">
-                    <span className="label">Email Terdaftar</span>
-                    <span className="value">{loggedInCard.email}</span>
+                    <span className="label">Email Pemulihan</span>
+                    <span className="value text-xs">{loggedInCard.email}</span>
                   </div>
                   <div className="summary-item">
-                    <span className="label">Tujuan</span>
-                    <span className="value">Google Review</span>
+                    <span className="label">Tujuan Redirect</span>
+                    <span className="value text-xs font-semibold" style={{ color: '#10b981' }}>
+                      ✓ Google Write a Review
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex gap-2 flex-col">
+                <div className="flex flex-col gap-2 mt-1">
                   {loggedInCard.destinationUrl && (
                     <a
                       href={loggedInCard.destinationUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn btn-primary w-full text-center py-2 font-semibold"
+                      className="btn btn-primary w-full py-2.5 font-semibold text-xs"
                     >
-                      Test Review ⭐
+                      Test Review Page (⭐⭐⭐⭐⭐) ↗
                     </a>
                   )}
-                  <a
-                    href={`/c/${loggedInCard.cardId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-secondary w-full text-center py-2 font-semibold"
-                  >
-                    Tes Redirect Kartu
-                  </a>
+
+                  <div className="grid-2">
+                    <button
+                      type="button"
+                      onClick={handleCopyLink}
+                      className="btn btn-secondary py-2 text-xs font-semibold"
+                    >
+                      {copiedLink ? '✓ Disalin!' : '📋 Salin Link Kartu'}
+                    </button>
+                    <a
+                      href={`/c/${loggedInCard.cardId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-secondary py-2 text-xs font-semibold"
+                    >
+                      Tes Tap NFC ↗
+                    </a>
+                  </div>
+
                   <button
                     onClick={handleLogout}
-                    className="btn btn-danger w-full py-2 font-semibold"
+                    className="btn btn-danger w-full py-2 font-semibold text-xs mt-2"
                   >
-                    Keluar
+                    Keluar dari Akun
                   </button>
                 </div>
               </div>
             )}
 
-            {/* TAB: GANTI BISNIS */}
+            {/* TAB 2: GANTI BISNIS */}
             {dashTab === 'business' && (
               <div className="form-group animate-fade-in">
                 {!selectedBusiness ? (
                   <div className="input-group">
-                    <label htmlFor="businessSearchManage">Cari Bisnis Baru</label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        id="businessSearchManage"
-                        placeholder="contoh: Kopi Kenangan Senayan"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleSearch();
-                          }
-                        }}
-                        disabled={searching || loading}
-                        style={{ flex: 1 }}
-                      />
-                    </div>
+                    <label htmlFor="businessSearchManage">Cari Nama Bisnis Baru</label>
+                    <input
+                      type="text"
+                      id="businessSearchManage"
+                      placeholder="contoh: Kopi Kenangan Senayan"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleSearch();
+                        }
+                      }}
+                      disabled={searching || loading}
+                    />
+
                     <button
                       type="button"
                       onClick={handleSearch}
                       disabled={searching || !searchQuery.trim()}
-                      className="btn btn-secondary mt-2 w-full py-2 font-semibold"
+                      className="btn btn-secondary mt-1 w-full py-2 text-xs font-semibold"
                     >
-                      {searching ? 'Mencari...' : '🔍 Cari Bisnis'}
+                      {searching ? 'Sedang Mencari via Google API...' : '🔍 Cari Bisnis'}
                     </button>
 
-                    {/* Search Results */}
+                    {/* Search Results List */}
                     {searchResults.length > 0 && (
-                      <div className="search-results mt-3">
+                      <div className="search-results">
                         {searchResults.map((place) => (
                           <div key={place.placeId} className="search-result-item">
                             <div className="search-result-info">
@@ -638,8 +669,7 @@ export default function ManagePage() {
                             <button
                               type="button"
                               onClick={() => handleSelectBusiness(place)}
-                              className="btn btn-primary py-1 font-semibold"
-                              style={{ fontSize: '0.8rem', whiteSpace: 'nowrap', paddingLeft: '16px', paddingRight: '16px' }}
+                              className="btn btn-primary py-1 px-3 text-xs font-semibold"
                             >
                               Pilih
                             </button>
@@ -650,26 +680,23 @@ export default function ManagePage() {
 
                     {/* No results */}
                     {hasSearched && !searching && searchResults.length === 0 && (
-                      <div className="info-alert mt-3">
-                        <p>Tidak ditemukan bisnis dengan kata kunci tersebut. Coba kata kunci lain.</p>
+                      <div className="info-alert mt-2">
+                        Tidak ditemukan bisnis dengan nama tersebut. Coba kata kunci yang lebih spesifik.
                       </div>
                     )}
 
-                    <div className="mt-4">
-                      <button
-                        type="button"
-                        onClick={() => setDashTab('details')}
-                        className="btn btn-secondary w-full py-2 font-semibold"
-                        disabled={loading}
-                      >
-                        Batal
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setDashTab('details')}
+                      className="btn btn-secondary w-full py-2 text-xs font-semibold mt-2"
+                    >
+                      Batal
+                    </button>
                   </div>
                 ) : (
-                  /* Selected business confirmation + update button */
-                  <div className="input-group">
-                    <label>Bisnis Baru Terpilih</label>
+                  /* Selected business confirmation */
+                  <div className="flex flex-col gap-3">
+                    <label className="text-xs font-semibold text-muted">Lokasi Baru Terpilih:</label>
                     <div className="selected-business-box">
                       <div className="selected-business-check">✓</div>
                       <div className="selected-business-info">
@@ -678,22 +705,22 @@ export default function ManagePage() {
                       </div>
                     </div>
 
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex gap-2 mt-2">
                       <button
                         type="button"
                         onClick={handleUpdateBusiness}
-                        className="btn btn-primary w-full py-2 font-semibold"
+                        className="btn btn-primary w-full py-2.5 text-xs font-semibold"
                         disabled={loading}
                       >
-                        {loading ? 'Menyimpan...' : 'Perbarui Bisnis'}
+                        {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
                       </button>
                       <button
                         type="button"
                         onClick={() => { setSelectedBusiness(null); setSearchQuery(''); }}
-                        className="btn btn-secondary w-full py-2 font-semibold"
+                        className="btn btn-secondary w-full py-2.5 text-xs font-semibold"
                         disabled={loading}
                       >
-                        Cari Lagi
+                        Cari Ulang
                       </button>
                     </div>
                   </div>
@@ -701,7 +728,7 @@ export default function ManagePage() {
               </div>
             )}
 
-            {/* TAB: GANTI PIN */}
+            {/* TAB 3: GANTI PIN */}
             {dashTab === 'pin' && (
               <form onSubmit={handleChangePin} className="form-group animate-fade-in">
                 <div className="input-group">
@@ -710,7 +737,7 @@ export default function ManagePage() {
                     type="password"
                     id="currentPinInput"
                     maxLength={6}
-                    placeholder="PIN digit saat ini"
+                    placeholder="PIN saat ini"
                     value={currentPinInput}
                     onChange={(e) => setCurrentPinInput(e.target.value.replace(/\D/g, ''))}
                     disabled={loading}
@@ -734,12 +761,12 @@ export default function ManagePage() {
                   </div>
 
                   <div className="input-group">
-                    <label htmlFor="confirmNewPinInput">Konfirmasi PIN Baru</label>
+                    <label htmlFor="confirmNewPinInput">Konfirmasi PIN</label>
                     <input
                       type="password"
                       id="confirmNewPinInput"
                       maxLength={6}
-                      placeholder="Ulangi PIN baru"
+                      placeholder="Ulangi PIN"
                       value={confirmNewPinInput}
                       onChange={(e) => setConfirmNewPinInput(e.target.value.replace(/\D/g, ''))}
                       disabled={loading}
@@ -748,18 +775,18 @@ export default function ManagePage() {
                   </div>
                 </div>
 
-                <div className="flex gap-2 mt-4">
+                <div className="flex gap-2 mt-2">
                   <button
                     type="submit"
-                    className="btn btn-primary w-full py-2 font-semibold"
+                    className="btn btn-primary w-full py-2.5 text-xs font-semibold"
                     disabled={loading}
                   >
-                    {loading ? 'Memperbarui...' : 'Ubah PIN'}
+                    {loading ? 'Menyimpan...' : 'Ubah PIN'}
                   </button>
                   <button
                     type="button"
                     onClick={() => setDashTab('details')}
-                    className="btn btn-secondary w-full py-2 font-semibold"
+                    className="btn btn-secondary w-full py-2.5 text-xs font-semibold"
                     disabled={loading}
                   >
                     Batal
