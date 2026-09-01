@@ -126,11 +126,11 @@ export default function Homepage() {
     },
   ];
 
-  // Dynamic Link Benefits Data
+  // Dynamic Link Benefits Data (6 Core Features)
   const dynamicBenefits = [
     {
-      title: 'Beli 1x, Aktif Seumur Hidup',
-      description: '100% Tanpa biaya langganan bulanan atau tahunan. Kartu dapat digunakan tanpa batas ulasan selamanya.',
+      title: 'Investasi Permanen Tanpa Langganan',
+      description: '100% Bebas biaya langganan bulanan maupun tahunan. Kartu pintar siap digunakan tanpa batasan kuota ulasan pelanggan.',
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
@@ -138,8 +138,8 @@ export default function Homepage() {
       ),
     },
     {
-      title: 'Bebas Ganti Lokasi Realtime',
-      description: 'Pindah alamat, buka cabang baru, atau rebrand nama bisnis? Cukup perbarui di portal kelola tanpa perlu beli kartu baru.',
+      title: 'Fleksibilitas Update Lokasi Realtime',
+      description: 'Pindah alamat cabang atau rebrand profil usaha? Perbarui tautan secara instan di portal tanpa perlu mencetak kartu baru.',
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
@@ -147,8 +147,19 @@ export default function Homepage() {
       ),
     },
     {
+      title: 'Statistik Interaksi & Counter Realtime',
+      description: 'Pantau metrik volume ulasan, total interaksi tap, dan timestamp aktivitas pelanggan secara transparan di dashboard mandiri.',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+      ),
+    },
+    {
       title: 'Direct Google Review Deep-Link',
-      description: 'Sistem otomatis mengarahkan ke formulir ulasan resmi dengan Place ID akurat sehingga bintang 5 langsung terbuka.',
+      description: 'Sistem otomatis mengarahkan ke formulir ulasan resmi dengan Place ID akurat sehingga modal bintang 5 terbuka instan.',
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10" />
@@ -157,8 +168,18 @@ export default function Homepage() {
       ),
     },
     {
-      title: 'Sinkronisasi Otomatis NFC & QR',
-      description: 'Satu pengaturan link otomatis memperbarui chip NFC dan kode QR dinamis di belakang kartu secara instan.',
+      title: 'Keamanan PIN & Proteksi Brute-Force',
+      description: 'Dilengkapi enkripsi PIN akses, mitigasi brute-force cerdas, dan sistem pemulihan OTP via email terverifikasi.',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+      ),
+    },
+    {
+      title: 'Sinkronisasi Multi-Kanal NFC & QR',
+      description: 'Arsitektur tautan dinamis yang menyinkronkan chip NFC fisik dan Dynamic QR Code di belakang kartu secara simultan.',
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
@@ -173,8 +194,8 @@ export default function Homepage() {
   const workflows = [
     {
       step: '01',
-      title: 'Terima Kartu Fisik',
-      description: 'Kartu pintar siap pakai tiba di alamat Anda. Tempelkan HP untuk aktivasi awal mandiri dalam 1 menit.',
+      title: 'Penerimaan & Aktivasi Mandiri',
+      description: 'Kartu pintar siap pakai tiba di alamat Anda. Tempelkan smartphone untuk menyelesaikan aktivasi awal dalam 1 menit.',
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <rect x="2" y="5" width="20" height="14" rx="2" />
@@ -184,8 +205,8 @@ export default function Homepage() {
     },
     {
       step: '02',
-      title: 'Cari Lokasi Google Bisnis',
-      description: 'Ketik nama usaha Anda melalui Google Places API terintegrasi. Sistem otomatis menautkan Place ID resmi.',
+      title: 'Sinkronisasi Google Bisnis',
+      description: 'Tentukan lokasi usaha Anda via integrasi Google Places API resmi untuk mengunci Place ID ulasan bintang 5.',
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="11" cy="11" r="8" />
@@ -195,8 +216,8 @@ export default function Homepage() {
     },
     {
       step: '03',
-      title: 'Amankan dengan PIN',
-      description: 'Atur PIN pengaman dan email pemulihan. Anda bebas mengubah nama usaha atau link tujuan kapan saja.',
+      title: 'Proteksi PIN & Email Pemulihan',
+      description: 'Konfigurasi PIN pengaman dengan proteksi anti-bruteforce dan email verifikasi untuk fleksibilitas manajemen profil.',
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -206,8 +227,8 @@ export default function Homepage() {
     },
     {
       step: '04',
-      title: 'Pelanggan Tap & Review',
-      description: 'Letakkan di meja kasir. Pelanggan cukup menempelkan HP dan modal rating bintang 5 langsung terbuka otomatis.',
+      title: 'Display Kasir & Monitoring Performa',
+      description: 'Pajang di meja kasir. Pelanggan cukup menempelkan HP untuk ulasan bintang 5 dan pantau total tap secara realtime.',
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -335,7 +356,15 @@ export default function Homepage() {
     },
     {
       q: 'Apakah ada biaya langganan bulanan atau tahunan?',
-      a: 'Sama sekali tidak ada biaya langganan bulanan atau tahunan (1x Beli, Aktif Selamanya). Anda dapat menggunakan kartu selamanya tanpa batasan jumlah tap ulasan.',
+      a: 'Tidak ada biaya langganan berkala. Tapku menggunakan skema 1x investasi permanen dengan akses penuh selamanya tanpa batasan kuota ulasan pelanggan.',
+    },
+    {
+      q: 'Bagaimana cakupan dan prosedur klaim Lifetime Warranty?',
+      a: 'Tapku memberikan jaminan Lifetime Warranty untuk fungsi chip NFC dan Dynamic QR Code. Seluruh kartu dicetak pada material akrilik tebal 3mm yang 100% anti air dan anti luntur. Jika kartu mengalami kendala teknis selama pemakaian normal, tim dukungan kami akan segera memproses penggantian unit baru secara gratis.',
+    },
+    {
+      q: 'Apakah kartu tahan air dan aman dipajang di meja kasir restoran/kafe?',
+      a: 'Ya, 100% tahan air dan anti luntur. Kartu Tapku dibuat dari material akrilik berkualitas tinggi dengan ketebalan 3mm dan teknologi cetak UV industrial, sehingga tahan terhadap tumpahan cairan, mudah dibersihkan, dan warna tidak akan pudar.',
     },
     {
       q: 'Bagaimana cara bergabung menjadi Reseller atau Mitra?',
@@ -467,17 +496,17 @@ export default function Homepage() {
               <div className="hero-trust-row">
                 <span className="trust-pill-item">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
-                  1x Beli Aktif Selamanya
+                  1x Beli Aktif Permanen
                 </span>
                 <span className="dot-sep">•</span>
                 <span className="trust-pill-item">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
-                  Bebas Ganti Lokasi
+                  Akrilik 3mm Anti Air &amp; Luntur
                 </span>
                 <span className="dot-sep">•</span>
-                <span className="trust-pill-item">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
-                  Garansi Chip 100%
+                <span className="trust-pill-item font-bold" style={{ color: '#15803d' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                  Resmi Lifetime Warranty
                 </span>
               </div>
 
@@ -663,11 +692,11 @@ export default function Homepage() {
             </div>
             <div className="stat-item">
               <span className="stat-num">Rp 0</span>
-              <span className="stat-label">Biaya Langganan (1x Beli Seumur Hidup)</span>
+              <span className="stat-label">Biaya Langganan Berkala (1x Pembelian Permanen)</span>
             </div>
             <div className="stat-item">
-              <span className="stat-num">100%</span>
-              <span className="stat-label">Garansi Chip NFC Awet &amp; Akurat</span>
+              <span className="stat-num">Lifetime</span>
+              <span className="stat-label">Garansi Penggantian Unit &amp; Proteksi Chip NFC</span>
             </div>
           </div>
         </div>
@@ -677,14 +706,14 @@ export default function Homepage() {
       <section id="benefits" className="py-6 border-b" style={{ background: '#ffffff' }}>
         <div className="container">
           <div className="text-center mb-5">
-            <span className="section-badge mb-2">Keunggulan Teknologi</span>
-            <h2 className="section-title font-bold mt-1">Beli Sekali, Aktif Seumur Hidup dengan Dynamic Link</h2>
+            <span className="section-badge mb-2">Infrastruktur Teknologi</span>
+            <h2 className="section-title font-bold mt-1">Teknologi Dynamic Link dengan Proteksi Lifetime Warranty</h2>
             <p className="text-muted max-w-lg mx-auto text-sm mt-2">
-              Investasi cerdas tanpa biaya berlangganan. Kartu pintar fleksibel yang mengikuti pertumbuhan bisnis Anda.
+              Investasi jangka panjang tanpa biaya berlangganan. Kartu pintar dengan keandalan maksimal yang adaptif terhadap pertumbuhan bisnis Anda.
             </p>
           </div>
 
-          <div className="grid-4">
+          <div className="grid-3">
             {dynamicBenefits.map((item, idx) => (
               <div key={idx} className="feature-card-minimal p-4">
                 <div className="step-badge mb-3">{item.icon}</div>
@@ -692,6 +721,48 @@ export default function Homepage() {
                 <p className="text-muted text-xs leading-relaxed">{item.description}</p>
               </div>
             ))}
+          </div>
+
+          {/* MINIMALIST LIFETIME WARRANTY TRUST CARD */}
+          <div className="warranty-minimal-card mt-8">
+            {/* Top Info Row */}
+            <div className="warranty-card-top">
+              <div className="warranty-minimal-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  <polyline points="9 12 11 14 15 10" />
+                </svg>
+              </div>
+              <div className="warranty-card-info">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="warranty-minimal-title">Program Lifetime Warranty Resmi</h3>
+                  <span className="warranty-unit-pill">Ganti Unit Baru</span>
+                </div>
+                <p className="warranty-minimal-desc">
+                  Material <strong>Akrilik 3mm</strong> dengan <strong>Cetak Print UV</strong>, 100% anti air &amp; anti luntur. Ganti unit baru gratis jika ada kendala teknis chip NFC.
+                </p>
+              </div>
+            </div>
+
+            {/* Bottom 4-Item Balanced Specs Grid */}
+            <div className="warranty-specs-grid">
+              <div className="warranty-spec-chip">
+                <span className="warranty-spec-dot"></span>
+                <span>Akrilik 3mm Tebal</span>
+              </div>
+              <div className="warranty-spec-chip">
+                <span className="warranty-spec-dot"></span>
+                <span>Cetak Print UV</span>
+              </div>
+              <div className="warranty-spec-chip">
+                <span className="warranty-spec-dot"></span>
+                <span>100% Waterproof</span>
+              </div>
+              <div className="warranty-spec-chip">
+                <span className="warranty-spec-dot"></span>
+                <span>Anti Luntur</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -844,8 +915,8 @@ export default function Homepage() {
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                     <span>Pakai Tapku</span>
                   </div>
-                  <div className="comp-duel-val">1x Beli Seumur Hidup</div>
-                  <div className="comp-duel-desc">Rp 0 biaya bulanan atau tahunan selamanya</div>
+                  <div className="comp-duel-val">1x Investasi (Lifetime Access)</div>
+                  <div className="comp-duel-desc">Rp 0 biaya langganan berkala selamanya</div>
                 </div>
               </div>
             </div>
@@ -1122,6 +1193,7 @@ export default function Homepage() {
               <div className="footer-col-title">Fitur &amp; Layanan</div>
               <div className="footer-col-links">
                 <a href="#benefits" className="footer-col-link">Aktivasi Kartu Instan</a>
+                <a href="#benefits" className="footer-col-link font-semibold text-emerald-700">Program Lifetime Warranty</a>
                 <a href="#benefits" className="footer-col-link">Dynamic QR Code Cloud</a>
                 <a href="#workflow" className="footer-col-link">Google Places API Sync</a>
                 <a href="#target-market" className="footer-col-link">Solusi Multi-Bisnis</a>
