@@ -126,10 +126,47 @@ const jsonLdData = {
         url: 'https://mycarrd.com',
         priceCurrency: 'IDR',
         price: '99000',
+        validFrom: '2024-01-01',
         priceValidUntil: '2028-12-31',
+        itemCondition: 'https://schema.org/NewCondition',
         availability: 'https://schema.org/InStock',
         seller: {
           '@id': 'https://mycarrd.com/#organization',
+        },
+        shippingDetails: {
+          '@type': 'OfferShippingDetails',
+          shippingRate: {
+            '@type': 'MonetaryAmount',
+            value: '0',
+            currency: 'IDR',
+          },
+          shippingDestination: {
+            '@type': 'DefinedRegion',
+            addressCountry: 'ID',
+          },
+          deliveryTime: {
+            '@type': 'ShippingDeliveryTime',
+            handlingTime: {
+              '@type': 'QuantitativeValue',
+              minValue: 1,
+              maxValue: 2,
+              unitCode: 'DAY',
+            },
+            transitTime: {
+              '@type': 'QuantitativeValue',
+              minValue: 1,
+              maxValue: 3,
+              unitCode: 'DAY',
+            },
+          },
+        },
+        hasMerchantReturnPolicy: {
+          '@type': 'MerchantReturnPolicy',
+          applicableCountry: 'ID',
+          returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+          merchantReturnDays: 7,
+          returnMethod: 'https://schema.org/ReturnByMail',
+          returnFees: 'https://schema.org/FreeReturn',
         },
       },
       aggregateRating: {
