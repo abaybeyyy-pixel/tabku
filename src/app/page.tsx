@@ -676,45 +676,40 @@ export default function Homepage() {
             </div>
           </div>
 
-          {/* MINIMALIST BRAND & BUSINESS LOGO MARQUEE */}
+          {/* MINIMALIST 1-TONE BRAND & BUSINESS TICKER */}
           <div className="hero-marquee-wrapper">
             <div className="hero-marquee-header">
-              <span className="live-dot"></span>
-              <span>Dipercaya Oleh Ratusan Bisnis &amp; UMKM di Indonesia</span>
+              Dipercaya Oleh Ratusan Bisnis &amp; UMKM di Indonesia
             </div>
 
             <div className="hero-marquee-track">
               {[
-                { name: 'KYLO Coffee & Eatery', category: 'Cafe & Roastery', icon: '☕' },
-                { name: 'Gentleman Barbershop', category: 'Grooming Lounge', icon: '✂️' },
-                { name: 'Tebasrumput.com', category: 'Jasa & Properti', icon: '🌿' },
-                { name: 'Dr. Dental Care', category: 'Klinik Gigi Spesialis', icon: '🦷' },
-                { name: 'Aroma Resto Nusantara', category: 'Restoran & Kuliner', icon: '🍲' },
-                { name: 'Charles & Keith Store', category: 'Fashion & Retail', icon: '👜' },
-                { name: 'De Paviljoen Boutique', category: 'Hotel & Hospitality', icon: '🏨' },
-                { name: 'Autoshine Detailer', category: 'Carwash & Coating', icon: '🚗' },
-                { name: 'Bakmi GM Express', category: 'Resto & Franchise', icon: '🍜' },
-                { name: 'Sweet Treats Patisserie', category: 'Bakery & Cake', icon: '🧁' },
+                { name: 'KYLO Coffee & Eatery', city: 'Palembang' },
+                { name: 'Charles & Keith', city: 'Jakarta' },
+                { name: 'Tebasrumput.com', city: 'Jakarta Selatan' },
+                { name: 'Dr. Dental Care', city: 'Surabaya' },
+                { name: 'De Paviljoen Boutique Hotel', city: 'Bandung' },
+                { name: 'Gentleman Barbershop', city: 'Yogyakarta' },
+                { name: 'Aroma Resto Nusantara', city: 'Semarang' },
+                { name: 'Autoshine Detailing Studio', city: 'Tangerang' },
+                { name: 'Kedai Kopi Joni', city: 'Jakarta Pusat' },
+                { name: 'Bakmi GM Express', city: 'Bekasi' },
                 // DUPLICATE FOR SEAMLESS INFINITE LOOP
-                { name: 'KYLO Coffee & Eatery', category: 'Cafe & Roastery', icon: '☕' },
-                { name: 'Gentleman Barbershop', category: 'Grooming Lounge', icon: '✂️' },
-                { name: 'Tebasrumput.com', category: 'Jasa & Properti', icon: '🌿' },
-                { name: 'Dr. Dental Care', category: 'Klinik Gigi Spesialis', icon: '🦷' },
-                { name: 'Aroma Resto Nusantara', category: 'Restoran & Kuliner', icon: '🍲' },
-                { name: 'Charles & Keith Store', category: 'Fashion & Retail', icon: '👜' },
-                { name: 'De Paviljoen Boutique', category: 'Hotel & Hospitality', icon: '🏨' },
-                { name: 'Autoshine Detailer', category: 'Carwash & Coating', icon: '🚗' },
-                { name: 'Bakmi GM Express', category: 'Resto & Franchise', icon: '🍜' },
-                { name: 'Sweet Treats Patisserie', category: 'Bakery & Cake', icon: '🧁' },
+                { name: 'KYLO Coffee & Eatery', city: 'Palembang' },
+                { name: 'Charles & Keith', city: 'Jakarta' },
+                { name: 'Tebasrumput.com', city: 'Jakarta Selatan' },
+                { name: 'Dr. Dental Care', city: 'Surabaya' },
+                { name: 'De Paviljoen Boutique Hotel', city: 'Bandung' },
+                { name: 'Gentleman Barbershop', city: 'Yogyakarta' },
+                { name: 'Aroma Resto Nusantara', city: 'Semarang' },
+                { name: 'Autoshine Detailing Studio', city: 'Tangerang' },
+                { name: 'Kedai Kopi Joni', city: 'Jakarta Pusat' },
+                { name: 'Bakmi GM Express', city: 'Bekasi' },
               ].map((brand, idx) => (
-                <div key={idx} className="hero-brand-card">
-                  <div className="hero-brand-icon">
-                    <span>{brand.icon}</span>
-                  </div>
-                  <div>
-                    <span className="hero-brand-name block">{brand.name}</span>
-                    <span className="hero-brand-cat block">{brand.category}</span>
-                  </div>
+                <div key={idx} className="hero-brand-minimal">
+                  <span className="brand-dot">•</span>
+                  <span>{brand.name}</span>
+                  <span className="brand-sub">({brand.city})</span>
                 </div>
               ))}
             </div>
