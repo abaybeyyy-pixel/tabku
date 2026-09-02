@@ -159,16 +159,28 @@ export async function sendOtpEmail({
   }
 }
 
+export interface SmtpConfigOverride {
+  host?: string;
+  port?: number;
+  user?: string;
+  pass?: string;
+  from?: string;
+  secure?: boolean;
+}
+
 /**
  * Tests SMTP configuration connectivity and sends a test email
  */
-export async function testSmtpConnection(testRecipient?: string): Promise<SmtpTestResult> {
-  const host = process.env.SMTP_HOST?.trim();
-  const port = parseInt(process.env.SMTP_PORT || '587', 10);
-  const user = process.env.SMTP_USER?.trim();
-  const pass = process.env.SMTP_PASS?.trim();
-  const from = process.env.SMTP_FROM?.trim() || `${user}`;
-  const secure = process.env.SMTP_SECURE === 'true' || port === 465;
+export async function testSmtpConnection(
+  testRecipient?: string,
+  config?: SmtpConfigOverride
+): Promise<SmtpTestResult> {
+  const host = (config?.host || process.env.SMTP_HOST)?.trim();
+  const port = config?.port || parseInt(process.env.SMTP_PORT || '587', 10);
+  const user = (config?.user || process.env.SMTP_USER)?.trim();
+  const pass = (config?.pass || process.env.SMTP_PASS)?.trim();
+  const from = (config?.from || process.env.SMTP_FROM || user)?.trim();
+  const secure = config?.secure !== undefined ? config.secure : (process.env.SMTP_SECURE === 'true' || port === 465);
 
   if (!host || !user || !pass) {
     return {
@@ -181,7 +193,7 @@ export async function testSmtpConnection(testRecipient?: string): Promise<SmtpTe
         from: from || '(kosong)',
         secure,
       },
-      error: 'Variabel lingkungan SMTP_HOST, SMTP_USER, dan SMTP_PASS wajib diisi.',
+      error: 'Variabel SMTP_HOST, SMTP_USER, dan SMTP_PASS (App Password) wajib diisi untuk dapat mengirim email OTP.',
     };
   }
 

@@ -44,6 +44,11 @@ export default function AdminPage() {
   // SMTP Test Modal state
   const [showSmtpModal, setShowSmtpModal] = useState(false);
   const [testEmailInput, setTestEmailInput] = useState('');
+  const [smtpUserInput, setSmtpUserInput] = useState('');
+  const [smtpPassInput, setSmtpPassInput] = useState('');
+  const [smtpHostInput, setSmtpHostInput] = useState('smtp.gmail.com');
+  const [smtpPortInput, setSmtpPortInput] = useState('587');
+  const [saveToEnvChecked, setSaveToEnvChecked] = useState(true);
   const [testingSmtp, setTestingSmtp] = useState(false);
   const [smtpTestResult, setSmtpTestResult] = useState<any>(null);
 
@@ -965,10 +970,15 @@ export default function AdminPage() {
       {/* POPUP MODAL: SMTP TEST & DIAGNOSTICS */}
       {showSmtpModal && (
         <div className="modal-backdrop">
-          <div className="onboarding-card modal-content animate-fade-in" style={{ maxWidth: '440px', padding: '1.25rem' }}>
-            <h3 className="text-sm font-bold mb-1">Uji Koneksi &amp; Kirim Email SMTP</h3>
+          <div className="onboarding-card modal-content animate-fade-in" style={{ maxWidth: '480px', padding: '1.35rem' }}>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-bold">Konfigurasi &amp; Uji SMTP Email</h3>
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                OTP PIN Recovery
+              </span>
+            </div>
             <p className="text-muted text-xs mb-3">
-              Verifikasi kredensial SMTP yang terpasang di file <code>.env.local</code> untuk pengiriman OTP.
+              Masukkan kredensial SMTP Gmail / SMTP server Anda di bawah ini untuk diuji dan langsung disimpan ke server.
             </p>
 
             <form
@@ -977,10 +987,23 @@ export default function AdminPage() {
                 setTestingSmtp(true);
                 setSmtpTestResult(null);
                 try {
+                  const hasCustomCreds = smtpUserInput.trim() && smtpPassInput.trim();
                   const res = await fetch('/api/admin/test-email', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ testEmail: testEmailInput.trim() || undefined }),
+                    body: JSON.stringify({
+                      testEmail: testEmailInput.trim() || undefined,
+                      saveToEnv: saveToEnvChecked,
+                      config: hasCustomCreds
+                        ? {
+                            host: smtpHostInput.trim() || 'smtp.gmail.com',
+                            port: parseInt(smtpPortInput || '587', 10),
+                            user: smtpUserInput.trim(),
+                            pass: smtpPassInput.trim(),
+                            from: smtpUserInput.trim(),
+                          }
+                        : undefined,
+                    }),
                   });
                   const data = await res.json();
                   setSmtpTestResult(data);
@@ -996,11 +1019,90 @@ export default function AdminPage() {
               }}
               className="space-y-3"
             >
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs font-semibold block mb-1">SMTP Host:</label>
+                  <input
+                    type="text"
+                    placeholder="smtp.gmail.com"
+                    value={smtpHostInput}
+                    onChange={(e) => setSmtpHostInput(e.target.value)}
+                    disabled={testingSmtp}
+                    style={{
+                      width: '100%',
+                      padding: '0.45rem 0.65rem',
+                      border: '1px solid var(--border)',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '0.8rem',
+                      background: '#ffffff',
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold block mb-1">SMTP Port:</label>
+                  <input
+                    type="text"
+                    placeholder="587"
+                    value={smtpPortInput}
+                    onChange={(e) => setSmtpPortInput(e.target.value)}
+                    disabled={testingSmtp}
+                    style={{
+                      width: '100%',
+                      padding: '0.45rem 0.65rem',
+                      border: '1px solid var(--border)',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '0.8rem',
+                      background: '#ffffff',
+                    }}
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="text-xs font-semibold block mb-1">Kirim Email Uji Coba ke (Opsional):</label>
+                <label className="text-xs font-semibold block mb-1">Email Pengirim (SMTP User):</label>
                 <input
                   type="email"
-                  placeholder="contoh: admin@tapku.com"
+                  placeholder="contoh: rdwansaputra@gmail.com"
+                  value={smtpUserInput}
+                  onChange={(e) => setSmtpUserInput(e.target.value)}
+                  disabled={testingSmtp}
+                  style={{
+                    width: '100%',
+                    padding: '0.45rem 0.65rem',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-sm)',
+                    fontSize: '0.8rem',
+                    background: '#ffffff',
+                  }}
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold block mb-1">
+                  Sandi Aplikasi Google (16 Karakter App Password):
+                </label>
+                <input
+                  type="password"
+                  placeholder="xxxx xxxx xxxx xxxx"
+                  value={smtpPassInput}
+                  onChange={(e) => setSmtpPassInput(e.target.value)}
+                  disabled={testingSmtp}
+                  style={{
+                    width: '100%',
+                    padding: '0.45rem 0.65rem',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-sm)',
+                    fontSize: '0.8rem',
+                    background: '#ffffff',
+                  }}
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold block mb-1">Kirim Email Uji Coba ke (Tujuan):</label>
+                <input
+                  type="email"
+                  placeholder="contoh: rdwansaputra@gmail.com"
                   value={testEmailInput}
                   onChange={(e) => setTestEmailInput(e.target.value)}
                   disabled={testingSmtp}
@@ -1011,9 +1113,31 @@ export default function AdminPage() {
                     borderRadius: 'var(--radius-sm)',
                     fontSize: '0.8rem',
                     background: '#ffffff',
-                    color: 'var(--foreground)',
                   }}
                 />
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="saveToEnv"
+                  checked={saveToEnvChecked}
+                  onChange={(e) => setSaveToEnvChecked(e.target.checked)}
+                  disabled={testingSmtp}
+                  className="rounded cursor-pointer"
+                />
+                <label htmlFor="saveToEnv" className="text-xs text-muted cursor-pointer select-none">
+                  Simpan kredensial ini otomatis ke <code>.env.local</code> saat tes berhasil
+                </label>
+              </div>
+
+              <div className="p-2.5 rounded bg-slate-50 border border-slate-200 text-[11px] text-slate-600 leading-relaxed">
+                <strong>💡 Cara Mendapatkan App Password Gmail:</strong>
+                <ol className="list-decimal list-inside mt-1 space-y-0.5 text-[11px]">
+                  <li>Buka Akun Google &gt; Keamanan &gt; Verifikasi 2 Langkah.</li>
+                  <li>Scroll ke bagian paling bawah &gt; pilih <strong>Sandi Aplikasi (App Passwords)</strong>.</li>
+                  <li>Buat sandi baru untuk nama &ldquo;Tapku&rdquo; lalu salin 16 karakter kodenya ke form di atas.</li>
+                </ol>
               </div>
 
               {smtpTestResult && (
@@ -1025,12 +1149,17 @@ export default function AdminPage() {
                   }`}
                 >
                   <p className="font-bold mb-1">
-                    {smtpTestResult.success ? '✓ Berhasil Terkoneksi' : '✕ Uji Koneksi Gagal'}
+                    {smtpTestResult.success ? '✓ Berhasil Terkoneksi & Terkirim' : '✕ Uji Koneksi Gagal'}
                   </p>
                   <p>{smtpTestResult.message || smtpTestResult.error}</p>
                   {smtpTestResult.details && (
                     <p className="mt-1 font-mono text-xs opacity-75">
                       Host: {smtpTestResult.details.host}:{smtpTestResult.details.port} | User: {smtpTestResult.details.user}
+                    </p>
+                  )}
+                  {smtpTestResult.success && saveToEnvChecked && (
+                    <p className="mt-1 font-semibold text-emerald-700 text-[11px]">
+                      ✓ Kredensial telah otomatis tersimpan di .env.local
                     </p>
                   )}
                 </div>
@@ -1042,7 +1171,7 @@ export default function AdminPage() {
                   disabled={testingSmtp}
                   className="btn btn-primary w-full py-1.5 text-xs font-semibold"
                 >
-                  {testingSmtp ? 'Menguji Koneksi...' : 'Mulai Uji SMTP'}
+                  {testingSmtp ? 'Menguji & Mengirim...' : 'Uji Koneksi & Simpan'}
                 </button>
                 <button
                   type="button"
