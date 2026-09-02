@@ -2460,57 +2460,45 @@ a {
 }
 
 /* ==========================================================================
-   HERO TITLE 5-STAR INTERACTIVE BADGE
+   HERO TITLE 5-STAR MINIMALIST INLINE TYPOGRAPHY
    ========================================================================== */
-.hero-title-star-badge {
+.hero-clean-stars {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  background: linear-gradient(135deg, rgba(254, 243, 199, 0.95) 0%, rgba(254, 215, 170, 0.75) 100%);
-  border: 1.5px solid rgba(245, 158, 11, 0.5);
-  padding: 0.08rem 0.55rem;
-  border-radius: 999px;
-  vertical-align: middle;
-  box-shadow: 0 2px 12px rgba(245, 158, 11, 0.25);
+  color: #d97706; /* Warm rich amber gold */
   white-space: nowrap;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: pointer;
-  margin: 0 0.15rem;
 }
 
-.hero-title-star-badge:hover {
-  transform: scale(1.06) rotate(-1deg);
-  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
-  border-color: #f59e0b;
-}
-
-.hero-title-star-badge .star-text {
-  color: #92400e;
-  font-weight: 800;
-  font-size: 0.88em;
-  letter-spacing: -0.01em;
-}
-
-.hero-title-star-badge .star-icons-live {
+.hero-inline-stars {
   display: inline-flex;
   align-items: center;
-  gap: 1.5px;
+  gap: 2px;
+  vertical-align: middle;
 }
 
-.hero-anim-star {
-  animation: starTwinkle 2.2s infinite ease-in-out;
-  transform-origin: center;
+.hero-inline-stars svg {
+  width: 0.64em;
+  height: 0.64em;
   display: inline-block;
+  vertical-align: -0.04em;
+  filter: drop-shadow(0 1px 2px rgba(245, 158, 11, 0.4));
 }
 
-@keyframes starTwinkle {
+.star-sparkle {
+  animation: starSparkle 2.6s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes starSparkle {
   0%, 100% {
-    transform: scale(1) rotate(0deg);
-    filter: drop-shadow(0 0 1px rgba(245, 158, 11, 0.3));
+    transform: scale(1);
+    opacity: 0.95;
   }
   50% {
-    transform: scale(1.24) rotate(8deg);
-    filter: drop-shadow(0 0 7px rgba(245, 158, 11, 0.95));
+    transform: scale(1.18) rotate(6deg);
+    opacity: 1;
+    filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.85));
   }
 }
 
