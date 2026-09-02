@@ -10,8 +10,13 @@ export const metadata: Metadata = {
   description: 'Tingkatkan ulasan bintang 5 bisnis Anda di Google Maps hingga 3x lipat dengan sekali tap kartu pintar NFC & Dynamic QR. Tanpa biaya langganan, fleksibel ubah link & lokasi kapan saja di mycarrd.com.',
   keywords: [
     'kartu google review',
+    'smart card google review',
     'nfc google review',
+    'kartu ulasan google maps',
     'smart card ulasan google',
+    'kartu google review akrilik',
+    'beli kartu google review',
+    'kartu nfc ulasan bisnis',
     'mycarrd',
     'mycarrd.com',
     'tapku',
@@ -19,10 +24,15 @@ export const metadata: Metadata = {
     'google maps review card',
     'kartu review umkm',
     'tap review nfc',
+    'alat ulasan bintang 5',
+    'cara minta review google',
+    'barcode review google maps',
   ],
-  authors: [{ name: 'Mycarrd Indonesia' }],
+  authors: [{ name: 'Mycarrd Indonesia', url: 'https://mycarrd.com' }],
   creator: 'Mycarrd Indonesia',
   publisher: 'Mycarrd',
+  category: 'Business Technology',
+  classification: 'Smart Cards / Google Review NFC & QR Code Tools',
   formatDetection: {
     email: false,
     address: false,
@@ -35,11 +45,20 @@ export const metadata: Metadata = {
     siteName: 'Mycarrd',
     locale: 'id_ID',
     type: 'website',
+    images: [
+      {
+        url: 'https://mycarrd.com/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Mycarrd Smart Card Google Review NFC & Dynamic QR',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Mycarrd — Platform Kartu Google Review NFC & Dynamic QR (mycarrd.com)',
     description: 'Banjir review bintang 5 di Google Maps hanya dengan sekali tempel HP. 1x Beli, aktif selamanya.',
+    images: ['https://mycarrd.com/opengraph-image'],
   },
   robots: {
     index: true,
@@ -172,6 +191,9 @@ export default function RootLayout({
     <html lang="id">
       <head>
         <meta name="theme-color" content="#16a34a" />
+        <meta name="geo.region" content="ID" />
+        <meta name="geo.placename" content="Indonesia" />
+        <meta name="google" content="notranslate" />
         <meta name="google-site-verification" content="n3tyZGI6_gQFAMZwqaPHKKjdpgpuEHKxXm-74uiWXlA" />
         <script
           type="application/ld+json"
