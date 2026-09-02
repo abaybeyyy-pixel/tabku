@@ -2460,29 +2460,36 @@ a {
 }
 
 /* ==========================================================================
-   HERO TITLE 5-STAR MINIMALIST INLINE TYPOGRAPHY
+   HERO TITLE 5-STAR MINIMALIST FLOATING STARS
    ========================================================================== */
-.hero-clean-stars {
+.hero-clean-stars-stack {
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
-  color: #d97706; /* Warm rich amber gold */
-  white-space: nowrap;
+  position: relative;
+  vertical-align: bottom;
+  margin: 0 0.15rem;
 }
 
-.hero-inline-stars {
+.hero-top-mini-stars {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 2px;
-  vertical-align: middle;
+  margin-bottom: -1px;
 }
 
-.hero-inline-stars svg {
-  width: 0.64em;
-  height: 0.64em;
+.hero-top-mini-stars svg {
+  width: 10px;
+  height: 10px;
+  filter: drop-shadow(0 1px 2px rgba(245, 158, 11, 0.45));
+}
+
+.hero-highlight-word {
+  color: #d97706; /* Warm rich amber gold */
+  font-weight: 800;
   display: inline-block;
-  vertical-align: -0.04em;
-  filter: drop-shadow(0 1px 2px rgba(245, 158, 11, 0.4));
+  white-space: nowrap;
 }
 
 .star-sparkle {

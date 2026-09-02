@@ -469,9 +469,8 @@ export default function Homepage() {
 
               <h1 className="hero-title font-extrabold mb-3">
                 Banjir Review{' '}
-                <span className="hero-clean-stars">
-                  <span>Bintang 5</span>
-                  <span className="hero-inline-stars" aria-label="Rating 5 Bintang">
+                <span className="hero-clean-stars-stack">
+                  <span className="hero-top-mini-stars" aria-label="Rating 5 Bintang">
                     {[...Array(5)].map((_, i) => (
                       <svg
                         key={i}
@@ -484,6 +483,7 @@ export default function Homepage() {
                       </svg>
                     ))}
                   </span>
+                  <span className="hero-highlight-word">Bintang 5</span>
                 </span>{' '}
                 di Google Maps <br />
                 <span className="text-gradient">Cukup dengan Sekali Tempel HP</span>
