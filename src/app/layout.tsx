@@ -52,10 +52,115 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  verification: {
+    google: 'n3tyZGI6_gQFAMZwqaPHKKjdpgpuEHKxXm-74uiWXlA',
+  },
+  alternates: {
+    canonical: 'https://mycarrd.com',
+  },
   icons: {
     icon: '/favicon.ico',
     apple: '/favicon.ico',
   },
+};
+
+const jsonLdData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://mycarrd.com/#organization',
+      name: 'Mycarrd Indonesia',
+      url: 'https://mycarrd.com',
+      logo: 'https://mycarrd.com/opengraph-image',
+      description: 'Platform Kartu Google Review NFC & Dynamic QR No. 1 di Indonesia.',
+      contactPoint: {
+        '@type': 'ContactPoint',
+        telephone: '+62-812-1115-6865',
+        contactType: 'customer support',
+        areaServed: 'ID',
+        availableLanguage: ['Indonesian'],
+      },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://mycarrd.com/#website',
+      url: 'https://mycarrd.com',
+      name: 'Mycarrd',
+      publisher: {
+        '@id': 'https://mycarrd.com/#organization',
+      },
+      inLanguage: 'id-ID',
+    },
+    {
+      '@type': 'Product',
+      '@id': 'https://mycarrd.com/#product',
+      name: 'Mycarrd Smart Card Google Review NFC & Dynamic QR',
+      image: 'https://mycarrd.com/opengraph-image',
+      description: 'Kartu akrilik premium 3mm berteknologi NFC & Dynamic QR untuk mengumpulkan ulasan Google Maps bintang 5 secara instan dalam 2 detik.',
+      brand: {
+        '@type': 'Brand',
+        name: 'Mycarrd',
+      },
+      offers: {
+        '@type': 'Offer',
+        url: 'https://mycarrd.com',
+        priceCurrency: 'IDR',
+        price: '99000',
+        priceValidUntil: '2028-12-31',
+        availability: 'https://schema.org/InStock',
+        seller: {
+          '@id': 'https://mycarrd.com/#organization',
+        },
+      },
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: '4.9',
+        bestRating: '5.0',
+        worstRating: '1.0',
+        ratingCount: '850',
+        reviewCount: '850',
+      },
+    },
+    {
+      '@type': 'FAQPage',
+      '@id': 'https://mycarrd.com/#faq',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'Bagaimana cara kerja Kartu Google Review Mycarrd?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Kartu dilengkapi chip NFC dan kode QR dinamis. Saat pelanggan menempelkan smartphone atau scan kode QR di kartu, layar HP langsung membuka form resmi ulasan Google Maps untuk memberi rating bintang 5 dalam 2 detik.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Apakah nama tempat atau link Google Maps bisa diubah kapan saja?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Bisa 100% fleksibel. Dengan memasukkan ID Kartu dan PIN di portal mycarrd.com/manage, Anda bebas memperbarui nama bisnis dan Place ID Google Maps kapan saja tanpa perlu mengganti kartu fisik.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Apakah ada biaya langganan bulanan?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Tidak ada biaya langganan. Mycarrd menggunakan skema 1x investasi beli putus dengan akses penuh selamanya tanpa batasan kuota ulasan.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Apakah kartu tahan air dan bergaransi?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Ya, 100% tahan air dan anti luntur dengan material akrilik tebal 3mm UV print serta dilengkapi garansi resmi Lifetime Warranty.',
+          },
+        },
+      ],
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -67,6 +172,11 @@ export default function RootLayout({
     <html lang="id">
       <head>
         <meta name="theme-color" content="#16a34a" />
+        <meta name="google-site-verification" content="n3tyZGI6_gQFAMZwqaPHKKjdpgpuEHKxXm-74uiWXlA" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
+        />
       </head>
       <body>
         {children}
