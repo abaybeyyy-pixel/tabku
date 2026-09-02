@@ -2514,35 +2514,36 @@ a {
 }
 
 /* ==========================================================================
-   HERO BRAND MINIMALIST 1-TONE TICKER (NO EMOJIS, PURE TYPOGRAPHY)
+   HERO BRAND MINIMALIST BOLD LOCAL BUSINESS TICKER
    ========================================================================== */
 .hero-marquee-wrapper {
   width: 100%;
-  margin-top: 2.25rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(226, 232, 240, 0.8);
+  margin-top: 2.75rem;
+  padding-top: 1.25rem;
+  padding-bottom: 0.25rem;
+  border-top: 1px solid rgba(226, 232, 240, 0.9);
   overflow: hidden;
   position: relative;
-  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
 }
 
 .hero-marquee-header {
   text-align: center;
-  margin-bottom: 0.85rem;
-  font-size: 0.68rem;
-  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 0.72rem;
+  font-weight: 700;
   color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
 }
 
 .hero-marquee-track {
   display: flex;
   align-items: center;
-  gap: 1.75rem;
+  gap: 2.25rem;
   width: max-content;
-  animation: heroMarqueeScroll 36s linear infinite;
+  animation: heroMarqueeScroll 40s linear infinite;
   will-change: transform;
 }
 
@@ -2559,47 +2560,41 @@ a {
   }
 }
 
-.hero-brand-minimal {
+.hero-brand-bold {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  color: #475569;
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  gap: 2.25rem;
+  color: #1e293b;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   white-space: nowrap;
-  transition: color 0.15s ease;
   user-select: none;
+  transition: color 0.15s ease, transform 0.15s ease;
 }
 
-.hero-brand-minimal:hover {
+.hero-brand-bold:hover {
   color: #0f172a;
+  transform: translateY(-1px);
 }
 
-.hero-brand-minimal .brand-dot {
+.hero-brand-bold .brand-separator {
   color: #cbd5e1;
-  font-size: 0.8rem;
-}
-
-.hero-brand-minimal .brand-sub {
-  font-size: 0.72rem;
+  font-size: 0.95rem;
   font-weight: 400;
-  color: #94a3b8;
 }
 
 @media (max-width: 768px) {
   .hero-marquee-wrapper {
-    margin-top: 1.5rem;
-    padding-top: 0.85rem;
+    margin-top: 1.75rem;
+    padding-top: 1rem;
   }
   .hero-marquee-track {
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
-  .hero-brand-minimal {
-    font-size: 0.76rem;
-  }
-  .hero-brand-minimal .brand-sub {
-    font-size: 0.68rem;
+  .hero-brand-bold {
+    font-size: 0.98rem;
+    gap: 1.5rem;
   }
 }
 

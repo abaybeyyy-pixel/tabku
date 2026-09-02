@@ -676,7 +676,7 @@ export default function Homepage() {
             </div>
           </div>
 
-          {/* MINIMALIST 1-TONE BRAND & BUSINESS TICKER */}
+          {/* MINIMALIST BOLD LOCAL BUSINESS TICKER */}
           <div className="hero-marquee-wrapper">
             <div className="hero-marquee-header">
               Dipercaya Oleh Ratusan Bisnis &amp; UMKM di Indonesia
@@ -684,32 +684,35 @@ export default function Homepage() {
 
             <div className="hero-marquee-track">
               {[
-                { name: 'KYLO Coffee & Eatery', city: 'Palembang' },
-                { name: 'Charles & Keith', city: 'Jakarta' },
-                { name: 'Tebasrumput.com', city: 'Jakarta Selatan' },
-                { name: 'Dr. Dental Care', city: 'Surabaya' },
-                { name: 'De Paviljoen Boutique Hotel', city: 'Bandung' },
-                { name: 'Gentleman Barbershop', city: 'Yogyakarta' },
-                { name: 'Aroma Resto Nusantara', city: 'Semarang' },
-                { name: 'Autoshine Detailing Studio', city: 'Tangerang' },
-                { name: 'Kedai Kopi Joni', city: 'Jakarta Pusat' },
-                { name: 'Bakmi GM Express', city: 'Bekasi' },
+                'KYLO Coffee & Eatery',
+                'Kedai Kopi Joni',
+                'Tebasrumput.com',
+                'Aroma Resto Nusantara',
+                'Gentleman Barbershop',
+                'Klinik Gigi Dr. Pratama',
+                'Bakmi GM Express',
+                'Autoshine Car Care',
+                'Sweet Treats Bakery',
+                'Warung Steak 88',
+                'Dapur Nyonya Catering',
+                'Kopi Kenangan Senja',
                 // DUPLICATE FOR SEAMLESS INFINITE LOOP
-                { name: 'KYLO Coffee & Eatery', city: 'Palembang' },
-                { name: 'Charles & Keith', city: 'Jakarta' },
-                { name: 'Tebasrumput.com', city: 'Jakarta Selatan' },
-                { name: 'Dr. Dental Care', city: 'Surabaya' },
-                { name: 'De Paviljoen Boutique Hotel', city: 'Bandung' },
-                { name: 'Gentleman Barbershop', city: 'Yogyakarta' },
-                { name: 'Aroma Resto Nusantara', city: 'Semarang' },
-                { name: 'Autoshine Detailing Studio', city: 'Tangerang' },
-                { name: 'Kedai Kopi Joni', city: 'Jakarta Pusat' },
-                { name: 'Bakmi GM Express', city: 'Bekasi' },
-              ].map((brand, idx) => (
-                <div key={idx} className="hero-brand-minimal">
-                  <span className="brand-dot">•</span>
-                  <span>{brand.name}</span>
-                  <span className="brand-sub">({brand.city})</span>
+                'KYLO Coffee & Eatery',
+                'Kedai Kopi Joni',
+                'Tebasrumput.com',
+                'Aroma Resto Nusantara',
+                'Gentleman Barbershop',
+                'Klinik Gigi Dr. Pratama',
+                'Bakmi GM Express',
+                'Autoshine Car Care',
+                'Sweet Treats Bakery',
+                'Warung Steak 88',
+                'Dapur Nyonya Catering',
+                'Kopi Kenangan Senja',
+              ].map((name, idx) => (
+                <div key={idx} className="hero-brand-bold">
+                  <span>{name}</span>
+                  <span className="brand-separator">•</span>
                 </div>
               ))}
             </div>
