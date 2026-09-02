@@ -182,7 +182,8 @@ export async function getAllCards(search?: string, status?: string): Promise<Car
   let query = supabase.from('cards').select('*');
 
   if (search) {
-    query = query.or(`card_id.ilike.%${search}%,business_name.ilike.%${search}%`);
+    const cleanSearch = search.trim();
+    query = query.or(`card_id.ilike.%${cleanSearch}%,business_name.ilike.%${cleanSearch}%,email.ilike.%${cleanSearch}%`);
   }
 
   if (status && status !== 'ALL') {
@@ -195,21 +196,25 @@ export async function getAllCards(search?: string, status?: string): Promise<Car
   return data as Card[];
 }
 
-export async function getCardStats(): Promise<{ total: number; active: number; unactivated: number; disabled: number }> {
+export async function getCardStats(): Promise<{ total: number; active: number; unactivated: number; disabled: number; totalTaps: number }> {
   const supabase = await createClient();
   
-  const [totalRes, activeRes, unactivatedRes, disabledRes] = await Promise.all([
+  const [totalRes, activeRes, unactivatedRes, disabledRes, tapsRes] = await Promise.all([
     supabase.from('cards').select('*', { count: 'exact', head: true }),
     supabase.from('cards').select('*', { count: 'exact', head: true }).eq('status', 'ACTIVE'),
     supabase.from('cards').select('*', { count: 'exact', head: true }).eq('status', 'UNACTIVATED'),
     supabase.from('cards').select('*', { count: 'exact', head: true }).eq('status', 'DISABLED'),
+    supabase.from('cards').select('tap_count'),
   ]);
+
+  const totalTaps = (tapsRes.data || []).reduce((acc, curr: { tap_count?: number | null }) => acc + (Number(curr.tap_count) || 0), 0);
 
   return {
     total: totalRes.count || 0,
     active: activeRes.count || 0,
     unactivated: unactivatedRes.count || 0,
     disabled: disabledRes.count || 0,
+    totalTaps,
   };
 }
 

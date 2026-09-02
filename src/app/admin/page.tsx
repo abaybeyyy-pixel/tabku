@@ -478,7 +478,7 @@ export default function AdminPage() {
       {error && <div className="error-alert mb-2.5 py-2 px-3 text-xs">{error}</div>}
       {success && <div className="success-alert mb-2.5 py-2 px-3 text-xs">{success}</div>}
 
-      {/* COMPACT 3-COLUMN STATS ROW (Always 1 row on mobile & desktop) */}
+      {/* COMPACT 4-COLUMN STATS ROW */}
       <div className="admin-stats-grid mb-3">
         <div className="admin-stat-box">
           <span className="admin-stat-label">Total Kartu</span>
@@ -496,6 +496,12 @@ export default function AdminPage() {
           <span className="admin-stat-label">Pending</span>
           <span className="admin-stat-value" style={{ color: 'var(--accent-gold)' }}>
             {stats.unactivated}
+          </span>
+        </div>
+        <div className="admin-stat-box">
+          <span className="admin-stat-label">Total Tap Platform</span>
+          <span className="admin-stat-value" style={{ color: '#2563eb' }}>
+            {(stats.totalTaps || 0).toLocaleString('id-ID')}
           </span>
         </div>
       </div>
@@ -557,23 +563,51 @@ export default function AdminPage() {
       <div className="feature-card-minimal p-3">
         {/* Search, Filter & Bulk Actions Bar */}
         <div className="flex gap-2 mb-2.5 flex-wrap items-center justify-between">
-          <div className="flex gap-2 flex-1 flex-wrap" style={{ minWidth: '220px' }}>
-            <input
-              type="text"
-              placeholder="Cari ID / bisnis..."
-              value={search}
-              onChange={handleSearchChange}
-              style={{
-                flex: '1 1 160px',
-                padding: '0.4rem 0.65rem',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-sm)',
-                fontSize: '0.8rem',
-                background: '#ffffff',
-                color: 'var(--foreground)',
-                minWidth: 0,
-              }}
-            />
+          <div className="flex gap-2 flex-1 flex-wrap items-center" style={{ minWidth: '220px' }}>
+            <div style={{ position: 'relative', flex: '1 1 180px', minWidth: 0 }}>
+              <input
+                type="text"
+                placeholder="Cari ID, nama usaha, atau email..."
+                value={search}
+                onChange={handleSearchChange}
+                style={{
+                  width: '100%',
+                  padding: '0.4rem 2rem 0.4rem 0.65rem',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '0.8rem',
+                  background: '#ffffff',
+                  color: 'var(--foreground)',
+                }}
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch('');
+                    const params = new URLSearchParams();
+                    if (statusFilter !== 'ALL') params.set('status', statusFilter);
+                    fetchData(password, params.toString());
+                  }}
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--muted)',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    padding: '2px',
+                    lineHeight: 1,
+                  }}
+                  title="Hapus pencarian"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
             <select
               value={statusFilter}
               onChange={(e) => handleStatusFilterChange(e.target.value)}
