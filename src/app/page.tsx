@@ -468,7 +468,27 @@ export default function Homepage() {
               </div>
 
               <h1 className="hero-title font-extrabold mb-3">
-                Banjir Review Bintang 5 di Google Maps <br />
+                Banjir Review{' '}
+                <span className="hero-title-star-badge" title="Tingkatkan Ulasan Bintang 5 Organik">
+                  <span className="star-text">Bintang 5</span>
+                  <span className="star-icons-live">
+                    {[...Array(5)].map((_, i) => (
+                      <svg
+                        key={i}
+                        className="hero-anim-star"
+                        style={{ animationDelay: `${i * 150}ms` }}
+                        width="17"
+                        height="17"
+                        viewBox="0 0 24 24"
+                        fill="#f59e0b"
+                        stroke="#f59e0b"
+                      >
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                      </svg>
+                    ))}
+                  </span>
+                </span>{' '}
+                di Google Maps <br />
                 <span className="text-gradient">Cukup dengan Sekali Tempel HP</span>
               </h1>
 

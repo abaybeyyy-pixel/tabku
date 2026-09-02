@@ -2460,6 +2460,61 @@ a {
 }
 
 /* ==========================================================================
+   HERO TITLE 5-STAR INTERACTIVE BADGE
+   ========================================================================== */
+.hero-title-star-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: linear-gradient(135deg, rgba(254, 243, 199, 0.95) 0%, rgba(254, 215, 170, 0.75) 100%);
+  border: 1.5px solid rgba(245, 158, 11, 0.5);
+  padding: 0.08rem 0.55rem;
+  border-radius: 999px;
+  vertical-align: middle;
+  box-shadow: 0 2px 12px rgba(245, 158, 11, 0.25);
+  white-space: nowrap;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  margin: 0 0.15rem;
+}
+
+.hero-title-star-badge:hover {
+  transform: scale(1.06) rotate(-1deg);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  border-color: #f59e0b;
+}
+
+.hero-title-star-badge .star-text {
+  color: #92400e;
+  font-weight: 800;
+  font-size: 0.88em;
+  letter-spacing: -0.01em;
+}
+
+.hero-title-star-badge .star-icons-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.5px;
+}
+
+.hero-anim-star {
+  animation: starTwinkle 2.2s infinite ease-in-out;
+  transform-origin: center;
+  display: inline-block;
+}
+
+@keyframes starTwinkle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 1px rgba(245, 158, 11, 0.3));
+  }
+  50% {
+    transform: scale(1.24) rotate(8deg);
+    filter: drop-shadow(0 0 7px rgba(245, 158, 11, 0.95));
+  }
+}
+
+/* ==========================================================================
    HERO 5-STAR INTERACTIVE MARQUEE
    ========================================================================== */
 .hero-marquee-wrapper {
