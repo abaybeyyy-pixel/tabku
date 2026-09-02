@@ -248,7 +248,7 @@ export default function AdminPage() {
   const handleExportCSV = () => {
     const csvContent = 'data:text/csv;charset=utf-8,' 
       + ['Card ID,Permanent URL,Destination,Status'].join(',') + '\n'
-      + cards.map(c => `${c.card_id},${window.location.origin}/c/${c.card_id},"${c.destination_url || ''}",${c.status}`).join('\n');
+      + cards.map(c => `${c.card_id},https://mycarrd.com/c/${c.card_id},"${c.destination_url || ''}",${c.status}`).join('\n');
     
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
@@ -313,7 +313,7 @@ export default function AdminPage() {
         doc.text(`CARD ID: ${qr.cardId}`, x + (size / 2), y + size + 5, { align: 'center' });
         doc.setFontSize(7);
         doc.setFont('Helvetica', 'normal');
-        doc.text(`/c/${qr.cardId}`, x + (size / 2), y + size + 9, { align: 'center' });
+        doc.text(`mycarrd.com/c/${qr.cardId}`, x + (size / 2), y + size + 9, { align: 'center' });
 
         if ((i + 1) % cardsPerRow === 0) {
           x = 15;

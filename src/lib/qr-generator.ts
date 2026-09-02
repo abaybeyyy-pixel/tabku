@@ -1,7 +1,15 @@
 import QRCode from 'qrcode';
 
+export function getDomain(): string {
+  const env = process.env.NEXT_PUBLIC_DOMAIN;
+  if (!env || env.includes('vercel.app') || env.includes('localhost')) {
+    return 'https://mycarrd.com';
+  }
+  return env;
+}
+
 export function getCardUrl(cardId: string): string {
-  const domain = process.env.NEXT_PUBLIC_DOMAIN || 'https://mycarrd.com';
+  const domain = getDomain();
   return `${domain}/c/${cardId}`;
 }
 
@@ -29,7 +37,7 @@ export async function generateQRSVG(cardId: string): Promise<string> {
 }
 
 export function generateCSV(cardIds: string[]): string {
-  const domain = process.env.NEXT_PUBLIC_DOMAIN || 'https://mycarrd.com';
+  const domain = getDomain();
   let csv = 'Card ID,URL\n';
   for (const id of cardIds) {
     csv += `${id},${domain}/c/${id}\n`;
