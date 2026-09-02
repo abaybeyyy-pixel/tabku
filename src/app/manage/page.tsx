@@ -291,7 +291,7 @@ export default function ManagePage() {
         {/* HEADER */}
         <div className="header-logo">
           <a href="/" className="font-extrabold text-sm tracking-wider" style={{ color: 'var(--primary-color)' }}>
-            TAPKU
+            MYCARRD
           </a>
           {loggedInCard ? (
             <span className="card-badge">{loggedInCard.cardId}</span>
@@ -311,7 +311,7 @@ export default function ManagePage() {
               <div className="animate-fade-in">
                 <div className="text-center mb-4">
                   <h1 className="text-xl font-bold mb-1">Kelola Kartu Anda</h1>
-                  <p className="text-muted text-xs">Masukkan ID Kartu & PIN untuk mengatur ulasan dan profil bisnis.</p>
+                  <p className="text-muted text-xs">Masukkan ID Kartu &amp; PIN untuk mengatur ulasan dan profil bisnis.</p>
                 </div>
 
                 <form onSubmit={handleLogin} className="form-group">
@@ -372,7 +372,7 @@ export default function ManagePage() {
                 <div className="text-center mb-4">
                   <h1 className="text-xl font-bold mb-1">Bantuan Reset PIN</h1>
                   <p className="text-muted text-xs">
-                    Hubungi Admin resmi Tapku via WhatsApp untuk verifikasi &amp; reset PIN kartu Anda.
+                    Hubungi Admin resmi Mycarrd via WhatsApp untuk verifikasi &amp; reset PIN kartu Anda.
                   </p>
                 </div>
 
@@ -388,7 +388,7 @@ export default function ManagePage() {
                       return;
                     }
 
-                    const message = `Halo Admin Tapku, saya ingin meminta bantuan reset PIN untuk kartu pintar saya.\n\n• ID Kartu: ${forgotCardId.trim().toUpperCase()}\n• Email Terdaftar: ${forgotEmail.trim()}\n\nMohon bantuannya untuk verifikasi dan reset PIN kartu saya. Terima kasih!`;
+                    const message = `Halo Admin Mycarrd (mycarrd.com), saya ingin meminta bantuan reset PIN untuk kartu pintar saya.\n\n• ID Kartu: ${forgotCardId.trim().toUpperCase()}\n• Email Terdaftar: ${forgotEmail.trim()}\n\nMohon bantuannya untuk verifikasi dan reset PIN kartu saya. Terima kasih!`;
                     const waUrl = `https://wa.me/6281211156865?text=${encodeURIComponent(message)}`;
                     window.open(waUrl, '_blank');
                   }}

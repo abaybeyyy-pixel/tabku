@@ -30,7 +30,7 @@ export default async function OnboardingPage({
       <div className="onboarding-card">
         <div className="header-logo">
           <a href="/" className="font-extrabold text-sm tracking-wider" style={{ color: 'var(--primary-color)' }}>
-            TAPKU
+            MYCARRD
           </a>
           <span className="card-badge">{upperCardId}</span>
         </div>

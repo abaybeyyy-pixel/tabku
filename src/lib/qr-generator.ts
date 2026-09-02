@@ -1,7 +1,7 @@
 import QRCode from 'qrcode';
 
 export function getCardUrl(cardId: string): string {
-  const domain = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
+  const domain = process.env.NEXT_PUBLIC_DOMAIN || 'https://mycarrd.com';
   return `${domain}/c/${cardId}`;
 }
 
@@ -29,7 +29,7 @@ export async function generateQRSVG(cardId: string): Promise<string> {
 }
 
 export function generateCSV(cardIds: string[]): string {
-  const domain = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
+  const domain = process.env.NEXT_PUBLIC_DOMAIN || 'https://mycarrd.com';
   let csv = 'Card ID,URL\n';
   for (const id of cardIds) {
     csv += `${id},${domain}/c/${id}\n`;

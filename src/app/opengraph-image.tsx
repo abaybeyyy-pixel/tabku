@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'nodejs';
-export const alt = 'Tapku — Platform Kartu Google Review NFC & Dynamic QR';
+export const alt = 'Mycarrd — Platform Kartu Google Review NFC & Dynamic QR (mycarrd.com)';
 export const size = {
   width: 1200,
   height: 630,
@@ -44,10 +44,10 @@ export default async function Image() {
                 boxShadow: '0 8px 24px rgba(37, 99, 235, 0.4)',
               }}
             >
-              T
+              M
             </div>
             <span style={{ fontSize: '36px', fontWeight: '900', letterSpacing: '-0.03em', color: '#ffffff' }}>
-              TAPKU
+              MYCARRD
             </span>
           </div>
 

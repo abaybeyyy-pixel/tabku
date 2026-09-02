@@ -343,12 +343,12 @@ export default function Homepage() {
 
   const faqs = [
     {
-      q: 'Bagaimana cara kerja Kartu Google Review Tapku?',
+      q: 'Bagaimana cara kerja Kartu Google Review Mycarrd?',
       a: 'Kartu dilengkapi chip NFC dan kode QR dinamis. Saat pelanggan menempelkan smartphone atau memindai kode QR di kartu, layar HP langsung membuka jendela resmi Google Review tempat pelanggan bisa langsung memberi rating bintang 5 dan ulasan dalam hitungan detik.',
     },
     {
       q: 'Bagaimana jika nama bisnis atau Place ID saya berubah nanti?',
-      a: 'Bisa, 100% fleksibel! Ini keunggulan utama teknologi Dynamic Link Tapku. Dengan memasukkan ID Kartu dan PIN Anda pada sistem Tapku, Anda bebas memperbarui nama bisnis dan Place ID Google Maps kapan saja tanpa perlu mengganti kartu fisik.',
+      a: 'Bisa, 100% fleksibel! Ini keunggulan utama teknologi Dynamic Link Mycarrd. Dengan memasukkan ID Kartu dan PIN Anda pada sistem Mycarrd, Anda bebas memperbarui nama bisnis dan Place ID Google Maps kapan saja tanpa perlu mengganti kartu fisik.',
     },
     {
       q: 'Apakah semua jenis smartphone bisa menggunakan kartu ini?',
@@ -356,15 +356,15 @@ export default function Homepage() {
     },
     {
       q: 'Apakah ada biaya langganan bulanan atau tahunan?',
-      a: 'Tidak ada biaya langganan berkala. Tapku menggunakan skema 1x investasi permanen dengan akses penuh selamanya tanpa batasan kuota ulasan pelanggan.',
+      a: 'Tidak ada biaya langganan berkala. Mycarrd menggunakan skema 1x investasi permanen dengan akses penuh selamanya tanpa batasan kuota ulasan pelanggan.',
     },
     {
       q: 'Bagaimana cakupan dan prosedur klaim Lifetime Warranty?',
-      a: 'Tapku memberikan jaminan Lifetime Warranty untuk fungsi chip NFC dan Dynamic QR Code. Seluruh kartu dicetak pada material akrilik tebal 3mm yang 100% anti air dan anti luntur. Jika kartu mengalami kendala teknis selama pemakaian normal, tim dukungan kami akan segera memproses penggantian unit baru secara gratis.',
+      a: 'Mycarrd memberikan jaminan Lifetime Warranty untuk fungsi chip NFC dan Dynamic QR Code. Seluruh kartu dicetak pada material akrilik tebal 3mm yang 100% anti air dan anti luntur. Jika kartu mengalami kendala teknis selama pemakaian normal, tim dukungan kami akan segera memproses penggantian unit baru secara gratis.',
     },
     {
       q: 'Apakah kartu tahan air dan aman dipajang di meja kasir restoran/kafe?',
-      a: 'Ya, 100% tahan air dan anti luntur. Kartu Tapku dibuat dari material akrilik berkualitas tinggi dengan ketebalan 3mm dan teknologi cetak UV industrial, sehingga tahan terhadap tumpahan cairan, mudah dibersihkan, dan warna tidak akan pudar.',
+      a: 'Ya, 100% tahan air dan anti luntur. Kartu Mycarrd dibuat dari material akrilik berkualitas tinggi dengan ketebalan 3mm dan teknologi cetak UV industrial, sehingga tahan terhadap tumpahan cairan, mudah dibersihkan, dan warna tidak akan pudar.',
     },
     {
       q: 'Bagaimana cara bergabung menjadi Reseller atau Mitra?',
@@ -384,7 +384,7 @@ export default function Homepage() {
         target="_blank"
         rel="noopener noreferrer"
         className="wa-marquee-banner"
-        title="Klik untuk chat WhatsApp Customer Support Tapku"
+        title="Klik untuk chat WhatsApp Customer Support Mycarrd"
       >
         <div className="wa-marquee-badge">
           <span className="wa-live-dot"></span>
@@ -404,7 +404,7 @@ export default function Homepage() {
             </span>
             <span className="wa-marquee-sep">•</span>
             <span className="wa-marquee-item">
-              <strong>Tapku Smart Card Google Review NFC:</strong> Tingkatkan ulasan positif bisnis Anda secara praktis &amp; instan.
+              <strong>Mycarrd Smart Card Google Review NFC:</strong> Tingkatkan ulasan positif bisnis Anda secara praktis &amp; instan.
             </span>
             <span className="wa-marquee-sep">•</span>
             <span className="wa-marquee-item">
@@ -416,7 +416,7 @@ export default function Homepage() {
             </span>
             <span className="wa-marquee-sep">•</span>
             <span className="wa-marquee-item">
-              <strong>Tapku Smart Card Google Review NFC:</strong> Tingkatkan ulasan positif bisnis Anda secara praktis &amp; instan.
+              <strong>Mycarrd Smart Card Google Review NFC:</strong> Tingkatkan ulasan positif bisnis Anda secara praktis &amp; instan.
             </span>
             <span className="wa-marquee-sep">•</span>
           </div>
@@ -427,7 +427,7 @@ export default function Homepage() {
       <nav className="navbar">
         <div className="navbar-container">
           <a href="/" className="nav-logo font-bold">
-            TAPKU
+            MYCARRD
           </a>
           <div className="nav-links">
             <a href="#target-market" className="nav-link">Untuk Bisnis</a>
@@ -473,7 +473,7 @@ export default function Homepage() {
               </h1>
 
               <p className="hero-subtitle mb-4">
-                <strong>93% calon pelanggan memilih bisnis dengan rating tertinggi di Google Maps.</strong> Jangan biarkan kompetitor merebut pelanggan Anda. Dengan Tapku, pelanggan cukup menempelkan HP untuk langsung memberi ulasan bintang 5 dalam 2 detik.
+                <strong>93% calon pelanggan memilih bisnis dengan rating tertinggi di Google Maps.</strong> Jangan biarkan kompetitor merebut pelanggan Anda. Dengan Mycarrd, pelanggan cukup menempelkan HP untuk langsung memberi ulasan bintang 5 dalam 2 detik.
               </p>
 
               {/* SINGLE FOCUSED WHATSAPP CTA */}
@@ -557,7 +557,7 @@ export default function Homepage() {
                       <span className="font-mono text-xs font-bold" style={{ fontSize: '0.6rem' }}>NFC</span>
                     </div>
                     <div>
-                      <span className="block font-bold text-xs" style={{ fontSize: '0.65rem' }}>TAPKU SMART CARD</span>
+                      <span className="block font-bold text-xs" style={{ fontSize: '0.65rem' }}>MYCARRD SMART CARD</span>
                       <span className="text-subtle block" style={{ fontSize: '0.55rem' }}>Kedai Kopi Joni</span>
                     </div>
                   </div>
@@ -845,9 +845,9 @@ export default function Homepage() {
         <div className="container">
           <div className="text-center mb-5">
             <span className="section-badge mb-2">Komparasi Nyata</span>
-            <h2 className="section-title font-bold mt-1">Tanpa Kartu vs Dengan Kartu Pintar Tapku</h2>
+            <h2 className="section-title font-bold mt-1">Tanpa Kartu vs Dengan Kartu Pintar Mycarrd</h2>
             <p className="text-muted max-w-lg mx-auto text-sm mt-2">
-              Tinggalkan cara lama yang lambat dan merepotkan. Bandingkan efisiensi nyata kartu pintar Tapku.
+              Tinggalkan cara lama yang lambat dan merepotkan. Bandingkan efisiensi nyata kartu pintar Mycarrd.
             </p>
           </div>
 
@@ -856,7 +856,7 @@ export default function Homepage() {
             <div className="comparison-table-header">
               <span>Parameter</span>
               <span>Tanpa Kartu (Cara Manual)</span>
-              <span>Dengan Kartu Pintar Tapku</span>
+              <span>Dengan Kartu Pintar Mycarrd</span>
             </div>
 
             {/* Item 1: Kecepatan */}
@@ -877,7 +877,7 @@ export default function Homepage() {
                 <div className="comp-duel-box tapku">
                   <div className="comp-duel-badge tapku">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span>Pakai Tapku</span>
+                    <span>Pakai Mycarrd</span>
                   </div>
                   <div className="comp-duel-val">&lt; 2 Detik (Instan)</div>
                   <div className="comp-duel-desc">Sekali tap langsung muncul form bintang 5</div>
@@ -903,7 +903,7 @@ export default function Homepage() {
                 <div className="comp-duel-box tapku">
                   <div className="comp-duel-badge tapku">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span>Pakai Tapku</span>
+                    <span>Pakai Mycarrd</span>
                   </div>
                   <div className="comp-duel-val">Hingga 75%+ (Tinggi)</div>
                   <div className="comp-duel-desc">Sangat mudah dilakukan di kasir sambil bayar</div>
@@ -929,7 +929,7 @@ export default function Homepage() {
                 <div className="comp-duel-box tapku">
                   <div className="comp-duel-badge tapku">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span>Pakai Tapku</span>
+                    <span>Pakai Mycarrd</span>
                   </div>
                   <div className="comp-duel-val">Edit Cloud Realtime</div>
                   <div className="comp-duel-desc">Cukup ubah link di portal tanpa ganti kartu fisik</div>
@@ -955,7 +955,7 @@ export default function Homepage() {
                 <div className="comp-duel-box tapku">
                   <div className="comp-duel-badge tapku">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span>Pakai Tapku</span>
+                    <span>Pakai Mycarrd</span>
                   </div>
                   <div className="comp-duel-val">1x Investasi (Lifetime Access)</div>
                   <div className="comp-duel-desc">Rp 0 biaya langganan berkala selamanya</div>
@@ -1197,9 +1197,9 @@ export default function Homepage() {
           <div className="footer-grid">
             {/* Column 1: Brand & About */}
             <div>
-              <div className="footer-brand-title">TAPKU</div>
+              <div className="footer-brand-title">MYCARRD</div>
               <p className="footer-desc">
-                Solusi Smart Card Google Review NFC &amp; Dynamic QR terbaik untuk UMKM dan bisnis modern di Indonesia. Kumpulkan ulasan bintang 5 dengan satu kali tempel.
+                Solusi Smart Card Google Review NFC &amp; Dynamic QR terbaik untuk UMKM dan bisnis modern di Indonesia (mycarrd.com). Kumpulkan ulasan bintang 5 dengan satu kali tempel.
               </p>
               <div className="mt-3">
                 <a
@@ -1267,7 +1267,7 @@ export default function Homepage() {
 
           {/* Bottom Copyright & Legal */}
           <div className="footer-bottom-bar">
-            <span>&copy; {new Date().getFullYear()} Tapku. Hak cipta dilindungi undang-undang.</span>
+            <span>&copy; {new Date().getFullYear()} Mycarrd (mycarrd.com). Hak cipta dilindungi undang-undang.</span>
             <div className="flex gap-4 text-xs text-muted">
               <span>Solusi Kartu Google Review NFC &amp; Dynamic QR</span>
             </div>
@@ -1294,7 +1294,7 @@ export default function Homepage() {
         <div className="floating-wa-marquee-body">
           <div className="floating-wa-label-top">
             <span className="floating-wa-badge">Online</span>
-            <span className="floating-wa-phone">Tanya CS Tapku</span>
+            <span className="floating-wa-phone">Tanya CS Mycarrd</span>
           </div>
           <div className="floating-wa-marquee-track">
             <div className="floating-wa-marquee-anim">

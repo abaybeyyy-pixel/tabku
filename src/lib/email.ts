@@ -70,7 +70,7 @@ export async function sendOtpEmail({
       };
     }
 
-    const fromAddress = process.env.SMTP_FROM || `Tapku Security <${process.env.SMTP_USER}>`;
+    const fromAddress = process.env.SMTP_FROM || `Mycarrd Security <${process.env.SMTP_USER}>`;
     const targetName = businessName ? ` ${businessName}` : '';
 
     const htmlContent = `
@@ -79,7 +79,7 @@ export async function sendOtpEmail({
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Kode Pemulihan PIN Tapku</title>
+        <title>Kode Pemulihan PIN Mycarrd</title>
       </head>
       <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f8fafc; padding: 40px 15px;">
@@ -90,10 +90,10 @@ export async function sendOtpEmail({
                 <tr>
                   <td style="background: linear-gradient(135deg, #0b132b 0%, #1c2541 100%); padding: 30px; text-align: center;">
                     <div style="display: inline-block; width: 44px; height: 44px; line-height: 44px; background: #2563eb; color: #ffffff; border-radius: 12px; font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 12px;">
-                      T
+                      M
                     </div>
-                    <h1 style="color: #ffffff; font-size: 20px; font-weight: 800; margin: 0; letter-spacing: -0.02em;">TAPKU SECURITY</h1>
-                    <p style="color: #94a3b8; font-size: 13px; margin: 6px 0 0 0;">Verifikasi Reset PIN Kartu Ulasan Google</p>
+                    <h1 style="color: #ffffff; font-size: 20px; font-weight: 800; margin: 0; letter-spacing: -0.02em;">MYCARRD SECURITY</h1>
+                    <p style="color: #94a3b8; font-size: 13px; margin: 6px 0 0 0;">Verifikasi Reset PIN Kartu Ulasan Google (mycarrd.com)</p>
                   </td>
                 </tr>
 
@@ -116,7 +116,7 @@ export async function sendOtpEmail({
 
                     <div style="background: #fef2f2; border-left: 4px solid #ef4444; border-radius: 4px; padding: 12px; margin-bottom: 24px;">
                       <p style="color: #991b1b; font-size: 12px; line-height: 1.5; margin: 0;">
-                        ⏱️ <strong>Kode ini berlaku selama 10 menit.</strong> Jangan pernah bagikan kode ini kepada siapa pun termasuk staf atau pihak yang mengaku dari Tapku.
+                        ⏱️ <strong>Kode ini berlaku selama 10 menit.</strong> Jangan pernah bagikan kode ini kepada siapa pun termasuk staf atau pihak yang mengaku dari Mycarrd.
                       </p>
                     </div>
 
@@ -130,7 +130,7 @@ export async function sendOtpEmail({
                 <tr>
                   <td style="background-color: #f8fafc; padding: 20px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
                     <p style="color: #94a3b8; font-size: 12px; margin: 0;">
-                      &copy; ${new Date().getFullYear()} Tapku Platform. Hak cipta dilindungi.
+                      &copy; ${new Date().getFullYear()} Mycarrd Platform (mycarrd.com). Hak cipta dilindungi.
                     </p>
                   </td>
                 </tr>
@@ -145,7 +145,7 @@ export async function sendOtpEmail({
     const info = await transporter.sendMail({
       from: fromAddress,
       to,
-      subject: `Kode Verifikasi Reset PIN Tapku (${cardId})`,
+      subject: `Kode Verifikasi Reset PIN Mycarrd (${cardId})`,
       text: `Kode verifikasi Reset PIN kartu Anda (${cardId}) adalah: ${otp}\n\nKode berlaku selama 10 menit. Jangan bagikan kode ini kepada siapa pun.`,
       html: htmlContent,
     });

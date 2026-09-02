@@ -253,7 +253,7 @@ export default function AdminPage() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `tapku_cards_${Date.now()}.csv`);
+    link.setAttribute('download', `mycarrd_cards_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -297,7 +297,7 @@ export default function AdminPage() {
 
       doc.setFont('Helvetica', 'bold');
       doc.setFontSize(16);
-      doc.text('Tapku NFC/QR Card Sheets', 15, 12);
+      doc.text('Mycarrd NFC/QR Card Sheets (mycarrd.com)', 15, 12);
       doc.setFontSize(8);
       doc.setFont('Helvetica', 'normal');
       doc.text(`Generated: ${new Date().toLocaleDateString()}`, 160, 12);
@@ -328,7 +328,7 @@ export default function AdminPage() {
         }
       }
 
-      doc.save(`tapku_qr_codes_${Date.now()}.pdf`);
+      doc.save(`mycarrd_qr_codes_${Date.now()}.pdf`);
       setSuccess('PDF lembar QR berhasil diunduh.');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gagal mengekspor QR ke PDF.';
@@ -462,8 +462,8 @@ export default function AdminPage() {
       {/* COMPACT TOPBAR WITH SPACED BUTTONS */}
       <header className="flex justify-between items-center mb-3 flex-wrap gap-2">
         <div>
-          <h1 className="text-base font-extrabold tracking-tight">TAPKU ADMIN</h1>
-          <p className="text-muted text-xs" style={{ fontSize: '0.72rem' }}>Pusat Manajemen Kartu NFC &amp; Dynamic QR</p>
+          <h1 className="text-base font-extrabold tracking-tight">MYCARRD ADMIN</h1>
+          <p className="text-muted text-xs" style={{ fontSize: '0.72rem' }}>Pusat Manajemen Kartu NFC &amp; Dynamic QR (mycarrd.com)</p>
         </div>
         <div className="admin-header-actions">
           <a href="/" className="admin-header-btn">
