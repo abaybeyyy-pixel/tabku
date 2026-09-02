@@ -41,17 +41,6 @@ export default function AdminPage() {
   const [showQrDataUrl, setShowQrDataUrl] = useState<string>('');
   const [loadingQr, setLoadingQr] = useState(false);
 
-  // SMTP Test Modal state
-  const [showSmtpModal, setShowSmtpModal] = useState(false);
-  const [testEmailInput, setTestEmailInput] = useState('');
-  const [smtpUserInput, setSmtpUserInput] = useState('');
-  const [smtpPassInput, setSmtpPassInput] = useState('');
-  const [smtpHostInput, setSmtpHostInput] = useState('smtp.gmail.com');
-  const [smtpPortInput, setSmtpPortInput] = useState('587');
-  const [saveToEnvChecked, setSaveToEnvChecked] = useState(true);
-  const [testingSmtp, setTestingSmtp] = useState(false);
-  const [smtpTestResult, setSmtpTestResult] = useState<any>(null);
-
   const router = useRouter();
 
   useEffect(() => {
@@ -477,17 +466,6 @@ export default function AdminPage() {
           <p className="text-muted text-xs" style={{ fontSize: '0.72rem' }}>Pusat Manajemen Kartu NFC &amp; Dynamic QR</p>
         </div>
         <div className="admin-header-actions">
-          <button
-            type="button"
-            onClick={() => {
-              setShowSmtpModal(true);
-              setSmtpTestResult(null);
-            }}
-            className="admin-header-btn"
-            style={{ borderColor: '#22c55e', color: '#15803d', fontWeight: 600 }}
-          >
-            Tes SMTP Email
-          </button>
           <a href="/" className="admin-header-btn">
             Beranda
           </a>
@@ -675,13 +653,22 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  {/* Middle: Business details */}
-                  <div style={{ flex: '1 1 120px', minWidth: 0, paddingRight: '0.5rem' }}>
+                  {/* Middle: Business details & User Email */}
+                  <div style={{ flex: '1 1 140px', minWidth: 0, paddingRight: '0.5rem' }}>
                     <div className="text-xs font-semibold text-truncate" style={{ fontSize: '0.8rem' }}>
                       {card.business_name || <span className="text-muted italic" style={{ fontSize: '0.75rem' }}>Belum diaktivasi</span>}
                     </div>
+                    {card.email && (
+                      <div className="flex items-center gap-1.5 mt-0.5 text-blue-800 bg-blue-50 py-0.5 px-1.5 rounded-sm border border-blue-100" style={{ fontSize: '0.7rem', width: 'fit-content', maxWidth: '100%' }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 text-blue-600">
+                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                          <polyline points="22,6 12,13 2,6" />
+                        </svg>
+                        <span className="font-mono text-truncate select-all font-medium">{card.email}</span>
+                      </div>
+                    )}
                     {card.business_address && (
-                      <div className="text-muted text-truncate" style={{ fontSize: '0.68rem' }}>
+                      <div className="text-muted text-truncate mt-0.5" style={{ fontSize: '0.68rem' }}>
                         {card.business_address}
                       </div>
                     )}
@@ -829,10 +816,22 @@ export default function AdminPage() {
       {selectedCard && (
         <div className="modal-backdrop">
           <div className="onboarding-card modal-content animate-fade-in" style={{ maxWidth: '380px', padding: '1.25rem' }}>
-            <h3 className="text-sm font-bold mb-1">Atur Ulang PIN</h3>
-            <p className="text-muted text-xs mb-3">
-              Kode sandi baru untuk kartu <strong className="font-mono">{selectedCard.card_id}</strong>:
+            <h3 className="text-sm font-bold mb-1">Atur Ulang PIN Kartu</h3>
+            <p className="text-muted text-xs mb-2">
+              ID Kartu: <strong className="font-mono text-slate-900">{selectedCard.card_id}</strong>
+              {selectedCard.business_name && ` — ${selectedCard.business_name}`}
             </p>
+
+            {selectedCard.email ? (
+              <div className="p-2 rounded bg-blue-50 border border-blue-200 text-xs text-blue-900 mb-3">
+                <span className="font-bold block text-[11px] text-blue-700">Email Pemilik Terdaftar:</span>
+                <span className="font-mono font-semibold select-all">{selectedCard.email}</span>
+              </div>
+            ) : (
+              <div className="p-2 rounded bg-slate-50 border border-slate-200 text-xs text-muted mb-3">
+                Kartu belum memiliki email pendaftaran terdaftar.
+              </div>
+            )}
             <form onSubmit={handleResetPin} className="form-group">
               <div className="input-group">
                 <label style={{ fontSize: '0.72rem' }}>PIN Baru (4-6 digit angka)</label>
@@ -963,225 +962,6 @@ export default function AdminPage() {
                 Tutup
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* POPUP MODAL: SMTP TEST & DIAGNOSTICS */}
-      {showSmtpModal && (
-        <div className="modal-backdrop">
-          <div className="onboarding-card modal-content animate-fade-in" style={{ maxWidth: '480px', padding: '1.35rem' }}>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-bold">Konfigurasi &amp; Uji SMTP Email</h3>
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-                OTP PIN Recovery
-              </span>
-            </div>
-            <p className="text-muted text-xs mb-3">
-              Masukkan kredensial SMTP Gmail / SMTP server Anda di bawah ini untuk diuji dan langsung disimpan ke server.
-            </p>
-
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                setTestingSmtp(true);
-                setSmtpTestResult(null);
-                try {
-                  const hasCustomCreds = smtpUserInput.trim() && smtpPassInput.trim();
-                  const res = await fetch('/api/admin/test-email', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      testEmail: testEmailInput.trim() || undefined,
-                      saveToEnv: saveToEnvChecked,
-                      config: hasCustomCreds
-                        ? {
-                            host: smtpHostInput.trim() || 'smtp.gmail.com',
-                            port: parseInt(smtpPortInput || '587', 10),
-                            user: smtpUserInput.trim(),
-                            pass: smtpPassInput.trim(),
-                            from: smtpUserInput.trim(),
-                          }
-                        : undefined,
-                    }),
-                  });
-                  const data = await res.json();
-                  setSmtpTestResult(data);
-                } catch (err: unknown) {
-                  setSmtpTestResult({
-                    success: false,
-                    message: 'Gagal menghubungi server.',
-                    error: err instanceof Error ? err.message : String(err),
-                  });
-                } finally {
-                  setTestingSmtp(false);
-                }
-              }}
-              className="space-y-3"
-            >
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-xs font-semibold block mb-1">SMTP Host:</label>
-                  <input
-                    type="text"
-                    placeholder="smtp.gmail.com"
-                    value={smtpHostInput}
-                    onChange={(e) => setSmtpHostInput(e.target.value)}
-                    disabled={testingSmtp}
-                    style={{
-                      width: '100%',
-                      padding: '0.45rem 0.65rem',
-                      border: '1px solid var(--border)',
-                      borderRadius: 'var(--radius-sm)',
-                      fontSize: '0.8rem',
-                      background: '#ffffff',
-                    }}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-semibold block mb-1">SMTP Port:</label>
-                  <input
-                    type="text"
-                    placeholder="587"
-                    value={smtpPortInput}
-                    onChange={(e) => setSmtpPortInput(e.target.value)}
-                    disabled={testingSmtp}
-                    style={{
-                      width: '100%',
-                      padding: '0.45rem 0.65rem',
-                      border: '1px solid var(--border)',
-                      borderRadius: 'var(--radius-sm)',
-                      fontSize: '0.8rem',
-                      background: '#ffffff',
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold block mb-1">Email Pengirim (SMTP User):</label>
-                <input
-                  type="email"
-                  placeholder="contoh: rdwansaputra@gmail.com"
-                  value={smtpUserInput}
-                  onChange={(e) => setSmtpUserInput(e.target.value)}
-                  disabled={testingSmtp}
-                  style={{
-                    width: '100%',
-                    padding: '0.45rem 0.65rem',
-                    border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: '0.8rem',
-                    background: '#ffffff',
-                  }}
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold block mb-1">
-                  Sandi Aplikasi Google (16 Karakter App Password):
-                </label>
-                <input
-                  type="password"
-                  placeholder="xxxx xxxx xxxx xxxx"
-                  value={smtpPassInput}
-                  onChange={(e) => setSmtpPassInput(e.target.value)}
-                  disabled={testingSmtp}
-                  style={{
-                    width: '100%',
-                    padding: '0.45rem 0.65rem',
-                    border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: '0.8rem',
-                    background: '#ffffff',
-                  }}
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold block mb-1">Kirim Email Uji Coba ke (Tujuan):</label>
-                <input
-                  type="email"
-                  placeholder="contoh: rdwansaputra@gmail.com"
-                  value={testEmailInput}
-                  onChange={(e) => setTestEmailInput(e.target.value)}
-                  disabled={testingSmtp}
-                  style={{
-                    width: '100%',
-                    padding: '0.45rem 0.65rem',
-                    border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: '0.8rem',
-                    background: '#ffffff',
-                  }}
-                />
-              </div>
-
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="saveToEnv"
-                  checked={saveToEnvChecked}
-                  onChange={(e) => setSaveToEnvChecked(e.target.checked)}
-                  disabled={testingSmtp}
-                  className="rounded cursor-pointer"
-                />
-                <label htmlFor="saveToEnv" className="text-xs text-muted cursor-pointer select-none">
-                  Simpan kredensial ini otomatis ke <code>.env.local</code> saat tes berhasil
-                </label>
-              </div>
-
-              <div className="p-2.5 rounded bg-slate-50 border border-slate-200 text-[11px] text-slate-600 leading-relaxed">
-                <strong>💡 Cara Mendapatkan App Password Gmail:</strong>
-                <ol className="list-decimal list-inside mt-1 space-y-0.5 text-[11px]">
-                  <li>Buka Akun Google &gt; Keamanan &gt; Verifikasi 2 Langkah.</li>
-                  <li>Scroll ke bagian paling bawah &gt; pilih <strong>Sandi Aplikasi (App Passwords)</strong>.</li>
-                  <li>Buat sandi baru untuk nama &ldquo;Tapku&rdquo; lalu salin 16 karakter kodenya ke form di atas.</li>
-                </ol>
-              </div>
-
-              {smtpTestResult && (
-                <div
-                  className={`p-2.5 rounded-md text-xs ${
-                    smtpTestResult.success
-                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                      : 'bg-rose-50 text-rose-800 border border-rose-200'
-                  }`}
-                >
-                  <p className="font-bold mb-1">
-                    {smtpTestResult.success ? '✓ Berhasil Terkoneksi & Terkirim' : '✕ Uji Koneksi Gagal'}
-                  </p>
-                  <p>{smtpTestResult.message || smtpTestResult.error}</p>
-                  {smtpTestResult.details && (
-                    <p className="mt-1 font-mono text-xs opacity-75">
-                      Host: {smtpTestResult.details.host}:{smtpTestResult.details.port} | User: {smtpTestResult.details.user}
-                    </p>
-                  )}
-                  {smtpTestResult.success && saveToEnvChecked && (
-                    <p className="mt-1 font-semibold text-emerald-700 text-[11px]">
-                      ✓ Kredensial telah otomatis tersimpan di .env.local
-                    </p>
-                  )}
-                </div>
-              )}
-
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="submit"
-                  disabled={testingSmtp}
-                  className="btn btn-primary w-full py-1.5 text-xs font-semibold"
-                >
-                  {testingSmtp ? 'Menguji & Mengirim...' : 'Uji Koneksi & Simpan'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowSmtpModal(false)}
-                  className="btn btn-secondary w-full py-1.5 text-xs font-semibold"
-                >
-                  Tutup
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}
