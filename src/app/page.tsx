@@ -468,8 +468,16 @@ export default function Homepage() {
               </div>
 
               <h1 className="hero-title font-extrabold mb-3">
-                Banjir Review <span className="hero-highlight-word">Bintang 5</span> di Google Maps <br />
-                <span className="text-gradient">Cukup dengan Sekali Tempel HP</span>
+                <span className="hero-title-row">
+                  Review <span className="hero-highlight-word">Bintang 5</span>
+                  <br className="hero-mobile-br" />{' '}
+                  <span className="hero-nowrap">di Google Maps</span>
+                </span>
+                <span className="hero-title-row text-gradient">
+                  Cukup dengan
+                  <br className="hero-mobile-br" />{' '}
+                  <span className="hero-nowrap">Sekali Tempel HP</span>
+                </span>
               </h1>
 
               <p className="hero-subtitle mb-4">

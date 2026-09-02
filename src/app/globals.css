@@ -533,6 +533,31 @@ a {
   color: var(--foreground);
 }
 
+.hero-title-row {
+  display: block;
+}
+
+.hero-nowrap {
+  white-space: nowrap;
+}
+
+.hero-mobile-br {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .hero-title {
+    font-size: clamp(1.75rem, 6.2vw, 2.15rem);
+    line-height: 1.25;
+  }
+  .hero-mobile-br {
+    display: block;
+  }
+  .hero-title-row + .hero-title-row {
+    margin-top: 0.25rem;
+  }
+}
+
 .text-gradient {
   background: linear-gradient(135deg, #09090b 0%, #1e3a8a 60%, #312e81 100%);
   -webkit-background-clip: text;
