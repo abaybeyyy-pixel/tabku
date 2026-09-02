@@ -676,140 +676,44 @@ export default function Homepage() {
             </div>
           </div>
 
-          {/* 5-STAR INTERACTIVE LIVE MARQUEE */}
+          {/* MINIMALIST BRAND & BUSINESS LOGO MARQUEE */}
           <div className="hero-marquee-wrapper">
             <div className="hero-marquee-header">
               <span className="live-dot"></span>
-              <span>Live Ulasan Bintang 5 dari Mitra Bisnis &amp; UMKM</span>
+              <span>Dipercaya Oleh Ratusan Bisnis &amp; UMKM di Indonesia</span>
             </div>
 
             <div className="hero-marquee-track">
               {[
-                {
-                  name: 'Kopi Senja Utama',
-                  city: 'Jakarta Selatan',
-                  avatar: 'K',
-                  bg: '#dbeafe',
-                  color: '#1e40af',
-                  text: 'Omset naik 35% sejak pasang Tapku di kasir. Pelanggan suka banget karena ga sampai 2 detik!',
-                },
-                {
-                  name: 'Klinik Gigi Dr. Pratama',
-                  city: 'Surabaya',
-                  avatar: 'D',
-                  bg: '#dcfce7',
-                  color: '#15803d',
-                  text: 'Dalam 2 minggu ulasan Google Maps bertambah 80+ bintang 5 organik dari pasien.',
-                },
-                {
-                  name: 'Aroma Resto Nusantara',
-                  city: 'Bandung',
-                  avatar: 'A',
-                  bg: '#fef3c7',
-                  color: '#b45309',
-                  text: 'Akrilik 3mm UV print sangat tebal dan mewah. Kena tumpahan kopi & air tetap kinclong!',
-                },
-                {
-                  name: 'Gentleman Barbershop',
-                  city: 'Yogyakarta',
-                  avatar: 'G',
-                  bg: '#f3e8ff',
-                  color: '#6b21a8',
-                  text: 'Setting mandirinya gampang banget, cari nama tempat langsung terkoneksi ke Google.',
-                },
-                {
-                  name: 'Bakmi GM Special',
-                  city: 'Tangerang',
-                  avatar: 'B',
-                  bg: '#fee2e2',
-                  color: '#b91c1c',
-                  text: 'Rating Google Maps kami naik dari 4.2 jadi 4.9. Posisi ranking pencarian Maps melesat!',
-                },
-                {
-                  name: 'Dapur Nyonya Catering',
-                  city: 'Semarang',
-                  avatar: 'N',
-                  bg: '#e0e7ff',
-                  color: '#3730a3',
-                  text: 'Solusi terbaik untuk UMKM. 1x beli aktif selamanya tanpa biaya langganan bulanan.',
-                },
+                { name: 'KYLO Coffee & Eatery', category: 'Cafe & Roastery', icon: '☕' },
+                { name: 'Gentleman Barbershop', category: 'Grooming Lounge', icon: '✂️' },
+                { name: 'Tebasrumput.com', category: 'Jasa & Properti', icon: '🌿' },
+                { name: 'Dr. Dental Care', category: 'Klinik Gigi Spesialis', icon: '🦷' },
+                { name: 'Aroma Resto Nusantara', category: 'Restoran & Kuliner', icon: '🍲' },
+                { name: 'Charles & Keith Store', category: 'Fashion & Retail', icon: '👜' },
+                { name: 'De Paviljoen Boutique', category: 'Hotel & Hospitality', icon: '🏨' },
+                { name: 'Autoshine Detailer', category: 'Carwash & Coating', icon: '🚗' },
+                { name: 'Bakmi GM Express', category: 'Resto & Franchise', icon: '🍜' },
+                { name: 'Sweet Treats Patisserie', category: 'Bakery & Cake', icon: '🧁' },
                 // DUPLICATE FOR SEAMLESS INFINITE LOOP
-                {
-                  name: 'Kopi Senja Utama',
-                  city: 'Jakarta Selatan',
-                  avatar: 'K',
-                  bg: '#dbeafe',
-                  color: '#1e40af',
-                  text: 'Omset naik 35% sejak pasang Tapku di kasir. Pelanggan suka banget karena ga sampai 2 detik!',
-                },
-                {
-                  name: 'Klinik Gigi Dr. Pratama',
-                  city: 'Surabaya',
-                  avatar: 'D',
-                  bg: '#dcfce7',
-                  color: '#15803d',
-                  text: 'Dalam 2 minggu ulasan Google Maps bertambah 80+ bintang 5 organik dari pasien.',
-                },
-                {
-                  name: 'Aroma Resto Nusantara',
-                  city: 'Bandung',
-                  avatar: 'A',
-                  bg: '#fef3c7',
-                  color: '#b45309',
-                  text: 'Akrilik 3mm UV print sangat tebal dan mewah. Kena tumpahan kopi & air tetap kinclong!',
-                },
-                {
-                  name: 'Gentleman Barbershop',
-                  city: 'Yogyakarta',
-                  avatar: 'G',
-                  bg: '#f3e8ff',
-                  color: '#6b21a8',
-                  text: 'Setting mandirinya gampang banget, cari nama tempat langsung terkoneksi ke Google.',
-                },
-                {
-                  name: 'Bakmi GM Special',
-                  city: 'Tangerang',
-                  avatar: 'B',
-                  bg: '#fee2e2',
-                  color: '#b91c1c',
-                  text: 'Rating Google Maps kami naik dari 4.2 jadi 4.9. Posisi ranking pencarian Maps melesat!',
-                },
-                {
-                  name: 'Dapur Nyonya Catering',
-                  city: 'Semarang',
-                  avatar: 'N',
-                  bg: '#e0e7ff',
-                  color: '#3730a3',
-                  text: 'Solusi terbaik untuk UMKM. 1x beli aktif selamanya tanpa biaya langganan bulanan.',
-                },
-              ].map((item, idx) => (
-                <div key={idx} className="hero-marquee-card">
-                  <div className="hero-marquee-top">
-                    <div className="hero-marquee-stars">
-                      {[...Array(5)].map((_, s) => (
-                        <svg key={s} width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b">
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                        </svg>
-                      ))}
-                    </div>
-                    <span className="hero-marquee-badge">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      Terverifikasi
-                    </span>
+                { name: 'KYLO Coffee & Eatery', category: 'Cafe & Roastery', icon: '☕' },
+                { name: 'Gentleman Barbershop', category: 'Grooming Lounge', icon: '✂️' },
+                { name: 'Tebasrumput.com', category: 'Jasa & Properti', icon: '🌿' },
+                { name: 'Dr. Dental Care', category: 'Klinik Gigi Spesialis', icon: '🦷' },
+                { name: 'Aroma Resto Nusantara', category: 'Restoran & Kuliner', icon: '🍲' },
+                { name: 'Charles & Keith Store', category: 'Fashion & Retail', icon: '👜' },
+                { name: 'De Paviljoen Boutique', category: 'Hotel & Hospitality', icon: '🏨' },
+                { name: 'Autoshine Detailer', category: 'Carwash & Coating', icon: '🚗' },
+                { name: 'Bakmi GM Express', category: 'Resto & Franchise', icon: '🍜' },
+                { name: 'Sweet Treats Patisserie', category: 'Bakery & Cake', icon: '🧁' },
+              ].map((brand, idx) => (
+                <div key={idx} className="hero-brand-card">
+                  <div className="hero-brand-icon">
+                    <span>{brand.icon}</span>
                   </div>
-
-                  <p className="hero-marquee-text">&ldquo;{item.text}&rdquo;</p>
-
-                  <div className="hero-marquee-author">
-                    <div className="hero-marquee-avatar" style={{ background: item.bg, color: item.color }}>
-                      {item.avatar}
-                    </div>
-                    <div className="hero-marquee-meta">
-                      <span className="hero-marquee-name">{item.name}</span>
-                      <span className="hero-marquee-city">{item.city}</span>
-                    </div>
+                  <div>
+                    <span className="hero-brand-name block">{brand.name}</span>
+                    <span className="hero-brand-cat block">{brand.category}</span>
                   </div>
                 </div>
               ))}
