@@ -231,14 +231,14 @@ export async function testSmtpConnection(
       message: testRecipient
         ? `Koneksi SMTP sukses dan email uji coba berhasil dikirim ke ${testRecipient}.`
         : 'Koneksi dan autentikasi SMTP berhasil diverifikasi.',
-      details: { host, port, user, from, secure },
+      details: { host, port, user, from: from || user, secure },
     };
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     return {
       success: false,
       message: 'Gagal menghubungkan ke server SMTP.',
-      details: { host, port, user, from, secure },
+      details: { host, port, user, from: from || user, secure },
       error: errorMsg,
     };
   }
