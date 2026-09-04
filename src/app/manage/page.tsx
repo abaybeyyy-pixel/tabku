@@ -569,7 +569,7 @@ export default function ManagePage() {
                   setManageLinkType(loggedInCard.placeId ? 'google_review' : 'custom_url');
                 }}
               >
-                Tujuan (Maps / Custom)
+                Tujuan Kartu
               </button>
               <button
                 className={`tab-btn ${dashTab === 'pin' ? 'active' : ''}`}
@@ -724,7 +724,7 @@ export default function ManagePage() {
                     <div className="flex items-center justify-between">
                       <span className="summary-label">Tujuan Redirect Kartu</span>
                       <span
-                        className="text-xs font-bold px-2 py-0.5 rounded-full"
+                        className="text-xs font-semibold px-2 py-0.5 rounded-full"
                         style={{
                           background: loggedInCard.placeId ? '#ecfdf5' : '#eff6ff',
                           color: loggedInCard.placeId ? '#047857' : '#1d4ed8',
@@ -732,14 +732,14 @@ export default function ManagePage() {
                           fontSize: '0.68rem',
                         }}
                       >
-                        {loggedInCard.placeId ? '⭐ Google Maps Review' : '🔗 Custom Link URL'}
+                        {loggedInCard.placeId ? 'Google Maps Review' : 'Custom Link'}
                       </span>
                     </div>
 
                     {loggedInCard.placeId ? (
-                      <div className="text-xs font-bold text-success flex items-center gap-1.5 mt-1">
+                      <div className="text-xs font-semibold text-emerald-700 flex items-center gap-1.5 mt-1">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                        <span>Google Write a Review (Bintang 5 Otomatis)</span>
+                        <span>Google Write a Review</span>
                       </div>
                     ) : (
                       <div className="text-xs font-mono font-semibold text-blue-600 break-all mt-1 flex items-center gap-1.5">
@@ -747,71 +747,25 @@ export default function ManagePage() {
                         <span>{loggedInCard.destinationUrl}</span>
                       </div>
                     )}
-
-                    {/* Tombol Langsung Ganti Link */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setDashTab('business');
-                        setError('');
-                        setSuccessMsg('');
-                        setEditCustomUrl(loggedInCard.destinationUrl || '');
-                        setEditCustomName(loggedInCard.businessName || '');
-                        setManageLinkType(loggedInCard.placeId ? 'google_review' : 'custom_url');
-                      }}
-                      className="btn btn-secondary w-full py-2 px-3 mt-2.5 text-xs font-bold flex items-center justify-center gap-1.5"
-                      style={{
-                        borderStyle: 'dashed',
-                        borderColor: 'var(--primary-color)',
-                        color: 'var(--primary-color)',
-                        background: 'rgba(30, 58, 138, 0.03)',
-                      }}
-                    >
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                      </svg>
-                      Ubah Tujuan Link (Google Maps / Custom Link)
-                    </button>
                   </div>
                 </div>
 
-                {/* TOMBOL AKSI UTAMA (Jarak Nyaman & Bernapas) */}
+                {/* TOMBOL AKSI UTAMA */}
                 <div className="flex flex-col gap-2.5 mt-4">
-                  {/* Tombol Utama Ubah Link */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDashTab('business');
-                      setError('');
-                      setSuccessMsg('');
-                      setEditCustomUrl(loggedInCard.destinationUrl || '');
-                      setEditCustomName(loggedInCard.businessName || '');
-                      setManageLinkType(loggedInCard.placeId ? 'google_review' : 'custom_url');
-                    }}
-                    className="btn btn-primary w-full py-3.5 px-4 font-bold text-sm flex items-center justify-center gap-2"
-                    style={{ fontSize: '0.88rem' }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                    </svg>
-                    Ganti Tujuan Link (Maps / Custom URL)
-                  </button>
-
                   {loggedInCard.destinationUrl && (
                     <a
                       href={loggedInCard.destinationUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn btn-secondary w-full py-2.5 px-3 font-bold text-xs flex items-center justify-center gap-1.5"
+                      className="btn btn-primary w-full py-3 px-4 font-bold text-sm flex items-center justify-center gap-2"
+                      style={{ fontSize: '0.88rem' }}
                     >
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                         <polyline points="15 3 21 3 21 9" />
                         <line x1="10" y1="14" x2="21" y2="3" />
                       </svg>
-                      {loggedInCard.placeId ? 'Buka Halaman Ulasan Google' : 'Buka Tautan Tujuan Langsung'}
+                      {loggedInCard.placeId ? 'Buka Halaman Ulasan Google' : 'Buka Tautan Tujuan'}
                     </a>
                   )}
 
@@ -824,7 +778,7 @@ export default function ManagePage() {
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                     </svg>
-                    {copiedLink ? 'Link Tersalin!' : 'Salin Link Kartu (mycarrd.com/c/...)'}
+                    {copiedLink ? 'Link Tersalin!' : 'Salin Link Kartu'}
                   </button>
 
                   <a
@@ -839,7 +793,7 @@ export default function ManagePage() {
                       <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
                       <line x1="12" y1="20" x2="12.01" y2="20" />
                     </svg>
-                    Tes Redirect Kartu (Simulasi Tap/QR)
+                    Tes Redirect Kartu
                   </a>
 
                   <button
@@ -1043,41 +997,41 @@ export default function ManagePage() {
                       
                       {/* PRESET CHIPS */}
                       <div className="preset-chips-wrap">
-                        <span className="text-[11px] font-semibold text-slate-500 self-center mr-1">Template Cepat:</span>
+                        <span className="text-[11px] font-semibold text-slate-500 self-center mr-1">Template:</span>
                         <button
                           type="button"
                           className="preset-chip"
                           onClick={() => setEditCustomUrl('https://wa.me/62')}
                         >
-                          💬 WhatsApp
+                          WhatsApp
                         </button>
                         <button
                           type="button"
                           className="preset-chip"
                           onClick={() => setEditCustomUrl('https://instagram.com/')}
                         >
-                          📸 Instagram
+                          Instagram
                         </button>
                         <button
                           type="button"
                           className="preset-chip"
                           onClick={() => setEditCustomUrl('https://tiktok.com/@')}
                         >
-                          🎵 TikTok
+                          TikTok
                         </button>
                         <button
                           type="button"
                           className="preset-chip"
                           onClick={() => setEditCustomUrl('https://linktr.ee/')}
                         >
-                          📋 Linktree
+                          Linktree
                         </button>
                         <button
                           type="button"
                           className="preset-chip"
                           onClick={() => setEditCustomUrl('https://')}
                         >
-                          🌐 Website / Menu
+                          Website
                         </button>
                       </div>
 
