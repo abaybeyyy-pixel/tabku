@@ -428,72 +428,92 @@ export default function AdminPage() {
     try {
       const { jsPDF } = await import('jspdf');
 
-      const cardIds = cards.map((c) => c.card_id);
-      if (cardIds.length === 0) {
+      let targetCardIds: string[] = [];
+      if (selectedCardIds.length > 0) {
+        targetCardIds = selectedCardIds;
+      } else {
+        // Fetch all card IDs matching current filters
+        const res = await fetch(
+          `/api/admin/cards?all=true&search=${encodeURIComponent(search)}&status=${statusFilter}&printed=${printFilter}`,
+          { headers: { 'x-admin-password': password } }
+        );
+        const dataAll = await res.json();
+        targetCardIds = (dataAll.cards || []).map((c: Card) => c.card_id);
+      }
+
+      if (targetCardIds.length === 0) {
         throw new Error('Tidak ada kartu untuk diekspor.');
       }
 
-      const response = await fetch('/api/admin/qr', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-admin-password': password,
-        },
-        body: JSON.stringify({ cardIds, format: 'png' }),
-      });
+      // Generate QR codes in safe chunks of 50
+      const chunkSize = 50;
+      const qrResults: { cardId: string; data: string }[] = [];
+      for (let i = 0; i < targetCardIds.length; i += chunkSize) {
+        const chunk = targetCardIds.slice(i, i + chunkSize);
+        const response = await fetch('/api/admin/qr', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-password': password,
+          },
+          body: JSON.stringify({ cardIds: chunk, format: 'png' }),
+        });
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Gagal membuat QR untuk PDF.');
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Gagal membuat QR untuk PDF.');
+        }
+        qrResults.push(...(data.results || []));
       }
 
-      const qrResults = data.results || [];
-      const doc = new jsPDF();
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
 
-      let x = 15;
-      let y = 20;
-      const size = 45;
-      const spacingX = 15;
-      const spacingY = 20;
+      // Grid setup: 3 columns x 4 rows = 12 barcodes per A4 page
+      // Clean minimalist format matching single download (ONLY barcode & card ID below)
       const cardsPerRow = 3;
+      const size = 46; // 46mm QR code square
+      const spacingX = 18;
+      const spacingY = 18;
+      const startX = 18; // Margin left
+      const startY = 16; // Margin top
 
-      doc.setFont('Helvetica', 'bold');
-      doc.setFontSize(16);
-      doc.text('Mycarrd NFC/QR Card Sheets (mycarrd.com)', 15, 12);
-      doc.setFontSize(8);
-      doc.setFont('Helvetica', 'normal');
-      doc.text(`Generated: ${new Date().toLocaleDateString()}`, 160, 12);
-      doc.line(15, 14, 195, 14);
+      let x = startX;
+      let y = startY;
 
       for (let i = 0; i < qrResults.length; i++) {
         const qr = qrResults[i];
 
+        // Draw clean QR code image
         doc.addImage(qr.data, 'PNG', x, y, size, size);
 
-        doc.setFontSize(10);
+        // Draw ONLY the card ID directly centered below the barcode
         doc.setFont('Helvetica', 'bold');
-        doc.text(`CARD ID: ${qr.cardId}`, x + size / 2, y + size + 5, { align: 'center' });
-        doc.setFontSize(7);
-        doc.setFont('Helvetica', 'normal');
-        doc.text(`mycarrd.com/c/${qr.cardId}`, x + size / 2, y + size + 9, { align: 'center' });
+        doc.setFontSize(11);
+        doc.setTextColor(30, 41, 59);
+        doc.text(qr.cardId, x + size / 2, y + size + 5.5, { align: 'center' });
 
         if ((i + 1) % cardsPerRow === 0) {
-          x = 15;
+          x = startX;
           y += size + spacingY;
 
-          if (y + size + spacingY > 280 && i < qrResults.length - 1) {
+          if (y + size + spacingY > 285 && i < qrResults.length - 1) {
             doc.addPage();
-            y = 20;
+            x = startX;
+            y = startY;
           }
         } else {
           x += size + spacingX;
         }
       }
 
-      doc.save(`mycarrd_qr_codes_${Date.now()}.pdf`);
-      setSuccess('PDF lembar QR berhasil diunduh.');
+      doc.save(`mycarrd_qr_sheet_${Date.now()}.pdf`);
+      setSuccess(`PDF lembar ${qrResults.length} QR berhasil diunduh.`);
 
-      // Automatically offer to mark all exported cards as printed
+      // Automatically mark all exported cards as printed
       fetch('/api/admin/cards', {
         method: 'PATCH',
         headers: {
@@ -502,7 +522,7 @@ export default function AdminPage() {
         },
         body: JSON.stringify({
           action: 'mark-printed',
-          cardIds,
+          cardIds: targetCardIds,
           isPrinted: true,
         }),
       }).then(() => {
