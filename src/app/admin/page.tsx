@@ -895,29 +895,18 @@ export default function AdminPage() {
                       </span>
                     </div>
 
-                    {/* Interactive Print Status Badge */}
+                    {/* Interactive Print Status On/Off Toggle Switch */}
                     <button
                       type="button"
                       onClick={() => handleTogglePrintStatus(card.card_id)}
-                      className={`print-tag ${card.is_printed ? 'printed' : 'unprinted'}`}
-                      title={card.is_printed ? 'Klik untuk tandai Belum Dicetak' : 'Klik untuk tandai Sudah Dicetak'}
+                      className={`print-toggle-btn ${card.is_printed ? 'printed' : 'unprinted'}`}
+                      title={card.is_printed ? 'Status: Sudah Cetak (Klik untuk ubah)' : 'Status: Belum Cetak (Klik untuk ubah)'}
+                      aria-label={`Status cetak: ${card.is_printed ? 'Sudah' : 'Belum'}`}
                     >
-                      {card.is_printed ? (
-                        <>
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                          Sudah Cetak
-                        </>
-                      ) : (
-                        <>
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <line x1="18" y1="6" x2="6" y2="18" />
-                            <line x1="6" y1="6" x2="18" y2="18" />
-                          </svg>
-                          Belum Cetak
-                        </>
-                      )}
+                      <span className="print-toggle-track" aria-hidden="true">
+                        <span className="print-toggle-thumb" />
+                      </span>
+                      <span className="print-toggle-label">{card.is_printed ? 'Sudah' : 'Belum'}</span>
                     </button>
                   </div>
 

@@ -2730,7 +2730,97 @@ a {
   font-weight: 800;
 }
 
-/* Print Status Badge */
+/* Print Status On/Off Toggle Switch */
+.print-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem 0.15rem 0.25rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  border: 1px solid transparent;
+  line-height: 1;
+}
+
+.print-toggle-track {
+  width: 22px;
+  height: 12px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  padding: 1.5px;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.print-toggle-thumb {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.print-toggle-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+/* Green state (Sudah Cetak) */
+.print-toggle-btn.printed {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+.print-toggle-btn.printed .print-toggle-track {
+  background: #10b981;
+}
+
+.print-toggle-btn.printed .print-toggle-thumb {
+  transform: translateX(10px);
+}
+
+.print-toggle-btn.printed:hover {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Yellow state (Belum Cetak) */
+.print-toggle-btn.unprinted {
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+}
+
+.print-toggle-btn.unprinted .print-toggle-track {
+  background: #f59e0b;
+}
+
+.print-toggle-btn.unprinted .print-toggle-thumb {
+  transform: translateX(0);
+}
+
+.print-toggle-btn.unprinted:hover {
+  background: #fef3c7;
+  border-color: #fcd34d;
+  box-shadow: 0 1px 4px rgba(245, 158, 11, 0.2);
+  transform: translateY(-1px);
+}
+
+.print-toggle-btn:active {
+  transform: scale(0.96);
+}
+
+/* Fallback for legacy .print-tag */
 .print-tag {
   display: inline-flex;
   align-items: center;
@@ -2745,30 +2835,15 @@ a {
   border: 1px solid transparent;
   line-height: 1.2;
 }
-
 .print-tag.printed {
   background: #ecfdf5;
   color: #047857;
   border-color: #a7f3d0;
 }
-
-.print-tag.printed:hover {
-  background: #d1fae5;
-  border-color: #6ee7b7;
-  transform: translateY(-1px);
-}
-
 .print-tag.unprinted {
-  background: #f8fafc;
-  color: #64748b;
-  border-color: #e2e8f0;
-}
-
-.print-tag.unprinted:hover {
-  background: #f1f5f9;
-  color: #334155;
-  border-color: #cbd5e1;
-  transform: translateY(-1px);
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
 }
 
 /* Action Icon Buttons */
