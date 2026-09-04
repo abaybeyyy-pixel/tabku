@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { deleteCard, adminResetPin } from '@/lib/db-helpers';
+import { deleteCard, adminResetPin, updateCardPrintedStatus, findCardById } from '@/lib/db-helpers';
 import { verifyAdminPassword, hashPin } from '@/lib/auth';
 
 export async function DELETE(
@@ -38,7 +38,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { action, newPin } = body;
+    const { action, newPin, isPrinted } = body;
 
     if (action === 'delete') {
       const success = await deleteCard(cardId);
@@ -58,6 +58,35 @@ export async function PATCH(
         return NextResponse.json({ error: 'Gagal mengatur ulang PIN.' }, { status: 400 });
       }
       return NextResponse.json({ success: true, message: 'PIN berhasil diubah.' });
+    }
+
+    if (action === 'toggle-printed') {
+      const card = await findCardById(cardId);
+      if (!card) {
+        return NextResponse.json({ error: 'Kartu tidak ditemukan.' }, { status: 404 });
+      }
+      const targetStatus = !card.is_printed;
+      const success = await updateCardPrintedStatus([cardId], targetStatus);
+      if (!success) {
+        return NextResponse.json({ error: 'Gagal memperbarui status cetak.' }, { status: 500 });
+      }
+      return NextResponse.json({
+        success: true,
+        isPrinted: targetStatus,
+        message: targetStatus ? `Kartu ${cardId} ditandai sudah dicetak.` : `Kartu ${cardId} ditandai belum dicetak.`,
+      });
+    }
+
+    if (action === 'set-printed') {
+      const success = await updateCardPrintedStatus([cardId], !!isPrinted);
+      if (!success) {
+        return NextResponse.json({ error: 'Gagal memperbarui status cetak.' }, { status: 500 });
+      }
+      return NextResponse.json({
+        success: true,
+        isPrinted: !!isPrinted,
+        message: isPrinted ? `Kartu ${cardId} ditandai sudah dicetak.` : `Kartu ${cardId} ditandai belum dicetak.`,
+      });
     }
 
     return NextResponse.json({ error: 'Aksi tidak valid.' }, { status: 400 });

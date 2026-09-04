@@ -12,14 +12,16 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { cardId, pin, placeId, businessName, businessAddress } = body;
+    const { cardId, pin, placeId, businessName, businessAddress, customUrl, linkType } = body;
 
     if (!cardId || !pin) {
       return NextResponse.json({ error: 'ID Kartu dan PIN wajib diisi.' }, { status: 400 });
     }
 
-    if (!placeId && (!businessName || businessName.trim().length === 0)) {
-      return NextResponse.json({ error: 'Nama bisnis atau lokasi baru wajib diisi.' }, { status: 400 });
+    const isCustomLink = linkType === 'custom_url' || (!!customUrl && !placeId);
+
+    if (!isCustomLink && !placeId && (!businessName || businessName.trim().length === 0)) {
+      return NextResponse.json({ error: 'Nama bisnis atau tautan baru wajib diisi.' }, { status: 400 });
     }
 
     const card = await findCardById(cardId.toUpperCase());
@@ -32,15 +34,38 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'PIN yang Anda masukkan salah.' }, { status: 401 });
     }
 
-    // Generate Google Review URL if placeId provided
-    const destinationUrl = placeId ? `https://search.google.com/local/writereview?placeid=${placeId}` : undefined;
+    let destinationUrl: string | undefined = undefined;
+    let newPlaceId: string | null | undefined = undefined;
+    let newAddress: string | null | undefined = undefined;
+
+    if (isCustomLink) {
+      if (!customUrl || customUrl.trim().length === 0) {
+        return NextResponse.json({ error: 'URL tujuan wajib diisi.' }, { status: 400 });
+      }
+      let formattedUrl = customUrl.trim();
+      if (!/^https?:\/\//i.test(formattedUrl)) {
+        formattedUrl = `https://${formattedUrl}`;
+      }
+      try {
+        new URL(formattedUrl);
+      } catch {
+        return NextResponse.json({ error: 'Format URL tidak valid. Masukkan URL yang benar (contoh: https://instagram.com/tokoanda).' }, { status: 400 });
+      }
+      destinationUrl = formattedUrl;
+      newPlaceId = null; // Clear place_id since it's now a custom link
+      newAddress = null;
+    } else if (placeId) {
+      destinationUrl = `https://search.google.com/local/writereview?placeid=${placeId}`;
+      newPlaceId = placeId;
+      newAddress = businessAddress?.trim() || null;
+    }
 
     const success = await updateDestination(
       cardId.toUpperCase(),
       destinationUrl,
-      placeId || undefined,
+      newPlaceId,
       businessName?.trim(),
-      businessAddress?.trim()
+      newAddress
     );
 
     if (!success) {
@@ -49,11 +74,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Data bisnis berhasil diperbarui.',
+      message: 'Tujuan kartu berhasil diperbarui.',
       card: {
         businessName: businessName?.trim() || card.business_name,
-        businessAddress: businessAddress?.trim() || card.business_address,
-        placeId: placeId || card.place_id,
+        businessAddress: newAddress !== undefined ? newAddress : card.business_address,
+        placeId: newPlaceId !== undefined ? newPlaceId : card.place_id,
         destinationUrl: destinationUrl || card.destination_url,
       }
     });

@@ -2,13 +2,24 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Card } from '@/lib/db';
 
 export default function AdminPage() {
   const [password, setPassword] = useState('');
-  const [cards, setCards] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>({ total: 0, active: 0, unactivated: 0, disabled: 0 });
+  const [cards, setCards] = useState<Card[]>([]);
+  const [stats, setStats] = useState<{
+    total: number;
+    active: number;
+    unactivated: number;
+    disabled: number;
+    totalTaps?: number;
+    printed?: number;
+    unprinted?: number;
+  }>({ total: 0, active: 0, unactivated: 0, disabled: 0 });
+  
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [printFilter, setPrintFilter] = useState('ALL'); // 'ALL' | 'UNPRINTED' | 'PRINTED'
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -16,6 +27,7 @@ export default function AdminPage() {
   // Bulk Selection State
   const [selectedCardIds, setSelectedCardIds] = useState<string[]>([]);
   const [deletingBulk, setDeletingBulk] = useState(false);
+  const [updatingPrintBulk, setUpdatingPrintBulk] = useState(false);
 
   // Single Delete Confirmation Dialog state
   const [cardToDelete, setCardToDelete] = useState<string | null>(null);
@@ -28,7 +40,7 @@ export default function AdminPage() {
   const [generating, setGenerating] = useState(false);
 
   // Card detail dialog / PIN reset dialog state
-  const [selectedCard, setSelectedCard] = useState<any>(null);
+  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
   const [newPinInput, setNewPinInput] = useState('');
   const [updatingCard, setUpdatingCard] = useState(false);
 
@@ -53,11 +65,16 @@ export default function AdminPage() {
     }
   }, [router]);
 
-  const fetchData = async (pw: string, searchQuery = search, statusQ = statusFilter) => {
+  const fetchData = async (
+    pw: string,
+    searchQuery = search,
+    statusQ = statusFilter,
+    printQ = printFilter
+  ) => {
     setLoading(true);
     setError('');
     try {
-      const url = `/api/admin/cards?search=${encodeURIComponent(searchQuery)}&status=${statusQ}`;
+      const url = `/api/admin/cards?search=${encodeURIComponent(searchQuery)}&status=${statusQ}&printed=${printQ}`;
       const response = await fetch(url, {
         headers: { 'x-admin-password': pw },
       });
@@ -85,12 +102,17 @@ export default function AdminPage() {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
-    fetchData(password, e.target.value, statusFilter);
+    fetchData(password, e.target.value, statusFilter, printFilter);
   };
 
   const handleStatusFilterChange = (status: string) => {
     setStatusFilter(status);
-    fetchData(password, search, status);
+    fetchData(password, search, status, printFilter);
+  };
+
+  const handlePrintFilterChange = (printed: string) => {
+    setPrintFilter(printed);
+    fetchData(password, search, statusFilter, printed);
   };
 
   // Selection handlers
@@ -106,6 +128,75 @@ export default function AdminPage() {
     setSelectedCardIds((prev) =>
       prev.includes(cardId) ? prev.filter((id) => id !== cardId) : [...prev, cardId]
     );
+  };
+
+  // Toggle single card print status
+  const handleTogglePrintStatus = async (cardId: string) => {
+    try {
+      const response = await fetch(`/api/admin/cards/${cardId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-password': password,
+        },
+        body: JSON.stringify({ action: 'toggle-printed' }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Gagal mengubah status cetak.');
+
+      // Instant optimistic UI update
+      setCards((prev) =>
+        prev.map((c) => (c.card_id === cardId ? { ...c, is_printed: data.isPrinted } : c))
+      );
+      setStats((prev) => ({
+        ...prev,
+        printed: (prev.printed || 0) + (data.isPrinted ? 1 : -1),
+        unprinted: Math.max(0, (prev.unprinted || 0) + (data.isPrinted ? -1 : 1)),
+      }));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal mengubah status cetak.';
+      setError(message);
+    }
+  };
+
+  // Bulk mark print status
+  const handleBulkMarkPrinted = async (isPrinted: boolean) => {
+    if (selectedCardIds.length === 0) return;
+    setUpdatingPrintBulk(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await fetch('/api/admin/cards', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-password': password,
+        },
+        body: JSON.stringify({
+          action: 'mark-printed',
+          cardIds: selectedCardIds,
+          isPrinted,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Gagal memperbarui status cetak.');
+
+      setSuccess(
+        isPrinted
+          ? `Berhasil menandai ${selectedCardIds.length} kartu sudah dicetak.`
+          : `Berhasil menandai ${selectedCardIds.length} kartu belum dicetak.`
+      );
+      setSelectedCardIds([]);
+      fetchData(password, search, statusFilter, printFilter);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal memperbarui status cetak.';
+      setError(message);
+    } finally {
+      setUpdatingPrintBulk(false);
+    }
   };
 
   // Single card delete
@@ -130,7 +221,7 @@ export default function AdminPage() {
 
       setSuccess(`Kartu ${cardToDelete} berhasil dihapus.`);
       setCardToDelete(null);
-      fetchData(password);
+      fetchData(password, search, statusFilter, printFilter);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gagal menghapus kartu.';
       setError(message);
@@ -164,7 +255,7 @@ export default function AdminPage() {
       setSuccess(`Berhasil menghapus ${selectedCardIds.length} kartu.`);
       setSelectedCardIds([]);
       setShowBulkDeleteConfirm(false);
-      fetchData(password);
+      fetchData(password, search, statusFilter, printFilter);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gagal menghapus kartu terpilih.';
       setError(message);
@@ -200,7 +291,7 @@ export default function AdminPage() {
       }
 
       setSuccess(`Berhasil membuat ${data.count} kartu baru.`);
-      fetchData(password);
+      fetchData(password, search, statusFilter, printFilter);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gagal membuat kartu baru.';
       setError(message);
@@ -235,7 +326,7 @@ export default function AdminPage() {
       setSuccess(`PIN kartu ${selectedCard.card_id} berhasil diubah.`);
       setSelectedCard(null);
       setNewPinInput('');
-      fetchData(password);
+      fetchData(password, search, statusFilter, printFilter);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gagal memperbarui PIN.';
       setError(message);
@@ -246,10 +337,17 @@ export default function AdminPage() {
 
   // Export CSV
   const handleExportCSV = () => {
-    const csvContent = 'data:text/csv;charset=utf-8,' 
-      + ['Card ID,Permanent URL,Destination,Status'].join(',') + '\n'
-      + cards.map(c => `${c.card_id},https://mycarrd.com/c/${c.card_id},"${c.destination_url || ''}",${c.status}`).join('\n');
-    
+    const csvContent =
+      'data:text/csv;charset=utf-8,' +
+      ['Card ID,Permanent URL,Destination,Status,Printed'].join(',') +
+      '\n' +
+      cards
+        .map(
+          (c) =>
+            `${c.card_id},https://mycarrd.com/c/${c.card_id},"${c.destination_url || ''}",${c.status},${c.is_printed ? 'YES' : 'NO'}`
+        )
+        .join('\n');
+
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
@@ -265,8 +363,8 @@ export default function AdminPage() {
     setError('');
     try {
       const { jsPDF } = await import('jspdf');
-      
-      const cardIds = cards.map(c => c.card_id);
+
+      const cardIds = cards.map((c) => c.card_id);
       if (cardIds.length === 0) {
         throw new Error('Tidak ada kartu untuk diekspor.');
       }
@@ -287,7 +385,7 @@ export default function AdminPage() {
 
       const qrResults = data.results || [];
       const doc = new jsPDF();
-      
+
       let x = 15;
       let y = 20;
       const size = 45;
@@ -305,20 +403,20 @@ export default function AdminPage() {
 
       for (let i = 0; i < qrResults.length; i++) {
         const qr = qrResults[i];
-        
+
         doc.addImage(qr.data, 'PNG', x, y, size, size);
-        
+
         doc.setFontSize(10);
         doc.setFont('Helvetica', 'bold');
-        doc.text(`CARD ID: ${qr.cardId}`, x + (size / 2), y + size + 5, { align: 'center' });
+        doc.text(`CARD ID: ${qr.cardId}`, x + size / 2, y + size + 5, { align: 'center' });
         doc.setFontSize(7);
         doc.setFont('Helvetica', 'normal');
-        doc.text(`mycarrd.com/c/${qr.cardId}`, x + (size / 2), y + size + 9, { align: 'center' });
+        doc.text(`mycarrd.com/c/${qr.cardId}`, x + size / 2, y + size + 9, { align: 'center' });
 
         if ((i + 1) % cardsPerRow === 0) {
           x = 15;
           y += size + spacingY;
-          
+
           if (y + size + spacingY > 280 && i < qrResults.length - 1) {
             doc.addPage();
             y = 20;
@@ -330,6 +428,22 @@ export default function AdminPage() {
 
       doc.save(`mycarrd_qr_codes_${Date.now()}.pdf`);
       setSuccess('PDF lembar QR berhasil diunduh.');
+
+      // Automatically offer to mark all exported cards as printed
+      fetch('/api/admin/cards', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-password': password,
+        },
+        body: JSON.stringify({
+          action: 'mark-printed',
+          cardIds,
+          isPrinted: true,
+        }),
+      }).then(() => {
+        fetchData(password, search, statusFilter, printFilter);
+      }).catch(() => {});
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gagal mengekspor QR ke PDF.';
       setError(message);
@@ -364,7 +478,7 @@ export default function AdminPage() {
     }
   };
 
-  // Export Print-Ready PNG
+  // Export Print-Ready PNG & auto-mark printed
   const handleDownloadPrintPNG = async (cardId: string) => {
     setError('');
     try {
@@ -390,8 +504,8 @@ export default function AdminPage() {
         const padding = 30;
         const labelHeight = 40;
         const canvas = document.createElement('canvas');
-        canvas.width = qrSize + (padding * 2);
-        canvas.height = qrSize + (padding * 2) + labelHeight;
+        canvas.width = qrSize + padding * 2;
+        canvas.height = qrSize + padding * 2 + labelHeight;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
@@ -405,7 +519,7 @@ export default function AdminPage() {
         ctx.fillText(cardId, canvas.width / 2, qrSize + padding + 28);
 
         const pngUrl = canvas.toDataURL('image/png');
-        
+
         setPrintLabelDataUrl(pngUrl);
         setPrintLabelCardId(cardId);
 
@@ -415,6 +529,15 @@ export default function AdminPage() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+
+        // Mark as printed automatically
+        fetch(`/api/admin/cards/${cardId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+          body: JSON.stringify({ action: 'set-printed', isPrinted: true }),
+        }).then(() => {
+          setCards((prev) => prev.map((c) => (c.card_id === cardId ? { ...c, is_printed: true } : c)));
+        }).catch(() => {});
       };
       img.src = qrBase64;
     } catch (err: unknown) {
@@ -448,6 +571,15 @@ export default function AdminPage() {
       </html>
     `);
     printWindow.document.close();
+
+    // Mark as printed automatically
+    fetch(`/api/admin/cards/${cardId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+      body: JSON.stringify({ action: 'set-printed', isPrinted: true }),
+    }).then(() => {
+      setCards((prev) => prev.map((c) => (c.card_id === cardId ? { ...c, is_printed: true } : c)));
+    }).catch(() => {});
   };
 
   const handleLogout = () => {
@@ -458,12 +590,14 @@ export default function AdminPage() {
   const isAllSelected = cards.length > 0 && selectedCardIds.length === cards.length;
 
   return (
-    <main className="container py-3" style={{ maxWidth: '860px' }}>
-      {/* COMPACT TOPBAR WITH SPACED BUTTONS */}
+    <main className="container py-3" style={{ maxWidth: '880px' }}>
+      {/* COMPACT TOPBAR */}
       <header className="flex justify-between items-center mb-3 flex-wrap gap-2">
         <div>
           <h1 className="text-base font-extrabold tracking-tight">MYCARRD ADMIN</h1>
-          <p className="text-muted text-xs" style={{ fontSize: '0.72rem' }}>Pusat Manajemen Kartu NFC &amp; Dynamic QR (mycarrd.com)</p>
+          <p className="text-muted text-xs" style={{ fontSize: '0.72rem' }}>
+            Pusat Manajemen Kartu NFC &amp; Dynamic QR (mycarrd.com)
+          </p>
         </div>
         <div className="admin-header-actions">
           <a href="/" className="admin-header-btn">
@@ -478,7 +612,7 @@ export default function AdminPage() {
       {error && <div className="error-alert mb-2.5 py-2 px-3 text-xs">{error}</div>}
       {success && <div className="success-alert mb-2.5 py-2 px-3 text-xs">{success}</div>}
 
-      {/* COMPACT 4-COLUMN STATS ROW */}
+      {/* 6-METRICS STATS ROW (Balanced 3x2 on mobile) */}
       <div className="admin-stats-grid mb-3">
         <div className="admin-stat-box">
           <span className="admin-stat-label">Total Kartu</span>
@@ -488,14 +622,26 @@ export default function AdminPage() {
         </div>
         <div className="admin-stat-box">
           <span className="admin-stat-label">Kartu Aktif</span>
-          <span className="admin-stat-value" style={{ color: 'var(--success-accent)' }}>
+          <span className="admin-stat-value" style={{ color: 'var(--success-accent, #15803d)' }}>
             {stats.active}
           </span>
         </div>
         <div className="admin-stat-box">
           <span className="admin-stat-label">Pending</span>
-          <span className="admin-stat-value" style={{ color: 'var(--accent-gold)' }}>
+          <span className="admin-stat-value" style={{ color: 'var(--accent-gold, #d97706)' }}>
             {stats.unactivated}
+          </span>
+        </div>
+        <div className="admin-stat-box">
+          <span className="admin-stat-label">Belum Dicetak</span>
+          <span className="admin-stat-value" style={{ color: '#475569' }}>
+            {stats.unprinted !== undefined ? stats.unprinted : Math.max(0, stats.total - (stats.printed || 0))}
+          </span>
+        </div>
+        <div className="admin-stat-box">
+          <span className="admin-stat-label">Sudah Dicetak</span>
+          <span className="admin-stat-value" style={{ color: '#047857' }}>
+            {stats.printed || 0}
           </span>
         </div>
         <div className="admin-stat-box">
@@ -510,7 +656,9 @@ export default function AdminPage() {
       <div className="admin-tools-grid mb-3">
         {/* Bulk Generator */}
         <div className="feature-card-minimal p-3">
-          <h2 className="text-xs font-bold mb-1.5 text-muted uppercase tracking-wider" style={{ fontSize: '0.7rem' }}>Generate ID Random (6 Digit)</h2>
+          <h2 className="text-xs font-bold mb-1.5 text-muted uppercase tracking-wider" style={{ fontSize: '0.7rem' }}>
+            Generate ID Random (6 Digit)
+          </h2>
           <form onSubmit={handleBulkGenerate} className="flex gap-2">
             <input
               type="text"
@@ -518,7 +666,16 @@ export default function AdminPage() {
               maxLength={4}
               value={genPrefix}
               onChange={(e) => setGenPrefix(e.target.value.toUpperCase())}
-              style={{ flex: '1 1 80px', minWidth: 0, padding: '0.35rem 0.5rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', background: '#ffffff', color: 'var(--foreground)' }}
+              style={{
+                flex: '1 1 80px',
+                minWidth: 0,
+                padding: '0.35rem 0.5rem',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '0.8rem',
+                background: '#ffffff',
+                color: 'var(--foreground)',
+              }}
             />
             <input
               type="number"
@@ -526,7 +683,16 @@ export default function AdminPage() {
               max={100}
               value={genCount}
               onChange={(e) => setGenCount(parseInt(e.target.value) || 1)}
-              style={{ width: '55px', padding: '0.35rem 0.4rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', background: '#ffffff', color: 'var(--foreground)', textAlign: 'center' }}
+              style={{
+                width: '55px',
+                padding: '0.35rem 0.4rem',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '0.8rem',
+                background: '#ffffff',
+                color: 'var(--foreground)',
+                textAlign: 'center',
+              }}
             />
             <button
               type="submit"
@@ -541,7 +707,9 @@ export default function AdminPage() {
 
         {/* Export Data */}
         <div className="feature-card-minimal p-3">
-          <h2 className="text-xs font-bold mb-1.5 text-muted uppercase tracking-wider" style={{ fontSize: '0.7rem' }}>Ekspor &amp; Cetak</h2>
+          <h2 className="text-xs font-bold mb-1.5 text-muted uppercase tracking-wider" style={{ fontSize: '0.7rem' }}>
+            Ekspor &amp; Cetak Lembar QR
+          </h2>
           <div className="flex gap-2">
             <button
               onClick={handleExportCSV}
@@ -564,6 +732,7 @@ export default function AdminPage() {
         {/* Search, Filter & Bulk Actions Bar */}
         <div className="flex gap-2 mb-2.5 flex-wrap items-center justify-between">
           <div className="flex gap-2 flex-1 flex-wrap items-center" style={{ minWidth: '220px' }}>
+            {/* Search input */}
             <div style={{ position: 'relative', flex: '1 1 180px', minWidth: 0 }}>
               <input
                 type="text"
@@ -585,9 +754,7 @@ export default function AdminPage() {
                   type="button"
                   onClick={() => {
                     setSearch('');
-                    const params = new URLSearchParams();
-                    if (statusFilter !== 'ALL') params.set('status', statusFilter);
-                    fetchData(password, params.toString());
+                    fetchData(password, '', statusFilter, printFilter);
                   }}
                   style={{
                     position: 'absolute',
@@ -608,6 +775,8 @@ export default function AdminPage() {
                 </button>
               )}
             </div>
+
+            {/* Filter Status Aktif/Pending */}
             <select
               value={statusFilter}
               onChange={(e) => handleStatusFilterChange(e.target.value)}
@@ -620,24 +789,58 @@ export default function AdminPage() {
                 color: 'var(--foreground)',
               }}
             >
-              <option value="ALL">Semua</option>
+              <option value="ALL">Semua Status</option>
               <option value="ACTIVE">Aktif</option>
               <option value="UNACTIVATED">Pending</option>
+            </select>
+
+            {/* Filter Status Cetak QR */}
+            <select
+              value={printFilter}
+              onChange={(e) => handlePrintFilterChange(e.target.value)}
+              style={{
+                padding: '0.4rem 0.65rem',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '0.8rem',
+                background: '#ffffff',
+                color: 'var(--foreground)',
+              }}
+            >
+              <option value="ALL">Semua Cetak</option>
+              <option value="UNPRINTED">Belum Dicetak</option>
+              <option value="PRINTED">Sudah Dicetak</option>
             </select>
           </div>
 
           {/* Bulk Selection Actions */}
           {selectedCardIds.length > 0 && (
-            <div className="flex items-center gap-2 animate-fade-in">
-              <span className="text-xs font-semibold text-muted" style={{ fontSize: '0.75rem' }}>
+            <div className="flex items-center gap-1.5 flex-wrap animate-fade-in">
+              <span className="text-xs font-semibold text-muted" style={{ fontSize: '0.72rem' }}>
                 {selectedCardIds.length} dipilih
               </span>
+              <button
+                type="button"
+                onClick={() => handleBulkMarkPrinted(true)}
+                className="btn btn-secondary py-1 px-2.5 text-xs font-semibold"
+                disabled={updatingPrintBulk}
+              >
+                Tandai Cetak
+              </button>
+              <button
+                type="button"
+                onClick={() => handleBulkMarkPrinted(false)}
+                className="btn btn-secondary py-1 px-2.5 text-xs font-semibold"
+                disabled={updatingPrintBulk}
+              >
+                Batal Cetak
+              </button>
               <button
                 type="button"
                 onClick={() => setShowBulkDeleteConfirm(true)}
                 className="btn btn-danger py-1 px-2.5 text-xs font-semibold"
               >
-                Hapus ({selectedCardIds.length})
+                Hapus
               </button>
             </div>
           )}
@@ -645,15 +848,18 @@ export default function AdminPage() {
 
         {/* Selection Bar (Select All Toggle) */}
         {cards.length > 0 && (
-          <div className="flex items-center gap-2 mb-2 py-1.5 px-2.5 rounded-sm" style={{ background: 'var(--background-subtle)', border: '1px solid var(--border-subtle)' }}>
+          <div
+            className="flex items-center justify-between mb-2 py-1.5 px-2.5 rounded-sm"
+            style={{ background: 'var(--background-subtle)', border: '1px solid var(--border-subtle)' }}
+          >
             <label className="flex items-center gap-2 text-xs font-semibold text-muted cursor-pointer" style={{ fontSize: '0.72rem' }}>
               <input
                 type="checkbox"
                 checked={isAllSelected}
                 onChange={handleToggleSelectAll}
-                style={{ width: '14px', height: '14px', accentColor: 'var(--primary-color)', cursor: 'pointer' }}
+                style={{ width: '15px', height: '15px', accentColor: 'var(--primary-color)', cursor: 'pointer' }}
               />
-              <span>Pilih Semua ({cards.length} kartu)</span>
+              <span>Pilih Semua ({cards.length} kartu ditampilkan)</span>
             </label>
           </div>
         )}
@@ -671,50 +877,102 @@ export default function AdminPage() {
                   key={card.id}
                   className={`admin-card-item ${isChecked ? 'selected' : ''}`}
                 >
-                  {/* Left: Checkbox + ID + Status */}
-                  <div className="flex items-center gap-2.5" style={{ minWidth: '110px' }}>
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={() => handleToggleSelectCard(card.card_id)}
-                      style={{ width: '15px', height: '15px', accentColor: 'var(--primary-color)', cursor: 'pointer' }}
-                    />
-                    <div>
-                      <span className="font-mono font-bold text-xs block">{card.card_id}</span>
-                      <span className={`status-tag ${card.status.toLowerCase()}`} style={{ fontSize: '0.6rem', padding: '0.1rem 0.4rem' }}>
+                  {/* Top Bar on Mobile / Left on Desktop: Checkbox + ID + Status Tag + Printed Badge */}
+                  <div className="admin-card-header">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => handleToggleSelectCard(card.card_id)}
+                        style={{ width: '15px', height: '15px', accentColor: 'var(--primary-color)', cursor: 'pointer' }}
+                      />
+                      <span className="font-mono font-bold text-xs">{card.card_id}</span>
+                      <span
+                        className={`status-tag ${card.status.toLowerCase()}`}
+                        style={{ fontSize: '0.62rem', padding: '0.12rem 0.45rem' }}
+                      >
                         {card.status === 'ACTIVE' ? 'Aktif' : 'Pending'}
                       </span>
                     </div>
+
+                    {/* Interactive Print Status Badge */}
+                    <button
+                      type="button"
+                      onClick={() => handleTogglePrintStatus(card.card_id)}
+                      className={`print-tag ${card.is_printed ? 'printed' : 'unprinted'}`}
+                      title={card.is_printed ? 'Klik untuk tandai Belum Dicetak' : 'Klik untuk tandai Sudah Dicetak'}
+                    >
+                      {card.is_printed ? (
+                        <>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                          Sudah Cetak
+                        </>
+                      ) : (
+                        <>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                          </svg>
+                          Belum Cetak
+                        </>
+                      )}
+                    </button>
                   </div>
 
-                  {/* Middle: Business details & User Email */}
-                  <div style={{ flex: '1 1 140px', minWidth: 0, paddingRight: '0.5rem' }}>
-                    <div className="text-xs font-semibold text-truncate" style={{ fontSize: '0.8rem' }}>
-                      {card.business_name || <span className="text-muted italic" style={{ fontSize: '0.75rem' }}>Belum diaktivasi</span>}
+                  {/* Middle / Body: Business details & User Email & Destination */}
+                  <div className="admin-card-body">
+                    <div className="text-xs font-semibold text-truncate" style={{ fontSize: '0.82rem' }}>
+                      {card.business_name || (
+                        <span className="text-muted italic" style={{ fontSize: '0.75rem' }}>
+                          Belum diaktivasi
+                        </span>
+                      )}
                     </div>
+
+                    {/* Destination URL or Type */}
+                    {card.destination_url && (
+                      <div className="flex items-center gap-1.5 mt-0.5 text-xs text-muted text-truncate" style={{ fontSize: '0.72rem' }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0 text-slate-400">
+                          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                        </svg>
+                        <span className="font-mono text-truncate text-slate-600 select-all font-medium">
+                          {card.place_id ? 'Google Maps Review' : card.destination_url}
+                        </span>
+                      </div>
+                    )}
+
                     {card.email && (
-                      <div className="flex items-center gap-1.5 mt-0.5 text-blue-800 bg-blue-50 py-0.5 px-1.5 rounded-sm border border-blue-100" style={{ fontSize: '0.7rem', width: 'fit-content', maxWidth: '100%' }}>
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 text-blue-600">
+                      <div
+                        className="flex items-center gap-1.5 mt-0.5 text-blue-800 bg-blue-50 py-0.5 px-1.5 rounded-sm border border-blue-100"
+                        style={{ fontSize: '0.7rem', width: 'fit-content', maxWidth: '100%' }}
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0 text-blue-600">
                           <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                           <polyline points="22,6 12,13 2,6" />
                         </svg>
                         <span className="font-mono text-truncate select-all font-medium">{card.email}</span>
                       </div>
                     )}
+
                     {card.business_address && (
                       <div className="text-muted text-truncate mt-0.5" style={{ fontSize: '0.68rem' }}>
                         {card.business_address}
                       </div>
                     )}
-                    {card.activated_at && (
-                      <div className="text-subtle" style={{ fontSize: '0.65rem' }}>
-                        Aktif: {new Date(card.activated_at).toLocaleDateString('id-ID')}
-                      </div>
-                    )}
+
+                    <div className="flex items-center gap-3 mt-1 text-muted text-xs" style={{ fontSize: '0.68rem' }}>
+                      <span>Tap: <strong>{card.tap_count || 0}x</strong></span>
+                      {card.activated_at && (
+                        <span>Aktif: {new Date(card.activated_at).toLocaleDateString('id-ID')}</span>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Right: Minimalist Action Icon Buttons (Touch-Friendly 38px) */}
-                  <div className="flex gap-2 items-center flex-shrink-0">
+                  {/* Right / Footer Action Toolbar (4 Touch-Friendly Buttons) */}
+                  <div className="admin-card-actions">
                     <button
                       type="button"
                       onClick={() => handleShowQR(card.card_id)}
@@ -748,7 +1006,10 @@ export default function AdminPage() {
 
                     <button
                       type="button"
-                      onClick={() => { setSelectedCard(card); setNewPinInput(''); }}
+                      onClick={() => {
+                        setSelectedCard(card);
+                        setNewPinInput('');
+                      }}
                       title="Atur Ulang PIN"
                       aria-label="Atur Ulang PIN"
                       className="action-icon-btn btn-pin"
@@ -821,7 +1082,10 @@ export default function AdminPage() {
             <p className="text-muted text-xs mb-2">
               Daftar ID kartu berikut akan dihapus permanen:
             </p>
-            <div className="p-2 border rounded-sm mb-3 max-h-28 overflow-y-auto font-mono text-xs text-muted" style={{ background: 'var(--background-subtle)', fontSize: '0.72rem' }}>
+            <div
+              className="p-2 border rounded-sm mb-3 max-h-28 overflow-y-auto font-mono text-xs text-muted"
+              style={{ background: 'var(--background-subtle)', fontSize: '0.72rem' }}
+            >
               {selectedCardIds.join(', ')}
             </div>
             <div className="flex gap-2">
@@ -909,22 +1173,22 @@ export default function AdminPage() {
             <p className="text-muted text-xs mb-2.5">
               Scan dengan kamera HP untuk menguji tautan kartu.
             </p>
-            
+
             {loadingQr ? (
               <div className="py-3 text-muted text-xs">Memuat QR...</div>
             ) : showQrDataUrl ? (
               <div className="mb-2.5 flex flex-col items-center">
-                <img 
-                  src={showQrDataUrl} 
+                <img
+                  src={showQrDataUrl}
                   alt={`QR ${showQrCardId}`}
-                  style={{ 
-                    width: '200px', 
-                    height: '200px', 
+                  style={{
+                    width: '200px',
+                    height: '200px',
                     border: '1px solid var(--border)',
                     borderRadius: 'var(--radius-md)',
                     background: '#ffffff',
                     padding: '6px',
-                  }} 
+                  }}
                 />
                 <p className="font-mono font-bold mt-1.5 text-xs">{showQrCardId}</p>
               </div>
@@ -961,19 +1225,19 @@ export default function AdminPage() {
             <p className="text-muted text-xs mb-2.5">
               Label cetak resolusi tinggi siap dipasang pada kartu fisik.
             </p>
-            
+
             <div className="mb-2.5 flex justify-center">
-              <img 
-                src={printLabelDataUrl} 
+              <img
+                src={printLabelDataUrl}
                 alt={`Label ${printLabelCardId}`}
-                style={{ 
-                  width: '100%', 
+                style={{
+                  width: '100%',
                   maxHeight: '260px',
                   objectFit: 'contain',
                   border: '1px solid var(--border)',
                   borderRadius: 'var(--radius-md)',
                   background: '#ffffff',
-                }} 
+                }}
               />
             </div>
 

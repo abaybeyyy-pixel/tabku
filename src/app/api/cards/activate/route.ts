@@ -26,9 +26,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Business name is required.' }, { status: 400 });
     }
 
-    // Validate place ID
-    if (!placeId || placeId.trim().length === 0) {
-      return NextResponse.json({ error: 'Please search and select a business.' }, { status: 400 });
+    // Validate destination: either Google Review Place ID or Custom URL
+    let destinationUrl = '';
+    const isCustomLink = linkType === 'custom_url' || (!!customUrl && !placeId);
+
+    if (isCustomLink) {
+      if (!customUrl || customUrl.trim().length === 0) {
+        return NextResponse.json({ error: 'URL tujuan wajib diisi untuk link custom.' }, { status: 400 });
+      }
+      let formattedUrl = customUrl.trim();
+      if (!/^https?:\/\//i.test(formattedUrl)) {
+        formattedUrl = `https://${formattedUrl}`;
+      }
+      try {
+        new URL(formattedUrl);
+      } catch {
+        return NextResponse.json({ error: 'Format URL tidak valid. Masukkan URL yang benar (contoh: https://instagram.com/tokoanda).' }, { status: 400 });
+      }
+      destinationUrl = formattedUrl;
+    } else {
+      if (!placeId || placeId.trim().length === 0) {
+        return NextResponse.json({ error: 'Silakan cari dan pilih lokasi bisnis Google Maps.' }, { status: 400 });
+      }
+      destinationUrl = `https://search.google.com/local/writereview?placeid=${placeId}`;
     }
 
     // Validate email
@@ -45,9 +65,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'PINs do not match.' }, { status: 400 });
     }
 
-    // Generate Google Review URL from Place ID
-    const destinationUrl = `https://search.google.com/local/writereview?placeid=${placeId}`;
-
     // Hash PIN and activate
     const pinHash = await hashPin(pin);
 
@@ -57,8 +74,8 @@ export async function POST(request: NextRequest) {
       destinationUrl,
       pinHash,
       email.trim().toLowerCase(),
-      placeId,
-      businessAddress?.trim()
+      isCustomLink ? undefined : placeId,
+      isCustomLink ? undefined : businessAddress?.trim()
     );
 
     if (!success) {
@@ -67,12 +84,14 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Your Review Card is Ready!',
+      message: 'Kartu Anda Berhasil Diaktifkan!',
       card: {
         cardId,
         businessName: businessName.trim(),
-        businessAddress: businessAddress?.trim() || '',
-        placeId,
+        businessAddress: isCustomLink ? '' : (businessAddress?.trim() || ''),
+        placeId: isCustomLink ? null : placeId,
+        destinationUrl,
+        linkType: isCustomLink ? 'custom_url' : 'google_review',
         status: 'ACTIVE',
       },
     });

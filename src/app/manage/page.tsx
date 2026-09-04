@@ -21,6 +21,12 @@ export default function ManagePage() {
   // Tab state within dashboard: 'details' | 'business' | 'pin'
   const [dashTab, setDashTab] = useState<'details' | 'business' | 'pin'>('details');
 
+  // Link Type mode within 'business' tab: 'google_review' | 'custom_url'
+  const [manageLinkType, setManageLinkType] = useState<'google_review' | 'custom_url'>('google_review');
+  const [editCustomUrl, setEditCustomUrl] = useState('');
+  const [editCustomName, setEditCustomName] = useState('');
+  const [savingCustomLink, setSavingCustomLink] = useState(false);
+
   // Edit Business Name state
   const [isEditingName, setIsEditingName] = useState(false);
   const [customBusinessName, setCustomBusinessName] = useState('');
@@ -31,7 +37,7 @@ export default function ManagePage() {
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotCardId, setForgotCardId] = useState('');
 
-  // Business search state (for "Ganti Lokasi Bisnis" tab)
+  // Business search state (for "Tujuan Kartu" Google Maps tab)
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<PlaceResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -83,6 +89,9 @@ export default function ManagePage() {
 
       setLoggedInCard(data.card);
       setCustomBusinessName(data.card.businessName || '');
+      setEditCustomName(data.card.businessName || '');
+      setEditCustomUrl(data.card.destinationUrl || '');
+      setManageLinkType(data.card.placeId ? 'google_review' : 'custom_url');
       setDashTab('details');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'ID Kartu atau PIN salah.';
@@ -216,6 +225,68 @@ export default function ManagePage() {
       setError(message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle save custom link
+  const handleSaveCustomLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editCustomUrl.trim()) {
+      setError('URL tujuan wajib diisi.');
+      return;
+    }
+    let formattedUrl = editCustomUrl.trim();
+    if (!/^https?:\/\//i.test(formattedUrl)) {
+      formattedUrl = `https://${formattedUrl}`;
+    }
+    try {
+      new URL(formattedUrl);
+    } catch {
+      setError('Format URL tidak valid. Contoh: https://instagram.com/tokoanda');
+      return;
+    }
+    if (!editCustomName.trim()) {
+      setError('Nama usaha atau label wajib diisi.');
+      return;
+    }
+
+    setSavingCustomLink(true);
+    setError('');
+    setSuccessMsg('');
+
+    try {
+      const response = await fetch('/api/cards/update-destination', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cardId: loggedInCard.cardId,
+          pin,
+          linkType: 'custom_url',
+          customUrl: formattedUrl,
+          businessName: editCustomName.trim(),
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal memperbarui tautan.');
+      }
+
+      setLoggedInCard((prev: any) => ({
+        ...prev,
+        businessName: editCustomName.trim(),
+        destinationUrl: formattedUrl,
+        placeId: null,
+        businessAddress: null,
+      }));
+      setCustomBusinessName(editCustomName.trim());
+      setSuccessMsg('Tautan tujuan kartu berhasil diperbarui.');
+      setDashTab('details');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal memperbarui tautan.';
+      setError(message);
+    } finally {
+      setSavingCustomLink(false);
     }
   };
 
@@ -493,9 +564,12 @@ export default function ManagePage() {
                   setSearchQuery('');
                   setSearchResults([]);
                   setHasSearched(false);
+                  setEditCustomUrl(loggedInCard.destinationUrl || '');
+                  setEditCustomName(loggedInCard.businessName || '');
+                  setManageLinkType(loggedInCard.placeId ? 'google_review' : 'custom_url');
                 }}
               >
-                Ganti Lokasi
+                Tujuan Kartu
               </button>
               <button
                 className={`tab-btn ${dashTab === 'pin' ? 'active' : ''}`}
@@ -521,11 +595,11 @@ export default function ManagePage() {
                           <line x1="12" y1="20" x2="12.01" y2="20" />
                         </svg>
                       </div>
-                      <span className="stat-metric-title">Total Tap Ulasan</span>
+                      <span className="stat-metric-title">Total Tap</span>
                     </div>
                     <div className="stat-metric-body">
                       <span className="stat-metric-num">{loggedInCard.tapCount || 0}</span>
-                      <span className="stat-metric-unit">kali ulasan</span>
+                      <span className="stat-metric-unit">kali dibuka</span>
                     </div>
                   </div>
 
@@ -604,7 +678,7 @@ export default function ManagePage() {
                   {/* Nama Usaha */}
                   <div className="summary-card-row">
                     <div className="flex justify-between items-center">
-                      <span className="summary-label">Nama Usaha</span>
+                      <span className="summary-label">Nama Usaha / Label</span>
                       <button
                         type="button"
                         onClick={() => setIsEditingName(!isEditingName)}
@@ -623,8 +697,8 @@ export default function ManagePage() {
                     </div>
                   </div>
 
-                  {/* Alamat Google Maps */}
-                  {loggedInCard.businessAddress && (
+                  {/* Alamat Google Maps (Jika tipe Google Maps) */}
+                  {loggedInCard.placeId && loggedInCard.businessAddress && (
                     <div className="summary-card-row">
                       <span className="summary-label">Alamat Terdaftar</span>
                       <div className="summary-val-sub">
@@ -644,10 +718,17 @@ export default function ManagePage() {
                   {/* Tujuan Redirect */}
                   <div className="summary-card-row">
                     <span className="summary-label">Tujuan Redirect</span>
-                    <div className="text-xs font-bold text-success flex items-center gap-1 mt-0.5">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                      Google Write a Review (Bintang 5 Langsung)
-                    </div>
+                    {loggedInCard.placeId ? (
+                      <div className="text-xs font-bold text-success flex items-center gap-1 mt-0.5">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        Google Write a Review (Bintang 5 Langsung)
+                      </div>
+                    ) : (
+                      <div className="text-xs font-mono font-semibold text-blue-600 break-all mt-0.5 flex items-center gap-1">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                        {loggedInCard.destinationUrl}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -666,7 +747,7 @@ export default function ManagePage() {
                         <polyline points="15 3 21 3 21 9" />
                         <line x1="10" y1="14" x2="21" y2="3" />
                       </svg>
-                      Buka Halaman Ulasan Google
+                      {loggedInCard.placeId ? 'Buka Halaman Ulasan Google' : 'Buka Tautan Tujuan'}
                     </a>
                   )}
 
@@ -712,107 +793,196 @@ export default function ManagePage() {
               </div>
             )}
 
-            {/* TAB 2: GANTI LOKASI BISNIS VIA GOOGLE PLACES */}
+            {/* TAB 2: GANTI TUJUAN KARTU (GOOGLE MAPS ATAU CUSTOM LINK) */}
             {dashTab === 'business' && (
-              <div className="form-group animate-fade-in">
-                {!selectedBusiness ? (
-                  <div className="input-group">
-                    <label htmlFor="businessSearchManage">Cari Nama Tempat / Cabang Baru</label>
-                    <input
-                      type="text"
-                      id="businessSearchManage"
-                      placeholder="contoh: Kedai Kopi Joni"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleSearch();
-                        }
-                      }}
-                      disabled={searching || loading}
-                    />
+              <div className="animate-fade-in">
+                {/* SUB-TABS: GOOGLE MAPS VS CUSTOM LINK */}
+                <div className="link-type-selector mb-3.5">
+                  <button
+                    type="button"
+                    className={`link-type-tab ${manageLinkType === 'google_review' ? 'active' : ''}`}
+                    onClick={() => {
+                      setManageLinkType('google_review');
+                      setError('');
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                    Google Maps
+                  </button>
+                  <button
+                    type="button"
+                    className={`link-type-tab ${manageLinkType === 'custom_url' ? 'active' : ''}`}
+                    onClick={() => {
+                      setManageLinkType('custom_url');
+                      setError('');
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                    </svg>
+                    Custom Link
+                  </button>
+                </div>
 
-                    <button
-                      type="button"
-                      onClick={handleSearch}
-                      disabled={searching || !searchQuery.trim()}
-                      className="btn btn-secondary mt-1 w-full py-2 text-xs font-semibold"
-                    >
-                      {searching ? 'Mencari di Google Maps...' : 'Cari Tempat'}
-                    </button>
+                {/* PILIHAN 1: GOOGLE MAPS REVIEW */}
+                {manageLinkType === 'google_review' && (
+                  <div className="form-group animate-fade-in">
+                    {!selectedBusiness ? (
+                      <div className="input-group">
+                        <label htmlFor="businessSearchManage">Cari Nama Tempat / Cabang Google Maps</label>
+                        <input
+                          type="text"
+                          id="businessSearchManage"
+                          placeholder="contoh: Kedai Kopi Joni"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleSearch();
+                            }
+                          }}
+                          disabled={searching || loading}
+                        />
 
-                    {/* Search Results List */}
-                    {searchResults.length > 0 && (
-                      <div className="search-results">
-                        {searchResults.map((place) => (
-                          <div key={place.placeId} className="search-result-item">
-                            <div className="search-result-info">
-                              <span className="search-result-name">{place.name}</span>
-                              <span className="search-result-address">{place.address}</span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => handleSelectBusiness(place)}
-                              className="btn btn-primary py-1 px-3 text-xs font-semibold"
-                            >
-                              Pilih
-                            </button>
+                        <button
+                          type="button"
+                          onClick={handleSearch}
+                          disabled={searching || !searchQuery.trim()}
+                          className="btn btn-secondary mt-1 w-full py-2 text-xs font-semibold"
+                        >
+                          {searching ? 'Mencari di Google Maps...' : 'Cari Tempat'}
+                        </button>
+
+                        {/* Search Results List */}
+                        {searchResults.length > 0 && (
+                          <div className="search-results">
+                            {searchResults.map((place) => (
+                              <div key={place.placeId} className="search-result-item">
+                                <div className="search-result-info">
+                                  <span className="search-result-name">{place.name}</span>
+                                  <span className="search-result-address">{place.address}</span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSelectBusiness(place)}
+                                  className="btn btn-primary py-1 px-3 text-xs font-semibold"
+                                >
+                                  Pilih
+                                </button>
+                              </div>
+                            ))}
                           </div>
-                        ))}
+                        )}
+
+                        {/* No results */}
+                        {hasSearched && !searching && searchResults.length === 0 && (
+                          <div className="info-alert mt-2">
+                            Tidak ditemukan tempat dengan nama tersebut. Coba gunakan kata kunci atau lokasi yang lebih spesifik.
+                          </div>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => setDashTab('details')}
+                          className="btn btn-secondary w-full py-2 text-xs font-semibold mt-2"
+                        >
+                          Batal
+                        </button>
+                      </div>
+                    ) : (
+                      /* Selected business confirmation */
+                      <div className="flex flex-col gap-3">
+                        <label className="text-xs font-semibold text-muted">Lokasi Google Review Terpilih:</label>
+                        <div className="selected-business-box">
+                          <div className="selected-business-check">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          </div>
+                          <div className="selected-business-info">
+                            <span className="selected-business-name">{selectedBusiness.name}</span>
+                            <span className="selected-business-address">{selectedBusiness.address}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            type="button"
+                            onClick={handleUpdateBusiness}
+                            className="btn btn-primary w-full py-2.5 text-xs font-semibold"
+                            disabled={loading}
+                          >
+                            {loading ? 'Menyimpan...' : 'Simpan Lokasi Baru'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setSelectedBusiness(null); setSearchQuery(''); }}
+                            className="btn btn-secondary w-full py-2.5 text-xs font-semibold"
+                            disabled={loading}
+                          >
+                            Cari Ulang
+                          </button>
+                        </div>
                       </div>
                     )}
-
-                    {/* No results */}
-                    {hasSearched && !searching && searchResults.length === 0 && (
-                      <div className="info-alert mt-2">
-                        Tidak ditemukan tempat dengan nama tersebut. Coba gunakan kata kunci atau lokasi yang lebih spesifik.
-                      </div>
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={() => setDashTab('details')}
-                      className="btn btn-secondary w-full py-2 text-xs font-semibold mt-2"
-                    >
-                      Batal
-                    </button>
                   </div>
-                ) : (
-                  /* Selected business confirmation */
-                  <div className="flex flex-col gap-3">
-                    <label className="text-xs font-semibold text-muted">Lokasi Google Review Terpilih:</label>
-                    <div className="selected-business-box">
-                      <div className="selected-business-check">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      </div>
-                      <div className="selected-business-info">
-                        <span className="selected-business-name">{selectedBusiness.name}</span>
-                        <span className="selected-business-address">{selectedBusiness.address}</span>
-                      </div>
+                )}
+
+                {/* PILIHAN 2: CUSTOM LINK */}
+                {manageLinkType === 'custom_url' && (
+                  <form onSubmit={handleSaveCustomLink} className="form-group animate-fade-in">
+                    <div className="input-group">
+                      <label htmlFor="manageCustomUrl">URL Tujuan Bebas</label>
+                      <input
+                        type="text"
+                        id="manageCustomUrl"
+                        value={editCustomUrl}
+                        onChange={(e) => setEditCustomUrl(e.target.value)}
+                        placeholder="https://instagram.com/tokoanda atau https://wa.me/..."
+                        disabled={savingCustomLink}
+                        required
+                      />
+                      <span className="help-text">
+                        Kartu akan otomatis membuka tautan ini saat di-tap via NFC atau di-scan QR.
+                      </span>
+                    </div>
+
+                    <div className="input-group">
+                      <label htmlFor="manageCustomName">Nama Usaha / Label Kartu</label>
+                      <input
+                        type="text"
+                        id="manageCustomName"
+                        value={editCustomName}
+                        onChange={(e) => setEditCustomName(e.target.value)}
+                        placeholder="contoh: Kedai Kopi Joni"
+                        disabled={savingCustomLink}
+                        required
+                      />
                     </div>
 
                     <div className="flex gap-2 mt-2">
                       <button
-                        type="button"
-                        onClick={handleUpdateBusiness}
+                        type="submit"
                         className="btn btn-primary w-full py-2.5 text-xs font-semibold"
-                        disabled={loading}
+                        disabled={savingCustomLink}
                       >
-                        {loading ? 'Menyimpan...' : 'Simpan Lokasi Baru'}
+                        {savingCustomLink ? 'Menyimpan...' : 'Simpan Tautan Custom'}
                       </button>
                       <button
                         type="button"
-                        onClick={() => { setSelectedBusiness(null); setSearchQuery(''); }}
+                        onClick={() => setDashTab('details')}
                         className="btn btn-secondary w-full py-2.5 text-xs font-semibold"
-                        disabled={loading}
+                        disabled={savingCustomLink}
                       >
-                        Cari Ulang
+                        Batal
                       </button>
                     </div>
-                  </div>
+                  </form>
                 )}
               </div>
             )}

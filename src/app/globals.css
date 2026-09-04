@@ -2664,6 +2664,185 @@ a {
   font-feature-settings: 'tnum';
 }
 
+/* Link Type Selector (Tabs for Google Maps vs Custom Link) */
+.link-type-selector {
+  display: flex;
+  background: var(--background-subtle, #f8fafc);
+  padding: 0.25rem;
+  border-radius: var(--radius-md, 8px);
+  gap: 0.35rem;
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+.link-type-tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted, #64748b);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.link-type-tab:hover {
+  color: var(--foreground, #0f172a);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.link-type-tab.active {
+  background: #ffffff;
+  color: var(--primary-color, #1e3a8a);
+  border-color: rgba(30, 58, 138, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  font-weight: 800;
+}
+
+/* Print Status Badge */
+.print-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  border: 1px solid transparent;
+  line-height: 1.2;
+}
+
+.print-tag.printed {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+.print-tag.printed:hover {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+  transform: translateY(-1px);
+}
+
+.print-tag.unprinted {
+  background: #f8fafc;
+  color: #64748b;
+  border-color: #e2e8f0;
+}
+
+.print-tag.unprinted:hover {
+  background: #f1f5f9;
+  color: #334155;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+/* Action Icon Buttons */
+.action-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid var(--border, #e2e8f0);
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.action-icon-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+}
+
+.action-icon-btn.btn-qr:hover {
+  border-color: #93c5fd;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.action-icon-btn.btn-download:hover {
+  border-color: #86efac;
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.action-icon-btn.btn-pin:hover {
+  border-color: #fde047;
+  background: #fefce8;
+  color: #a16207;
+}
+
+.action-icon-btn.btn-delete:hover {
+  border-color: #fca5a5;
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* Admin Card Responsive Mobile Precision */
+.admin-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.admin-card-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.admin-card-actions {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .admin-card-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    padding: 0.85rem 0.85rem;
+  }
+
+  .admin-card-actions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4rem;
+    width: 100%;
+    padding-top: 0.6rem;
+    border-top: 1px dashed var(--border, #e2e8f0);
+  }
+
+  .admin-card-actions .action-icon-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 38px;
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.45rem;
+  }
+
+  .admin-tools-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
+
 
 
 

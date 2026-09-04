@@ -49,9 +49,9 @@ export async function activateCard(
 export async function updateDestination(
   cardId: string,
   newUrl?: string,
-  placeId?: string,
+  placeId?: string | null,
   businessName?: string,
-  businessAddress?: string
+  businessAddress?: string | null
 ): Promise<boolean> {
   const supabase = await createClient();
   const now = new Date().toISOString();
@@ -59,7 +59,7 @@ export async function updateDestination(
     updated_at: now,
   };
   if (newUrl) updateData.destination_url = newUrl;
-  if (placeId) updateData.place_id = placeId;
+  if (placeId !== undefined) updateData.place_id = placeId;
   if (businessName !== undefined) updateData.business_name = businessName;
   if (businessAddress !== undefined) updateData.business_address = businessAddress;
 
@@ -177,7 +177,11 @@ export async function generateCards(prefix: string = '', count: number = 1): Pro
   return cardIds;
 }
 
-export async function getAllCards(search?: string, status?: string): Promise<Card[]> {
+export async function getAllCards(
+  search?: string,
+  status?: string,
+  printedFilter?: string
+): Promise<Card[]> {
   const supabase = await createClient();
   let query = supabase.from('cards').select('*');
 
@@ -190,13 +194,27 @@ export async function getAllCards(search?: string, status?: string): Promise<Car
     query = query.eq('status', status);
   }
 
+  if (printedFilter === 'PRINTED') {
+    query = query.eq('is_printed', true);
+  } else if (printedFilter === 'UNPRINTED') {
+    query = query.or('is_printed.is.null,is_printed.eq.false');
+  }
+
   const { data, error } = await query.order('created_at', { ascending: false });
   
   if (error || !data) return [];
   return data as Card[];
 }
 
-export async function getCardStats(): Promise<{ total: number; active: number; unactivated: number; disabled: number; totalTaps: number }> {
+export async function getCardStats(): Promise<{
+  total: number;
+  active: number;
+  unactivated: number;
+  disabled: number;
+  totalTaps: number;
+  printed: number;
+  unprinted: number;
+}> {
   const supabase = await createClient();
   
   const [totalRes, activeRes, unactivatedRes, disabledRes, tapsRes] = await Promise.all([
@@ -207,6 +225,19 @@ export async function getCardStats(): Promise<{ total: number; active: number; u
     supabase.from('cards').select('tap_count'),
   ]);
 
+  let printedCount = 0;
+  let unprintedCount = 0;
+  try {
+    const [pRes, uRes] = await Promise.all([
+      supabase.from('cards').select('*', { count: 'exact', head: true }).eq('is_printed', true),
+      supabase.from('cards').select('*', { count: 'exact', head: true }).or('is_printed.is.null,is_printed.eq.false'),
+    ]);
+    if (!pRes.error && pRes.count !== null) printedCount = pRes.count;
+    if (!uRes.error && uRes.count !== null) unprintedCount = uRes.count;
+  } catch {
+    // Fallback if column not yet added
+  }
+
   const totalTaps = (tapsRes.data || []).reduce((acc, curr: { tap_count?: number | null }) => acc + (Number(curr.tap_count) || 0), 0);
 
   return {
@@ -215,7 +246,22 @@ export async function getCardStats(): Promise<{ total: number; active: number; u
     unactivated: unactivatedRes.count || 0,
     disabled: disabledRes.count || 0,
     totalTaps,
+    printed: printedCount,
+    unprinted: unprintedCount,
   };
+}
+
+export async function updateCardPrintedStatus(cardIds: string[], isPrinted: boolean): Promise<boolean> {
+  if (!cardIds || cardIds.length === 0) return true;
+  const supabase = await createClient();
+  const now = isPrinted ? new Date().toISOString() : null;
+  const { data, error } = await supabase
+    .from('cards')
+    .update({ is_printed: isPrinted, printed_at: now })
+    .in('card_id', cardIds)
+    .select();
+
+  return !error && !!data;
 }
 
 export async function storeOtp(cardId: string, otpHash: string, expiresAt: string): Promise<void> {

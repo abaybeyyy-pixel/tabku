@@ -10,6 +10,8 @@ export interface Card {
   email: string | null;
   tap_count?: number;
   last_tapped_at?: string | null;
+  is_printed?: boolean;
+  printed_at?: string | null;
   created_at: string;
   activated_at: string | null;
   updated_at: string | null;
