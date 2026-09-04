@@ -79,6 +79,20 @@ export default function AdminPage() {
     }
   }, [router]);
 
+  // Helper to ensure printed cards are always at the top/front, then newest created_at
+  const sortCardsByPrinted = (cardList: Card[]): Card[] => {
+    return [...cardList].sort((a, b) => {
+      const aPrinted = Boolean(a.is_printed);
+      const bPrinted = Boolean(b.is_printed);
+      if (aPrinted !== bPrinted) {
+        return aPrinted ? -1 : 1;
+      }
+      const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return bTime - aTime;
+    });
+  };
+
   const fetchData = async (
     pw = password,
     searchQuery = search,
@@ -105,7 +119,7 @@ export default function AdminPage() {
       }
 
       const data = await response.json();
-      setCards(data.cards || []);
+      setCards(sortCardsByPrinted(data.cards || []));
       setStats(data.stats || { total: 0, active: 0, unactivated: 0, disabled: 0 });
       if (data.pagination) {
         setPagination(data.pagination);
@@ -210,7 +224,9 @@ export default function AdminPage() {
 
       // Instant optimistic UI update
       setCards((prev) =>
-        prev.map((c) => (c.card_id === cardId ? { ...c, is_printed: data.isPrinted } : c))
+        sortCardsByPrinted(
+          prev.map((c) => (c.card_id === cardId ? { ...c, is_printed: data.isPrinted } : c))
+        )
       );
       setStats((prev) => ({
         ...prev,
@@ -654,7 +670,11 @@ export default function AdminPage() {
           headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
           body: JSON.stringify({ action: 'set-printed', isPrinted: true }),
         }).then(() => {
-          setCards((prev) => prev.map((c) => (c.card_id === cardId ? { ...c, is_printed: true } : c)));
+          setCards((prev) =>
+            sortCardsByPrinted(
+              prev.map((c) => (c.card_id === cardId ? { ...c, is_printed: true } : c))
+            )
+          );
         }).catch(() => {});
       };
       img.src = qrBase64;
@@ -696,7 +716,11 @@ export default function AdminPage() {
       headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
       body: JSON.stringify({ action: 'set-printed', isPrinted: true }),
     }).then(() => {
-      setCards((prev) => prev.map((c) => (c.card_id === cardId ? { ...c, is_printed: true } : c)));
+      setCards((prev) =>
+        sortCardsByPrinted(
+          prev.map((c) => (c.card_id === cardId ? { ...c, is_printed: true } : c))
+        )
+      );
     }).catch(() => {});
   };
 

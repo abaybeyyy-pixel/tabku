@@ -8,6 +8,7 @@ CREATE INDEX IF NOT EXISTS idx_cards_created_at ON cards(created_at DESC);
 -- 2. Compound indexes for combined status/printed filtering + pagination sorting
 CREATE INDEX IF NOT EXISTS idx_cards_status_created_at ON cards(status, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_cards_is_printed_created_at ON cards(is_printed, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_cards_is_printed_desc_created_at ON cards(is_printed DESC NULLS LAST, created_at DESC);
 
 -- 3. High-performance tap aggregation function (avoids pulling millions of rows over network)
 CREATE OR REPLACE FUNCTION get_total_taps()

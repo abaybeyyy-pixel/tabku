@@ -248,9 +248,20 @@ export async function getCardsPaginated(
     query = query.or('is_printed.is.null,is_printed.eq.false');
   }
 
-  const { data, error, count } = await query
+  let { data, error, count } = await query
+    .order('is_printed', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false })
     .range(from, to);
+
+  if (error) {
+    // Fallback if is_printed column or composite order fails
+    const fallbackRes = await query
+      .order('created_at', { ascending: false })
+      .range(from, to);
+    data = fallbackRes.data;
+    error = fallbackRes.error;
+    count = fallbackRes.count;
+  }
 
   const total = count || 0;
   const totalPages = Math.max(1, Math.ceil(total / safeLimit));
@@ -298,9 +309,18 @@ export async function getAllCards(
     query = query.or('is_printed.is.null,is_printed.eq.false');
   }
 
-  const { data, error } = await query
+  let { data, error } = await query
+    .order('is_printed', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false })
     .limit(limit);
+
+  if (error) {
+    const fallbackRes = await query
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    data = fallbackRes.data;
+    error = fallbackRes.error;
+  }
 
   if (error || !data) return [];
   return data as Card[];
