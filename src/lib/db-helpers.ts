@@ -2,11 +2,13 @@ import { createClient } from '@/utils/supabase/server';
 import { Card } from './db';
 
 export async function findCardById(cardId: string): Promise<Card | undefined> {
+  if (!cardId) return undefined;
+  const normalized = cardId.trim().toUpperCase();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('cards')
     .select('*')
-    .eq('card_id', cardId)
+    .eq('card_id', normalized)
     .single();
   
   if (error || !data) return undefined;
@@ -22,6 +24,7 @@ export async function activateCard(
   placeId?: string,
   businessAddress?: string
 ): Promise<boolean> {
+  const normalized = cardId.trim().toUpperCase();
   const supabase = await createClient();
   const now = new Date().toISOString();
   const updateData: Record<string, unknown> = {
@@ -39,7 +42,7 @@ export async function activateCard(
   const { data, error } = await supabase
     .from('cards')
     .update(updateData)
-    .eq('card_id', cardId)
+    .eq('card_id', normalized)
     .eq('status', 'UNACTIVATED')
     .select();
 
@@ -53,6 +56,7 @@ export async function updateDestination(
   businessName?: string,
   businessAddress?: string | null
 ): Promise<boolean> {
+  const normalized = cardId.trim().toUpperCase();
   const supabase = await createClient();
   const now = new Date().toISOString();
   const updateData: Record<string, unknown> = {
@@ -66,7 +70,7 @@ export async function updateDestination(
   const { data, error } = await supabase
     .from('cards')
     .update(updateData)
-    .eq('card_id', cardId)
+    .eq('card_id', normalized)
     .eq('status', 'ACTIVE')
     .select();
 
@@ -74,12 +78,13 @@ export async function updateDestination(
 }
 
 export async function updatePin(cardId: string, newPinHash: string): Promise<boolean> {
+  const normalized = cardId.trim().toUpperCase();
   const supabase = await createClient();
   const now = new Date().toISOString();
   const { data, error } = await supabase
     .from('cards')
     .update({ pin_hash: newPinHash, updated_at: now })
-    .eq('card_id', cardId)
+    .eq('card_id', normalized)
     .eq('status', 'ACTIVE')
     .select();
 

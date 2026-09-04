@@ -3,10 +3,28 @@ import { findCardById, incrementCardTap } from '@/lib/db-helpers';
 
 export const dynamic = 'force-dynamic';
 
+function escapeHtml(text: string): string {
+  return text.replace(/[&<>"']/g, (m) => {
+    switch (m) {
+      case '&': return '&amp;';
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '"': return '&quot;';
+      case "'": return '&#39;';
+      default: return m;
+    }
+  });
+}
+
 function getErrorPageHtml(title: string, message: string, buttonText: string, buttonHref: string) {
+  const safeTitle = escapeHtml(title);
+  const safeMessage = escapeHtml(message);
+  const safeButtonText = escapeHtml(buttonText);
+  const safeButtonHref = escapeHtml(buttonHref);
+
   return `<html>
     <head>
-      <title>${title}</title>
+      <title>${safeTitle}</title>
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
         :root {
@@ -81,9 +99,9 @@ function getErrorPageHtml(title: string, message: string, buttonText: string, bu
     </head>
     <body>
       <div class="container">
-        <h1>${title}</h1>
-        <p>${message}</p>
-        <a href="${buttonHref}">${buttonText}</a>
+        <h1>${safeTitle}</h1>
+        <p>${safeMessage}</p>
+        <a href="${safeButtonHref}">${safeButtonText}</a>
       </div>
     </body>
   </html>`;
@@ -94,7 +112,8 @@ export async function GET(
   { params }: { params: Promise<{ cardId: string }> }
 ) {
   const { cardId } = await params;
-  const card = await findCardById(cardId.toUpperCase());
+  const cleanCardId = (cardId || '').trim().toUpperCase();
+  const card = await findCardById(cleanCardId);
   const cacheHeaders = {
     'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
   };
@@ -104,7 +123,7 @@ export async function GET(
     return new NextResponse(
       getErrorPageHtml(
         'Kartu Tidak Ditemukan',
-        `ID Kartu ${cardId} tidak ditemukan di database kami. Silakan periksa kode QR atau parameter tap.`,
+        `ID Kartu ${cleanCardId} tidak ditemukan di database kami. Silakan periksa kode QR atau parameter tap.`,
         'Ke Beranda',
         '/'
       ),
