@@ -5,20 +5,11 @@ export function proxy(request: NextRequest) {
   const host = request.headers.get('host') || '';
   
   // If request is coming from old domain (tabku.vercel.app or any vercel.app domain)
-  // redirect permanently (308) to official custom domain mycarrd.com
+  // redirect permanently (308) to official custom domain
   if (host.includes('tabku.vercel.app') || (host.includes('.vercel.app') && !host.includes('localhost'))) {
     const url = request.nextUrl.clone();
     url.protocol = 'https:';
-    url.host = 'mycarrd.com';
-    url.port = '';
-    return NextResponse.redirect(url, 308);
-  }
-
-  // Redirect www.mycarrd.com to canonical apex domain mycarrd.com
-  if (host === 'www.mycarrd.com') {
-    const url = request.nextUrl.clone();
-    url.protocol = 'https:';
-    url.host = 'mycarrd.com';
+    url.host = 'www.mycarrd.com';
     url.port = '';
     return NextResponse.redirect(url, 308);
   }
