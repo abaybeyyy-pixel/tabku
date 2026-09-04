@@ -750,57 +750,43 @@ export default function ManagePage() {
                   </div>
                 </div>
 
-                {/* TOMBOL AKSI UTAMA */}
-                <div className="flex flex-col gap-2.5 mt-4">
-                  {loggedInCard.destinationUrl && (
+                {/* TOMBOL AKSI UTAMA (RINGKAS & MINIMALIS) */}
+                <div className="flex flex-col gap-3 mt-4">
+                  <div className="flex gap-2">
                     <a
-                      href={loggedInCard.destinationUrl}
+                      href={`/c/${loggedInCard.cardId}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn btn-primary w-full py-3 px-4 font-bold text-sm flex items-center justify-center gap-2"
-                      style={{ fontSize: '0.88rem' }}
+                      className="btn btn-primary flex-1 py-2.5 px-3 text-xs font-bold flex items-center justify-center gap-1.5"
                     >
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                         <polyline points="15 3 21 3 21 9" />
                         <line x1="10" y1="14" x2="21" y2="3" />
                       </svg>
-                      {loggedInCard.placeId ? 'Buka Halaman Ulasan Google' : 'Buka Tautan Tujuan'}
+                      Buka Link Kartu
                     </a>
-                  )}
+
+                    <button
+                      type="button"
+                      onClick={handleCopyLink}
+                      className="btn btn-secondary flex-1 py-2.5 px-3 text-xs font-bold flex items-center justify-center gap-1.5"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                      </svg>
+                      {copiedLink ? 'Tersalin!' : 'Salin Link'}
+                    </button>
+                  </div>
 
                   <button
                     type="button"
-                    onClick={handleCopyLink}
-                    className="btn btn-secondary w-full py-2.5 px-3 text-xs font-bold"
-                  >
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                    </svg>
-                    {copiedLink ? 'Link Tersalin!' : 'Salin Link Kartu'}
-                  </button>
-
-                  <a
-                    href={`/c/${loggedInCard.cardId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-secondary w-full py-2.5 px-3 text-xs font-bold"
-                  >
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M5 12.55a11 11 0 0 1 14.08 0" />
-                      <path d="M1.42 9a16 16 0 0 1 21.16 0" />
-                      <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
-                      <line x1="12" y1="20" x2="12.01" y2="20" />
-                    </svg>
-                    Tes Redirect Kartu
-                  </a>
-
-                  <button
                     onClick={handleLogout}
-                    className="btn btn-danger w-full py-2.5 font-bold text-xs mt-1"
+                    className="text-xs flex items-center justify-center gap-1.5 py-1 cursor-pointer bg-transparent border-0 self-center"
+                    style={{ color: '#94a3b8' }}
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                       <polyline points="16 17 21 12 16 7" />
                       <line x1="21" y1="12" x2="9" y2="12" />
