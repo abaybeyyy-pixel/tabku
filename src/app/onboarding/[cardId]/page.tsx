@@ -1,4 +1,5 @@
 import { notFound, redirect } from 'next/navigation';
+import Link from 'next/link';
 import { findCardById } from '@/lib/db-helpers';
 import OnboardingForm from './OnboardingForm';
 
@@ -29,9 +30,9 @@ export default async function OnboardingPage({
     <main className="min-vh flex items-center justify-center py-6 px-3">
       <div className="onboarding-card">
         <div className="header-logo">
-          <a href="/" className="font-extrabold text-sm tracking-wider" style={{ color: 'var(--primary-color)' }}>
+          <Link href="/" className="font-extrabold text-sm tracking-wider" style={{ color: 'var(--primary-color)' }}>
             MYCARRD
-          </a>
+          </Link>
           <span className="card-badge">{upperCardId}</span>
         </div>
         <OnboardingForm cardId={upperCardId} />

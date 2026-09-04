@@ -9,7 +9,8 @@ export async function POST(request: NextRequest) {
     }
     const resolvedUrl = await resolveGoogleMapsReviewUrl(url);
     return NextResponse.json({ resolvedUrl });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || 'Failed to resolve URL' }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to resolve URL';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

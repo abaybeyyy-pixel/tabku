@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
         status: card.status,
         email: card.email,
         tapCount: Number(card.tap_count) || 0,
-        qrCount: Number((card as any).qr_count) || 0,
+        qrCount: Number(card.qr_count) || 0,
         lastTappedAt: card.last_tapped_at || null,
         activatedAt: card.activated_at,
         updatedAt: card.updated_at,

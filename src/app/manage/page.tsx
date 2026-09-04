@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 interface PlaceResult {
   placeId: string;
@@ -8,11 +9,26 @@ interface PlaceResult {
   address: string;
 }
 
+interface LoggedInCard {
+  cardId: string;
+  businessName?: string | null;
+  destinationUrl?: string | null;
+  placeId?: string | null;
+  businessAddress?: string | null;
+  status?: string;
+  email?: string;
+  tapCount?: number;
+  qrCount?: number;
+  lastTappedAt?: string | null;
+  activatedAt?: string | null;
+  updatedAt?: string | null;
+}
+
 export default function ManagePage() {
   // Login phase state
   const [cardId, setCardId] = useState('');
   const [pin, setPin] = useState('');
-  const [loggedInCard, setLoggedInCard] = useState<any>(null);
+  const [loggedInCard, setLoggedInCard] = useState<LoggedInCard | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -104,6 +120,7 @@ export default function ManagePage() {
   // Handle edit business name only
   const handleSaveBusinessName = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!loggedInCard) return;
     if (!customBusinessName.trim()) {
       setError('Nama bisnis tidak boleh kosong.');
       return;
@@ -129,10 +146,10 @@ export default function ManagePage() {
         throw new Error(data.error || 'Gagal memperbarui nama bisnis.');
       }
 
-      setLoggedInCard((prev: any) => ({
+      setLoggedInCard((prev) => (prev ? {
         ...prev,
         businessName: customBusinessName.trim(),
-      }));
+      } : null));
       setSuccessMsg('Nama usaha berhasil diperbarui.');
       setIsEditingName(false);
     } catch (err: unknown) {
@@ -181,7 +198,7 @@ export default function ManagePage() {
 
   // Handle update business
   const handleUpdateBusiness = async () => {
-    if (!selectedBusiness) {
+    if (!selectedBusiness || !loggedInCard) {
       setError('Silakan cari dan pilih bisnis terlebih dahulu.');
       return;
     }
@@ -208,13 +225,13 @@ export default function ManagePage() {
         throw new Error(data.error || 'Gagal memperbarui bisnis.');
       }
 
-      setLoggedInCard((prev: any) => ({
+      setLoggedInCard((prev) => (prev ? {
         ...prev,
         businessName: selectedBusiness.name,
         businessAddress: selectedBusiness.address,
         placeId: selectedBusiness.placeId,
         destinationUrl: `https://search.google.com/local/writereview?placeid=${selectedBusiness.placeId}`,
-      }));
+      } : null));
       setCustomBusinessName(selectedBusiness.name);
       setSuccessMsg('Lokasi bisnis berhasil diperbarui.');
       setSelectedBusiness(null);
@@ -231,6 +248,7 @@ export default function ManagePage() {
   // Handle save custom link
   const handleSaveCustomLink = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!loggedInCard) return;
     if (!editCustomUrl.trim()) {
       setError('URL tujuan wajib diisi.');
       return;
@@ -272,13 +290,13 @@ export default function ManagePage() {
         throw new Error(data.error || 'Gagal memperbarui tautan.');
       }
 
-      setLoggedInCard((prev: any) => ({
+      setLoggedInCard((prev) => (prev ? {
         ...prev,
         businessName: editCustomName.trim(),
         destinationUrl: formattedUrl,
         placeId: null,
         businessAddress: null,
-      }));
+      } : null));
       setCustomBusinessName(editCustomName.trim());
       setSuccessMsg('Tautan tujuan kartu berhasil diperbarui.');
       setDashTab('details');
@@ -293,6 +311,7 @@ export default function ManagePage() {
   // Handle change PIN inside dashboard
   const handleChangePin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!loggedInCard) return;
     setError('');
     setSuccessMsg('');
     setLoading(true);
@@ -361,9 +380,9 @@ export default function ManagePage() {
       <div className="onboarding-card">
         {/* HEADER */}
         <div className="header-logo">
-          <a href="/" className="font-extrabold text-sm tracking-wider" style={{ color: 'var(--primary-color)' }}>
+          <Link href="/" className="font-extrabold text-sm tracking-wider" style={{ color: 'var(--primary-color)' }}>
             MYCARRD
-          </a>
+          </Link>
           {loggedInCard ? (
             <span className="card-badge">{loggedInCard.cardId}</span>
           ) : (
@@ -422,7 +441,7 @@ export default function ManagePage() {
                   </button>
 
                   <div className="flex justify-between items-center text-xs mt-2">
-                    <a href="/" className="text-muted hover:underline">Kembali ke Beranda</a>
+                    <Link href="/" className="text-muted hover:underline">Kembali ke Beranda</Link>
                     <button
                       type="button"
                       className="link-btn text-xs font-semibold"
@@ -674,8 +693,8 @@ export default function ManagePage() {
                         {loggedInCard.cardId}
                       </span>
                     </div>
-                    <span className={`status-tag ${loggedInCard.status.toLowerCase()}`}>
-                      {loggedInCard.status === 'ACTIVE' ? 'Aktif' : loggedInCard.status === 'DISABLED' ? 'Nonaktif' : loggedInCard.status}
+                    <span className={`status-tag ${(loggedInCard.status || 'ACTIVE').toLowerCase()}`}>
+                      {loggedInCard.status === 'ACTIVE' ? 'Aktif' : loggedInCard.status === 'DISABLED' ? 'Nonaktif' : (loggedInCard.status || 'Aktif')}
                     </span>
                   </div>
 

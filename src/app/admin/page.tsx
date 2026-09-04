@@ -2,10 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Card } from '@/lib/db';
 
 export default function AdminPage() {
-  const [password, setPassword] = useState('');
+  const [password] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('admin_password') || '';
+    }
+    return '';
+  });
   const [cards, setCards] = useState<Card[]>([]);
   const [stats, setStats] = useState<{
     total: number;
@@ -69,16 +75,6 @@ export default function AdminPage() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    const saved = localStorage.getItem('admin_password');
-    if (!saved) {
-      router.push('/admin/login');
-    } else {
-      setPassword(saved);
-      fetchData(saved);
-    }
-  }, [router]);
-
   // Helper to ensure printed cards are always at the top/front, then newest created_at
   const sortCardsByPrinted = (cardList: Card[]): Card[] => {
     return [...cardList].sort((a, b) => {
@@ -141,6 +137,56 @@ export default function AdminPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const saved = localStorage.getItem('admin_password');
+    if (!saved) {
+      router.push('/admin/login');
+      return;
+    }
+
+    let ignore = false;
+    const loadInitialData = async () => {
+      try {
+        const url = `/api/admin/cards?search=&status=ALL&printed=ALL&page=1&limit=50`;
+        const response = await fetch(url, {
+          headers: { 'x-admin-password': saved },
+        });
+
+        if (ignore) return;
+        if (!response.ok) {
+          if (response.status === 401) {
+            localStorage.removeItem('admin_password');
+            router.push('/admin/login');
+            return;
+          }
+          throw new Error('Gagal mengambil data kartu.');
+        }
+
+        const data = await response.json();
+        if (ignore) return;
+
+        setCards(sortCardsByPrinted(data.cards || []));
+        setStats(data.stats || { total: 0, active: 0, unactivated: 0, disabled: 0 });
+        if (data.pagination) {
+          setPagination(data.pagination);
+          setCurrentPage(data.pagination.page);
+        }
+        setLoading(false);
+      } catch (err: unknown) {
+        if (ignore) return;
+        const message = err instanceof Error ? err.message : 'Terjadi kesalahan sistem.';
+        setError(message);
+        setLoading(false);
+      }
+    };
+
+    loadInitialData();
+
+    return () => {
+      ignore = true;
+    };
+  }, [router]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSearch = e.target.value;
@@ -742,9 +788,9 @@ export default function AdminPage() {
           </p>
         </div>
         <div className="admin-header-actions">
-          <a href="/" className="admin-header-btn">
+          <Link href="/" className="admin-header-btn">
             Beranda
-          </a>
+          </Link>
           <button onClick={handleLogout} className="admin-header-btn">
             Keluar
           </button>

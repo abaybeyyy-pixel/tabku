@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
@@ -46,9 +47,9 @@ export default function AdminLoginPage() {
     <main className="min-vh flex items-center justify-center py-6 px-3">
       <div className="onboarding-card">
         <div className="header-logo">
-          <a href="/" className="font-extrabold text-sm tracking-wider" style={{ color: 'var(--primary-color)' }}>
+          <Link href="/" className="font-extrabold text-sm tracking-wider" style={{ color: 'var(--primary-color)' }}>
             MYCARRD
-          </a>
+          </Link>
           <span className="card-badge">Admin Access</span>
         </div>
 
@@ -82,9 +83,9 @@ export default function AdminLoginPage() {
           </button>
 
           <div className="text-center mt-2">
-            <a href="/" className="text-xs text-muted hover:underline">
+            <Link href="/" className="text-xs text-muted hover:underline">
               ← Kembali ke Beranda
-            </a>
+            </Link>
           </div>
         </form>
       </div>

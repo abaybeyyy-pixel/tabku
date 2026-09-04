@@ -197,7 +197,33 @@ export async function GET(
   }
 
   // Successful redirect to Google Review / Destination URL without caching
-  const redirectResponse = NextResponse.redirect(card.destination_url, 307);
+  let targetUrl = (card.destination_url || '').trim();
+  if (!/^https?:\/\//i.test(targetUrl)) {
+    targetUrl = `https://${targetUrl}`;
+  }
+
+  let finalDestination: URL;
+  try {
+    finalDestination = new URL(targetUrl);
+  } catch {
+    return new NextResponse(
+      getErrorPageHtml(
+        'Format URL Tidak Valid',
+        'Tautan tujuan yang tersimpan pada kartu ini tidak memiliki format yang valid. Silakan perbarui melalui menu Kelola Kartu.',
+        'Kelola Kartu',
+        '/manage'
+      ),
+      {
+        status: 400,
+        headers: {
+          'Content-Type': 'text/html',
+          ...cacheHeaders,
+        },
+      }
+    );
+  }
+
+  const redirectResponse = NextResponse.redirect(finalDestination.toString(), 307);
   Object.entries(cacheHeaders).forEach(([key, val]) => {
     redirectResponse.headers.set(key, val);
   });

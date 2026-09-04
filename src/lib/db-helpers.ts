@@ -477,7 +477,7 @@ export async function incrementCardTap(cardId: string, isQr: boolean = false): P
         .single();
       
       const currentTap = data && data.tap_count ? Number(data.tap_count) : 0;
-      const currentQr = data && (data as any).qr_count ? Number((data as any).qr_count) : 0;
+      const currentQr = data && 'qr_count' in data && data.qr_count ? Number(data.qr_count) : 0;
       
       const updatePayload: Record<string, unknown> = {
         tap_count: currentTap + 1,

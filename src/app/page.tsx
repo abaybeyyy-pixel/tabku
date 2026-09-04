@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 export default function Homepage() {
   const [faqOpen, setFaqOpen] = useState<{ [key: number]: boolean }>({ 0: true });
@@ -397,9 +398,9 @@ export default function Homepage() {
       {/* NAVBAR */}
       <nav className="navbar">
         <div className="navbar-container">
-          <a href="/" className="nav-logo font-bold">
+          <Link href="/" className="nav-logo font-bold">
             MYCARRD
-          </a>
+          </Link>
           <div className="nav-links">
             <a href="#target-market" className="nav-link">Untuk Bisnis</a>
             <a href="#benefits" className="nav-link">Kelebihan</a>
@@ -410,13 +411,13 @@ export default function Homepage() {
             <a href="#faq" className="nav-link">FAQ</a>
           </div>
           <div className="nav-actions">
-            <a href="/manage" className="btn-manage-nav">
+            <Link href="/manage" className="btn-manage-nav">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
               <span>Login User</span>
-            </a>
+            </Link>
           </div>
         </div>
       </nav>
@@ -939,7 +940,7 @@ export default function Homepage() {
                         </svg>
                       ))}
                     </div>
-                    <p className="quote-text">"{t.quote}"</p>
+                    <p className="quote-text">&ldquo;{t.quote}&rdquo;</p>
                   </div>
                   <div className="author-details">
                     <div className="flex justify-between items-center">
@@ -969,7 +970,7 @@ export default function Homepage() {
                         </svg>
                       ))}
                     </div>
-                    <p className="quote-text">"{t.quote}"</p>
+                    <p className="quote-text">&ldquo;{t.quote}&rdquo;</p>
                   </div>
                   <div className="author-details">
                     <div className="flex justify-between items-center">
