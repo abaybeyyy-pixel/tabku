@@ -108,7 +108,7 @@ export default function AdminPage() {
       if (!response.ok) {
         if (response.status === 401) {
           localStorage.removeItem('admin_password');
-          router.push('/admin/login');
+          router.push('/admin/Sull1v4n');
           return;
         }
         throw new Error('Gagal mengambil data kartu.');
@@ -141,7 +141,7 @@ export default function AdminPage() {
   useEffect(() => {
     const saved = localStorage.getItem('admin_password');
     if (!saved) {
-      router.push('/admin/login');
+      router.push('/admin/Sull1v4n');
       return;
     }
 
@@ -157,7 +157,7 @@ export default function AdminPage() {
         if (!response.ok) {
           if (response.status === 401) {
             localStorage.removeItem('admin_password');
-            router.push('/admin/login');
+            router.push('/admin/Sull1v4n');
             return;
           }
           throw new Error('Gagal mengambil data kartu.');
@@ -772,7 +772,7 @@ export default function AdminPage() {
 
   const handleLogout = () => {
     localStorage.removeItem('admin_password');
-    router.push('/admin/login');
+    router.push('/admin/Sull1v4n');
   };
 
   const isAllSelected = cards.length > 0 && selectedCardIds.length === cards.length;
