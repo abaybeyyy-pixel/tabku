@@ -4,38 +4,9 @@ import React, { useState } from 'react';
 
 export default function Homepage() {
   const [faqOpen, setFaqOpen] = useState<{ [key: number]: boolean }>({ 0: true });
-  const [selectedStars, setSelectedStars] = useState(5);
-
-  // 3D Phone Mockup Interactive State
-  const [cardTransform, setCardTransform] = useState('perspective(1200px) rotateX(0deg) rotateY(0deg)');
-  const [hasTappedCard, setHasTappedCard] = useState(false);
 
   const toggleFaq = (index: number) => {
     setFaqOpen((prev) => ({ ...prev, [index]: !prev[index] }));
-  };
-
-  const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotateX = ((y - centerY) / centerY) * -8;
-    const rotateY = ((x - centerX) / centerX) * 10;
-
-    setCardTransform(`perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`);
-  };
-
-  const handleCardMouseLeave = () => {
-    setCardTransform('perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)');
-  };
-
-  const handleCardClick = () => {
-    setHasTappedCard(true);
-    setTimeout(() => {
-      setHasTappedCard(false);
-    }, 2500);
   };
 
   const waUrl = 'https://wa.me/6281211156865?text=Halo%20Tapku,%20saya%20ingin%20pesan%20Smart%20Card%20Google%20Review%20NFC%20untuk%20bisnis%20saya.';
@@ -545,141 +516,24 @@ export default function Homepage() {
             </div>
 
 
-            {/* Right Column: 3D Interactive Smartphone Tap Mockup */}
-            <div className="flex flex-col items-center">
-              <div className="phone-3d-wrapper">
-                <div
-                  className="phone-device-container"
-                  style={{ transform: cardTransform }}
-                  onMouseMove={handleCardMouseMove}
-                  onMouseLeave={handleCardMouseLeave}
-                >
-                  {/* Floating NFC Card tapping phone */}
-                  <div
-                    className={`nfc-floating-card ${hasTappedCard ? 'tapping' : ''}`}
-                    onClick={handleCardClick}
-                    title="Klik kartu untuk simulasi Tap NFC"
-                  >
-                    <div className="flex justify-between items-center">
-                      <div className="nfc-card-chip" style={{ width: '18px', height: '12px' }}></div>
-                      <span className="font-mono text-xs font-bold" style={{ fontSize: '0.6rem' }}>NFC</span>
-                    </div>
-                    <div>
-                      <span className="block font-bold text-xs" style={{ fontSize: '0.65rem' }}>MYCARRD SMART CARD</span>
-                      <span className="text-subtle block" style={{ fontSize: '0.55rem' }}>Kedai Kopi Joni</span>
-                    </div>
+            {/* Right Column: Real Product Showcase */}
+            <div className="hero-product-col">
+              <div className="hero-product-card">
+                <img
+                  src="/mockupcard.jpg"
+                  alt="Produk Fisik Asli Kartu & Display Akrilik Google Review NFC Mycarrd"
+                  className="hero-product-image"
+                  width={1024}
+                  height={1024}
+                  loading="eager"
+                />
+                <div className="hero-product-caption">
+                  <div className="hero-product-pill">
+                    <span className="hero-product-dot"></span>
+                    <span>Produk Asli Mycarrd</span>
                   </div>
-
-                  {/* NFC Pulse Wave Animation */}
-                  <div className={`nfc-pulse-wave ${hasTappedCard ? 'active' : ''}`}></div>
-
-                  {/* Dynamic Island */}
-                  <div className="phone-dynamic-island">
-                    <div className="phone-camera-lens"></div>
-                  </div>
-
-                  {/* Phone Status Bar */}
-                  <div className="phone-status-bar">
-                    <span>09:41</span>
-                    <div className="flex items-center gap-1">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M5 12.55a11 11 0 0 1 14.08 0" />
-                        <path d="M1.42 9a16 16 0 0 1 21.16 0" />
-                        <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
-                        <line x1="12" y1="20" x2="12.01" y2="20" />
-                      </svg>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="2" y="7" width="16" height="10" rx="2" ry="2" />
-                        <line x1="22" y1="11" x2="22" y2="13" />
-                      </svg>
-                    </div>
-                  </div>
-
-                  {/* Phone Screen: Google Review Composer */}
-                  <div className="phone-screen-content">
-                    {/* Google Review Box */}
-                    <div className="review-modal-box">
-                      <div className="flex items-center justify-between border-b pb-2 mb-2">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-xs" style={{ color: '#2563eb' }}>Google Review</span>
-                        </div>
-                        <span className="text-muted text-xs" style={{ fontSize: '0.65rem' }}>Resmi</span>
-                      </div>
-
-                      <div className="mb-2">
-                        <h4 className="font-bold text-xs" style={{ color: '#0f172a' }}>Kedai Kopi Joni</h4>
-                        <p className="text-muted" style={{ fontSize: '0.68rem' }}>Jl. Asia Afrika No.19, Jakarta Pusat</p>
-                      </div>
-
-                      <div className="flex items-center gap-2 mb-2 p-1.5 rounded" style={{ background: '#f8fafc' }}>
-                        <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#dbeafe', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 'bold' }}>
-                          D
-                        </div>
-                        <div style={{ fontSize: '0.7rem' }}>
-                          <span className="font-semibold block text-slate-800">Dimas Pratama</span>
-                          <span className="text-muted" style={{ fontSize: '0.6rem' }}>Posting ulasan publik</span>
-                        </div>
-                      </div>
-
-                      {/* Interactive 5 Stars Row */}
-                      <div className="text-center my-2">
-                        <span className="text-xs font-semibold text-slate-600 block mb-1" style={{ fontSize: '0.7rem' }}>
-                          Beri rating bintang ulasan:
-                        </span>
-                        <div className="review-stars-row">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <button
-                              key={star}
-                              type="button"
-                              onClick={() => setSelectedStars(star)}
-                              className="review-star-btn"
-                              title={`Beri rating ${star} bintang`}
-                            >
-                              <svg
-                                width="22"
-                                height="22"
-                                viewBox="0 0 24 24"
-                                fill={star <= selectedStars ? '#f59e0b' : '#e2e8f0'}
-                                stroke={star <= selectedStars ? '#f59e0b' : '#cbd5e1'}
-                                strokeWidth="1.5"
-                              >
-                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                              </svg>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div style={{ background: '#f8fafc', padding: '0.5rem', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.72rem', color: '#475569', lineHeight: '1.4' }}>
-                        "Kopinya mantap, baristanya ramah banget. Tempat sangat nyaman untuk kerja!"
-                      </div>
-                    </div>
-
-                    {/* Submit Button Inside Phone */}
-                    <div className="mt-2">
-                      <button
-                        type="button"
-                        onClick={handleCardClick}
-                        className="btn btn-primary w-full py-2 font-bold text-xs"
-                        style={{ borderRadius: '10px' }}
-                      >
-                        {hasTappedCard ? 'Ulasan Terkirim ke Google' : 'Posting Ulasan'}
-                      </button>
-                    </div>
-                  </div>
+                  <span className="hero-product-subtext">Kartu NFC &amp; Display Akrilik 3mm UV Print</span>
                 </div>
-
-                {/* Instant Tap Feedback notification */}
-                {hasTappedCard && (
-                  <div className="animate-fade-in p-2 rounded-md border text-center shadow-xs mt-2" style={{ background: '#ecfdf5', borderColor: '#a7f3d0', width: '280px' }}>
-                    <div className="flex items-center justify-center gap-1 text-xs font-bold text-success">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      <span>NFC Berhasil Terbaca di HP!</span>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
