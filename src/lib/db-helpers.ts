@@ -316,30 +316,58 @@ export async function adminResetPin(cardId: string, newPinHash: string): Promise
   return !error && data && data.length > 0;
 }
 
-export async function incrementCardTap(cardId: string): Promise<void> {
+export async function incrementCardTap(cardId: string, isQr: boolean = false): Promise<void> {
   try {
     const supabase = await createClient();
     const now = new Date().toISOString();
     
-    // First attempt to call RPC if registered
-    const { error: rpcError } = await supabase.rpc('increment_card_tap', { target_card_id: cardId });
+    // First attempt RPC with is_qr
+    let { error: rpcError } = await supabase.rpc('increment_card_tap', { 
+      target_card_id: cardId,
+      is_qr: isQr
+    });
     
-    // If RPC is not available in Postgres, fallback to direct query increment
+    // If RPC signature with is_qr not found, try single arg RPC
+    if (rpcError) {
+      const fallbackRpc = await supabase.rpc('increment_card_tap', { target_card_id: cardId });
+      rpcError = fallbackRpc.error;
+    }
+
+    // If RPC is still not available or errored, fallback to direct table update
     if (rpcError) {
       const { data } = await supabase
         .from('cards')
-        .select('tap_count')
+        .select('tap_count, qr_count')
         .eq('card_id', cardId)
         .single();
       
-      const currentCount = data && data.tap_count ? Number(data.tap_count) : 0;
-      await supabase
+      const currentTap = data && data.tap_count ? Number(data.tap_count) : 0;
+      const currentQr = data && (data as any).qr_count ? Number((data as any).qr_count) : 0;
+      
+      const updatePayload: Record<string, unknown> = {
+        tap_count: currentTap + 1,
+        last_tapped_at: now,
+      };
+
+      if (isQr) {
+        updatePayload.qr_count = currentQr + 1;
+      }
+
+      const { error: updateError } = await supabase
         .from('cards')
-        .update({
-          tap_count: currentCount + 1,
-          last_tapped_at: now,
-        })
+        .update(updatePayload)
         .eq('card_id', cardId);
+
+      // If qr_count column doesn't exist yet, retry updating tap_count only
+      if (updateError) {
+        await supabase
+          .from('cards')
+          .update({
+            tap_count: currentTap + 1,
+            last_tapped_at: now,
+          })
+          .eq('card_id', cardId);
+      }
     }
   } catch (err) {
     // Non-blocking for client redirect

@@ -166,8 +166,16 @@ export async function GET(
     );
   }
 
-  // Track tap asynchronously without blocking redirect response
-  incrementCardTap(card.card_id).catch(() => {});
+  // Reliably track tap / QR scan interaction before redirect
+  const isQr = request.nextUrl.searchParams.get('src') === 'qr';
+  try {
+    await Promise.race([
+      incrementCardTap(card.card_id, isQr),
+      new Promise((resolve) => setTimeout(resolve, 800)),
+    ]);
+  } catch (err) {
+    console.error('[Tap Tracking Route Error]', err);
+  }
 
   // Successful redirect to Google Review / Destination URL without caching
   const redirectResponse = NextResponse.redirect(card.destination_url, 307);

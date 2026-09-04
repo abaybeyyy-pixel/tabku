@@ -9,6 +9,7 @@ export interface Card {
   pin_hash: string | null;
   email: string | null;
   tap_count?: number;
+  qr_count?: number;
   last_tapped_at?: string | null;
   is_printed?: boolean;
   printed_at?: string | null;
