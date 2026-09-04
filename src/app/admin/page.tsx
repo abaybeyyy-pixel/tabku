@@ -53,6 +53,20 @@ export default function AdminPage() {
   const [showQrDataUrl, setShowQrDataUrl] = useState<string>('');
   const [loadingQr, setLoadingQr] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(50);
+  const [pagination, setPagination] = useState<{
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }>({
+    total: 0,
+    page: 1,
+    limit: 50,
+    totalPages: 1,
+  });
+
   const router = useRouter();
 
   useEffect(() => {
@@ -66,15 +80,17 @@ export default function AdminPage() {
   }, [router]);
 
   const fetchData = async (
-    pw: string,
+    pw = password,
     searchQuery = search,
     statusQ = statusFilter,
-    printQ = printFilter
+    printQ = printFilter,
+    targetPage = currentPage,
+    targetLimit = pageSize
   ) => {
     setLoading(true);
     setError('');
     try {
-      const url = `/api/admin/cards?search=${encodeURIComponent(searchQuery)}&status=${statusQ}&printed=${printQ}`;
+      const url = `/api/admin/cards?search=${encodeURIComponent(searchQuery)}&status=${statusQ}&printed=${printQ}&page=${targetPage}&limit=${targetLimit}`;
       const response = await fetch(url, {
         headers: { 'x-admin-password': pw },
       });
@@ -91,6 +107,18 @@ export default function AdminPage() {
       const data = await response.json();
       setCards(data.cards || []);
       setStats(data.stats || { total: 0, active: 0, unactivated: 0, disabled: 0 });
+      if (data.pagination) {
+        setPagination(data.pagination);
+        setCurrentPage(data.pagination.page);
+      } else {
+        setPagination({
+          total: (data.cards || []).length,
+          page: targetPage,
+          limit: targetLimit,
+          totalPages: Math.max(1, Math.ceil(((data.cards || []).length) / targetLimit)),
+        });
+        setCurrentPage(targetPage);
+      }
       setSelectedCardIds([]);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Terjadi kesalahan sistem.';
@@ -101,18 +129,53 @@ export default function AdminPage() {
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-    fetchData(password, e.target.value, statusFilter, printFilter);
+    const newSearch = e.target.value;
+    setSearch(newSearch);
+    setCurrentPage(1);
+    fetchData(password, newSearch, statusFilter, printFilter, 1, pageSize);
   };
 
   const handleStatusFilterChange = (status: string) => {
     setStatusFilter(status);
-    fetchData(password, search, status, printFilter);
+    setCurrentPage(1);
+    fetchData(password, search, status, printFilter, 1, pageSize);
   };
 
   const handlePrintFilterChange = (printed: string) => {
     setPrintFilter(printed);
-    fetchData(password, search, statusFilter, printed);
+    setCurrentPage(1);
+    fetchData(password, search, statusFilter, printed, 1, pageSize);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > pagination.totalPages || newPage === currentPage) return;
+    setCurrentPage(newPage);
+    fetchData(password, search, statusFilter, printFilter, newPage, pageSize);
+  };
+
+  const handlePageSizeChange = (newLimit: number) => {
+    setPageSize(newLimit);
+    setCurrentPage(1);
+    fetchData(password, search, statusFilter, printFilter, 1, newLimit);
+  };
+
+  const getPageNumbers = () => {
+    const total = pagination.totalPages;
+    const current = currentPage;
+
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+
+    if (current <= 4) {
+      return [1, 2, 3, 4, 5, '...', total];
+    }
+
+    if (current >= total - 3) {
+      return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+    }
+
+    return [1, '...', current - 1, current, current + 1, '...', total];
   };
 
   // Selection handlers
@@ -291,7 +354,8 @@ export default function AdminPage() {
       }
 
       setSuccess(`Berhasil membuat ${data.count} kartu baru.`);
-      fetchData(password, search, statusFilter, printFilter);
+      setCurrentPage(1);
+      fetchData(password, search, statusFilter, printFilter, 1, pageSize);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gagal membuat kartu baru.';
       setError(message);
@@ -859,8 +923,13 @@ export default function AdminPage() {
                 onChange={handleToggleSelectAll}
                 style={{ width: '15px', height: '15px', accentColor: 'var(--primary-color)', cursor: 'pointer' }}
               />
-              <span>Pilih Semua ({cards.length} kartu ditampilkan)</span>
+              <span>Pilih Semua di Halaman Ini ({cards.length} kartu)</span>
             </label>
+            {selectedCardIds.length > 0 && (
+              <span className="text-xs text-muted font-semibold" style={{ fontSize: '0.72rem' }}>
+                {selectedCardIds.length} dipilih
+              </span>
+            )}
           </div>
         )}
 
@@ -1029,6 +1098,90 @@ export default function AdminPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Minimalist Pagination Bar */}
+        {!loading && pagination.total > 0 && (
+          <div className="admin-pagination-container">
+            <div className="admin-pagination-info">
+              <span>
+                Menampilkan{' '}
+                <strong>
+                  {((pagination.page - 1) * pagination.limit + 1).toLocaleString('id-ID')}
+                </strong>
+                –
+                <strong>
+                  {Math.min(pagination.page * pagination.limit, pagination.total).toLocaleString('id-ID')}
+                </strong>{' '}
+                dari <strong>{pagination.total.toLocaleString('id-ID')}</strong> kartu
+              </span>
+            </div>
+
+            <div className="admin-pagination-controls">
+              <div className="admin-page-size-selector">
+                <span className="text-muted" style={{ fontSize: '0.72rem' }}>Per hal:</span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                  className="admin-page-select"
+                >
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
+
+              <div className="admin-pagination-buttons">
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage <= 1}
+                  className="pagination-btn"
+                  title="Halaman Sebelumnya"
+                  aria-label="Halaman Sebelumnya"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                </button>
+
+                {getPageNumbers().map((item, idx) => {
+                  if (item === '...') {
+                    return (
+                      <span key={`ellipsis-${idx}`} className="pagination-ellipsis">
+                        …
+                      </span>
+                    );
+                  }
+                  const pageNum = Number(item);
+                  const isActive = pageNum === currentPage;
+                  return (
+                    <button
+                      key={`page-${pageNum}`}
+                      type="button"
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`pagination-btn ${isActive ? 'active' : ''}`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage >= pagination.totalPages}
+                  className="pagination-btn"
+                  title="Halaman Berikutnya"
+                  aria-label="Halaman Berikutnya"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

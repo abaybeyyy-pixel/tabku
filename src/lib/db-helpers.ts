@@ -146,46 +146,135 @@ function generateRandomCode(length: number): string {
 
 export async function generateCards(prefix: string = '', count: number = 1): Promise<string[]> {
   const supabase = await createClient();
-  const cardIds: string[] = [];
   const cleanPrefix = (prefix || '').trim().toUpperCase();
   const randomLength = Math.max(1, 6 - cleanPrefix.length);
 
-  // Fetch existing card IDs to guarantee zero collision
-  const { data: existingRows } = await supabase
-    .from('cards')
-    .select('card_id');
-  
-  const existingSet = new Set((existingRows || []).map((r: { card_id: string }) => r.card_id.toUpperCase()));
+  const cardIds: string[] = [];
   const generatedSet = new Set<string>();
 
-  const toInsert = [];
-  for (let i = 0; i < count; i++) {
-    let candidate = '';
-    let attempts = 0;
-    do {
-      const rand = generateRandomCode(randomLength);
-      candidate = `${cleanPrefix}${rand}`;
-      attempts++;
-    } while ((existingSet.has(candidate) || generatedSet.has(candidate)) && attempts < 1000);
+  // High-volume collision prevention using indexed WHERE card_id IN (...)
+  // Scales to 1,000,000+ cards without downloading all rows into memory
+  let needed = count;
+  let loopCount = 0;
 
-    generatedSet.add(candidate);
-    existingSet.add(candidate);
-    toInsert.push({ card_id: candidate, status: 'UNACTIVATED' });
-    cardIds.push(candidate);
+  while (needed > 0 && loopCount < 10) {
+    loopCount++;
+    const candidates: string[] = [];
+    while (candidates.length < needed) {
+      const rand = generateRandomCode(randomLength);
+      const candidate = `${cleanPrefix}${rand}`;
+      if (!generatedSet.has(candidate)) {
+        generatedSet.add(candidate);
+        candidates.push(candidate);
+      }
+    }
+
+    const { data: collidedRows } = await supabase
+      .from('cards')
+      .select('card_id')
+      .in('card_id', candidates);
+
+    const collidedSet = new Set(
+      (collidedRows || []).map((r: { card_id: string }) => r.card_id.toUpperCase())
+    );
+
+    for (const id of candidates) {
+      if (!collidedSet.has(id.toUpperCase())) {
+        cardIds.push(id);
+      } else {
+        generatedSet.delete(id);
+      }
+    }
+
+    needed = count - cardIds.length;
   }
 
-  if (toInsert.length > 0) {
-    const { error } = await supabase.from('cards').insert(toInsert);
+  if (cardIds.length === 0) {
+    throw new Error('Gagal menghasilkan ID kartu unik.');
+  }
+
+  const toInsert = cardIds.map((id) => ({ card_id: id, status: 'UNACTIVATED' }));
+
+  // Chunk inserts in batches of 500 for safety and speed
+  const chunkSize = 500;
+  for (let i = 0; i < toInsert.length; i += chunkSize) {
+    const chunk = toInsert.slice(i, i + chunkSize);
+    const { error } = await supabase.from('cards').insert(chunk);
     if (error) throw new Error(error.message);
   }
-  
+
   return cardIds;
+}
+
+export interface PaginatedCardsResult {
+  cards: Card[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export async function getCardsPaginated(
+  search?: string,
+  status?: string,
+  printedFilter?: string,
+  page: number = 1,
+  limit: number = 50
+): Promise<PaginatedCardsResult> {
+  const supabase = await createClient();
+  const safePage = Math.max(1, page);
+  const safeLimit = Math.max(1, Math.min(limit, 200));
+  const from = (safePage - 1) * safeLimit;
+  const to = from + safeLimit - 1;
+
+  let query = supabase.from('cards').select('*', { count: 'exact' });
+
+  if (search) {
+    const cleanSearch = search.trim();
+    query = query.or(`card_id.ilike.%${cleanSearch}%,business_name.ilike.%${cleanSearch}%,email.ilike.%${cleanSearch}%`);
+  }
+
+  if (status && status !== 'ALL') {
+    query = query.eq('status', status);
+  }
+
+  if (printedFilter === 'PRINTED') {
+    query = query.eq('is_printed', true);
+  } else if (printedFilter === 'UNPRINTED') {
+    query = query.or('is_printed.is.null,is_printed.eq.false');
+  }
+
+  const { data, error, count } = await query
+    .order('created_at', { ascending: false })
+    .range(from, to);
+
+  const total = count || 0;
+  const totalPages = Math.max(1, Math.ceil(total / safeLimit));
+
+  if (error || !data) {
+    return {
+      cards: [],
+      total: 0,
+      page: safePage,
+      limit: safeLimit,
+      totalPages: 1,
+    };
+  }
+
+  return {
+    cards: data as Card[],
+    total,
+    page: safePage,
+    limit: safeLimit,
+    totalPages,
+  };
 }
 
 export async function getAllCards(
   search?: string,
   status?: string,
-  printedFilter?: string
+  printedFilter?: string,
+  limit: number = 1000
 ): Promise<Card[]> {
   const supabase = await createClient();
   let query = supabase.from('cards').select('*');
@@ -205,8 +294,10 @@ export async function getAllCards(
     query = query.or('is_printed.is.null,is_printed.eq.false');
   }
 
-  const { data, error } = await query.order('created_at', { ascending: false });
-  
+  const { data, error } = await query
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
   if (error || !data) return [];
   return data as Card[];
 }
@@ -221,13 +312,12 @@ export async function getCardStats(): Promise<{
   unprinted: number;
 }> {
   const supabase = await createClient();
-  
-  const [totalRes, activeRes, unactivatedRes, disabledRes, tapsRes] = await Promise.all([
+
+  const [totalRes, activeRes, unactivatedRes, disabledRes] = await Promise.all([
     supabase.from('cards').select('*', { count: 'exact', head: true }),
     supabase.from('cards').select('*', { count: 'exact', head: true }).eq('status', 'ACTIVE'),
     supabase.from('cards').select('*', { count: 'exact', head: true }).eq('status', 'UNACTIVATED'),
     supabase.from('cards').select('*', { count: 'exact', head: true }).eq('status', 'DISABLED'),
-    supabase.from('cards').select('tap_count'),
   ]);
 
   let printedCount = 0;
@@ -243,7 +333,23 @@ export async function getCardStats(): Promise<{
     // Fallback if column not yet added
   }
 
-  const totalTaps = (tapsRes.data || []).reduce((acc, curr: { tap_count?: number | null }) => acc + (Number(curr.tap_count) || 0), 0);
+  // Attempt DB-level RPC sum for 1M scale
+  let totalTaps = 0;
+  try {
+    const { data: rpcTaps, error: rpcErr } = await supabase.rpc('get_total_taps');
+    if (!rpcErr && rpcTaps !== null) {
+      totalTaps = Number(rpcTaps);
+    } else {
+      // Safe fallback sample
+      const { data: sampleTaps } = await supabase.from('cards').select('tap_count').limit(1000);
+      totalTaps = (sampleTaps || []).reduce(
+        (acc, curr: { tap_count?: number | null }) => acc + (Number(curr.tap_count) || 0),
+        0
+      );
+    }
+  } catch {
+    totalTaps = 0;
+  }
 
   return {
     total: totalRes.count || 0,

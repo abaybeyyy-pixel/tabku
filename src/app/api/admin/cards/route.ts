@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllCards, getCardStats, deleteCards, updateCardPrintedStatus } from '@/lib/db-helpers';
+import { getAllCards, getCardsPaginated, getCardStats, deleteCards, updateCardPrintedStatus } from '@/lib/db-helpers';
 import { verifyAdminPassword } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
@@ -8,18 +8,43 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || undefined;
     const status = searchParams.get('status') || undefined;
     const printed = searchParams.get('printed') || undefined;
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '50', 10);
+    const all = searchParams.get('all') === 'true';
     const password = request.headers.get('x-admin-password') || '';
 
     if (!verifyAdminPassword(password)) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
-    const cards = await getAllCards(search, status, printed);
     const stats = await getCardStats();
+
+    if (all) {
+      const cards = await getAllCards(search, status, printed);
+      return NextResponse.json({
+        success: true,
+        cards,
+        pagination: {
+          total: cards.length,
+          page: 1,
+          limit: cards.length,
+          totalPages: 1,
+        },
+        stats,
+      });
+    }
+
+    const paginated = await getCardsPaginated(search, status, printed, page, limit);
 
     return NextResponse.json({
       success: true,
-      cards,
+      cards: paginated.cards,
+      pagination: {
+        total: paginated.total,
+        page: paginated.page,
+        limit: paginated.limit,
+        totalPages: paginated.totalPages,
+      },
       stats,
     });
   } catch {

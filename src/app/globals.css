@@ -3078,6 +3078,110 @@ a {
   margin-top: 0.45rem;
 }
 
+/* Minimalist Pagination Bar */
+.admin-pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.75rem 0.25rem 0.25rem 0.25rem;
+  border-top: 1px solid var(--border, #e2e8f0);
+}
+
+.admin-pagination-info {
+  font-size: 0.75rem;
+  color: var(--muted, #64748b);
+}
+
+.admin-pagination-info strong {
+  color: var(--foreground, #0f172a);
+}
+
+.admin-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-page-size-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.admin-page-select {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid var(--border, #e2e8f0);
+  background: #ffffff;
+  color: var(--foreground, #0f172a);
+  cursor: pointer;
+  outline: none;
+}
+
+.admin-page-select:focus {
+  border-color: var(--primary-color, #1e3a8a);
+}
+
+.admin-pagination-buttons {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid var(--border, #e2e8f0);
+  background: #ffffff;
+  color: var(--foreground, #0f172a);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: var(--background-subtle, #f8fafc);
+  border-color: #cbd5e1;
+}
+
+.pagination-btn.active {
+  background: var(--primary-color, #1e3a8a);
+  color: #ffffff;
+  border-color: var(--primary-color, #1e3a8a);
+  font-weight: 700;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: var(--border, #e2e8f0);
+  background: transparent;
+}
+
+.pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 28px;
+  font-size: 0.75rem;
+  color: var(--muted, #64748b);
+  user-select: none;
+}
+
 
 
 
