@@ -400,25 +400,49 @@ export default function AdminPage() {
   };
 
   // Export CSV
-  const handleExportCSV = () => {
-    const csvContent =
-      'data:text/csv;charset=utf-8,' +
-      ['Card ID,Permanent URL,Destination,Status,Printed'].join(',') +
-      '\n' +
-      cards
-        .map(
-          (c) =>
-            `${c.card_id},https://mycarrd.com/c/${c.card_id},"${c.destination_url || ''}",${c.status},${c.is_printed ? 'YES' : 'NO'}`
-        )
-        .join('\n');
+  const handleExportCSV = async () => {
+    try {
+      let cardsToExport = cards;
+      if (selectedCardIds.length > 0) {
+        cardsToExport = cards.filter((c) => selectedCardIds.includes(c.card_id));
+      } else {
+        const res = await fetch(
+          `/api/admin/cards?all=true&search=${encodeURIComponent(search)}&status=${statusFilter}&printed=${printFilter}`,
+          { headers: { 'x-admin-password': password } }
+        );
+        const dataAll = await res.json();
+        if (dataAll.cards && dataAll.cards.length > 0) {
+          cardsToExport = dataAll.cards;
+        }
+      }
 
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `mycarrd_cards_${Date.now()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      if (cardsToExport.length === 0) {
+        setError('Tidak ada data kartu untuk diekspor ke CSV.');
+        return;
+      }
+
+      const csvContent =
+        'data:text/csv;charset=utf-8,' +
+        ['Card ID,Permanent URL,Destination,Status,Printed'].join(',') +
+        '\n' +
+        cardsToExport
+          .map(
+            (c) =>
+              `${c.card_id},https://mycarrd.com/c/${c.card_id},"${c.destination_url || ''}",${c.status},${c.is_printed ? 'YES' : 'NO'}`
+          )
+          .join('\n');
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `mycarrd_cards_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setSuccess(`Berhasil mengunduh CSV ${cardsToExport.length} kartu.`);
+    } catch {
+      setError('Gagal mengekspor data ke CSV.');
+    }
   };
 
   // Export PDF
@@ -445,11 +469,21 @@ export default function AdminPage() {
         throw new Error('Tidak ada kartu untuk diekspor.');
       }
 
+      // Memory safeguard: Cap each PDF export batch to 300 cards (25 A4 pages)
+      // This guarantees browser never hits memory exhaustion while printing batches
+      const MAX_PER_PDF = 300;
+      let exportIds = targetCardIds;
+      let notice = '';
+      if (exportIds.length > MAX_PER_PDF) {
+        exportIds = exportIds.slice(0, MAX_PER_PDF);
+        notice = ` (300 kartu pertama)`;
+      }
+
       // Generate QR codes in safe chunks of 50
       const chunkSize = 50;
       const qrResults: { cardId: string; data: string }[] = [];
-      for (let i = 0; i < targetCardIds.length; i += chunkSize) {
-        const chunk = targetCardIds.slice(i, i + chunkSize);
+      for (let i = 0; i < exportIds.length; i += chunkSize) {
+        const chunk = exportIds.slice(i, i + chunkSize);
         const response = await fetch('/api/admin/qr', {
           method: 'POST',
           headers: {
@@ -511,7 +545,7 @@ export default function AdminPage() {
       }
 
       doc.save(`mycarrd_qr_sheet_${Date.now()}.pdf`);
-      setSuccess(`PDF lembar ${qrResults.length} QR berhasil diunduh.`);
+      setSuccess(`PDF lembar ${qrResults.length} QR berhasil diunduh${notice}.`);
 
       // Automatically mark all exported cards as printed
       fetch('/api/admin/cards', {
@@ -522,7 +556,7 @@ export default function AdminPage() {
         },
         body: JSON.stringify({
           action: 'mark-printed',
-          cardIds: targetCardIds,
+          cardIds: exportIds,
           isPrinted: true,
         }),
       }).then(() => {

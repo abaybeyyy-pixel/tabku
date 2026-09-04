@@ -147,7 +147,9 @@ function generateRandomCode(length: number): string {
 export async function generateCards(prefix: string = '', count: number = 1): Promise<string[]> {
   const supabase = await createClient();
   const cleanPrefix = (prefix || '').trim().toUpperCase();
-  const randomLength = Math.max(1, 6 - cleanPrefix.length);
+  // Always use 6 random characters regardless of prefix length (32^6 = 1,073,741,824 combinations)
+  // This guarantees zero keyspace exhaustion even at 1,000,000+ cards
+  const randomLength = 6;
 
   const cardIds: string[] = [];
   const generatedSet = new Set<string>();
@@ -160,7 +162,9 @@ export async function generateCards(prefix: string = '', count: number = 1): Pro
   while (needed > 0 && loopCount < 10) {
     loopCount++;
     const candidates: string[] = [];
-    while (candidates.length < needed) {
+    let attempts = 0;
+    while (candidates.length < needed && attempts < needed * 30) {
+      attempts++;
       const rand = generateRandomCode(randomLength);
       const candidate = `${cleanPrefix}${rand}`;
       if (!generatedSet.has(candidate)) {
