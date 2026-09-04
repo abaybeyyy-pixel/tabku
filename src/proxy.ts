@@ -14,6 +14,15 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
+  // Redirect www.mycarrd.com to canonical apex domain mycarrd.com
+  if (host === 'www.mycarrd.com') {
+    const url = request.nextUrl.clone();
+    url.protocol = 'https:';
+    url.host = 'mycarrd.com';
+    url.port = '';
+    return NextResponse.redirect(url, 308);
+  }
+
   return NextResponse.next();
 }
 
