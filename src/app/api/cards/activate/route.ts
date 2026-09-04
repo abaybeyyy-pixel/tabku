@@ -5,7 +5,7 @@ import { hashPin, isValidPin, isValidEmail } from '@/lib/auth';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { cardId, businessName, placeId, businessAddress, email, pin, confirmPin } = body;
+    const { cardId, businessName, placeId, businessAddress, customUrl, linkType, email, pin, confirmPin } = body;
 
     // Validate card ID
     if (!cardId) {
