@@ -520,8 +520,8 @@ export default function Homepage() {
             <div className="hero-product-col">
               <div className="hero-product-card">
                 <img
-                  src="/mockupcard.jpg"
-                  alt="Produk Fisik Asli Kartu & Display Akrilik Google Review NFC Mycarrd"
+                  src="/googlereview.jpg"
+                  alt="Produk Fisik Asli Kartu & Display Google Review NFC Mycarrd"
                   className="hero-product-image"
                   width={1024}
                   height={1024}
