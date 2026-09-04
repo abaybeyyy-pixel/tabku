@@ -762,12 +762,6 @@ export default function AdminPage() {
             {stats.printed || 0}
           </span>
         </div>
-        <div className="admin-stat-box">
-          <span className="admin-stat-label">Total Tap Platform</span>
-          <span className="admin-stat-value" style={{ color: '#2563eb' }}>
-            {(stats.totalTaps || 0).toLocaleString('id-ID')}
-          </span>
-        </div>
       </div>
 
       {/* COMPACT TOOLS (Generate & Export) */}
@@ -1075,12 +1069,11 @@ export default function AdminPage() {
                       </div>
                     )}
 
-                    <div className="flex items-center gap-3 mt-1 text-muted text-xs" style={{ fontSize: '0.68rem' }}>
-                      <span>Tap: <strong>{card.tap_count || 0}x</strong></span>
-                      {card.activated_at && (
+                    {card.activated_at && (
+                      <div className="mt-1 text-muted text-xs" style={{ fontSize: '0.68rem' }}>
                         <span>Aktif: {new Date(card.activated_at).toLocaleDateString('id-ID')}</span>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Right / Footer Action Toolbar (4 Touch-Friendly Buttons) */}
