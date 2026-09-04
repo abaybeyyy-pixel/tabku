@@ -315,6 +315,14 @@ export default function Homepage() {
 
   const faqs = [
     {
+      q: 'Apa itu Google Review Card dan apa keunggulannya dibanding stiker QR biasa?',
+      a: 'Google Review Card adalah kartu pintar atau stand akrilik kasir berteknologi chip NFC (Near Field Communication) dan Dynamic QR Code. Cukup sekali tempel HP, layar pelanggan langsung membuka form rating bintang 5 Google Maps dalam 2 detik. Berbeda dengan stiker barcode biasa yang statis dan mudah rusak, kartu Mycarrd dibuat dari akrilik 3mm UV print tahan air, serta tautan ulasannya fleksibel diubah kapan saja secara cloud jika ruko Anda pindah alamat.',
+    },
+    {
+      q: 'Berapa harga jual kartu Google Review di Indonesia?',
+      a: 'Harga kartu Google Review NFC Mycarrd resmi sangat terjangkau, yaitu mulai dari Rp 99.000 (1x bayar aktif selamanya tanpa biaya langganan). Setiap paket sudah termasuk kartu akrilik tebal 3mm print UV berkualitas industri, chip NFC NTAG premium, dynamic QR code anti sobek, dan akses permanen ke portal manajemen ulasan mycarrd.com.',
+    },
+    {
       q: 'Bagaimana cara kerja Kartu Google Review Mycarrd?',
       a: 'Kartu dilengkapi chip NFC dan kode QR dinamis. Saat pelanggan menempelkan smartphone atau memindai kode QR di kartu, layar HP langsung membuka jendela resmi Google Review tempat pelanggan bisa langsung memberi rating bintang 5 dan ulasan dalam hitungan detik.',
     },
@@ -434,26 +442,26 @@ export default function Homepage() {
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                   <polyline points="9 12 11 14 15 10"/>
                 </svg>
-                <span className="font-bold text-xs" style={{ color: '#15803d' }}>TERUJI TINGKATKAN 3X REVIEW</span>
+                <span className="font-bold text-xs" style={{ color: '#15803d' }}>JUAL KARTU GOOGLE REVIEW NFC INDONESIA</span>
                 <span style={{ color: 'var(--border)' }}>•</span>
-                <span className="text-muted text-xs font-semibold">Smart Card No. 1 di Indonesia</span>
+                <span className="text-muted text-xs font-semibold">Smart Card No. 1 Teruji</span>
               </div>
 
               <h1 className="hero-title font-extrabold mb-3">
                 <span className="hero-title-row">
-                  Review <span className="hero-highlight-word">Bintang 5</span>
+                  Jual <span className="hero-highlight-word">Kartu Google Review</span>
                   <br className="hero-mobile-br" />{' '}
-                  <span className="hero-nowrap">di Google Maps</span>
+                  <span className="hero-nowrap">NFC Indonesia</span>
                 </span>
                 <span className="hero-title-row text-gradient">
-                  Cukup dengan
+                  Banjir Ulasan Bintang 5
                   <br className="hero-mobile-br" />{' '}
-                  <span className="hero-nowrap">Sekali Tempel HP</span>
+                  <span className="hero-nowrap">Sekali Tap HP</span>
                 </span>
               </h1>
 
               <p className="hero-subtitle mb-4">
-                <strong>93% calon pelanggan memilih bisnis dengan rating tertinggi di Google Maps.</strong> Jangan biarkan kompetitor merebut pelanggan Anda. Dengan Mycarrd, pelanggan cukup menempelkan HP untuk langsung memberi ulasan bintang 5 dalam 2 detik.
+                <strong>93% calon pelanggan memilih bisnis dengan rating bintang 5 tertinggi di Google Maps.</strong> Dapatkan <strong>Google Review Card NFC &amp; Dynamic QR Mycarrd</strong> untuk meja kasir Anda. Pelanggan cukup menempelkan HP untuk langsung membuka form ulasan resmi Google Maps dalam 2 detik.
               </p>
 
               {/* SINGLE FOCUSED WHATSAPP CTA */}
@@ -522,7 +530,7 @@ export default function Homepage() {
               <div className="hero-product-card">
                 <img
                   src="/googlereview.jpg"
-                  alt="Produk Fisik Asli Kartu & Display Google Review NFC Mycarrd"
+                  alt="Jual Kartu Google Review NFC & Google Review Card Akrilik Indonesia Mycarrd"
                   className="hero-product-image"
                   width={1024}
                   height={1024}
@@ -611,10 +619,10 @@ export default function Homepage() {
       <section id="benefits" className="py-6 border-b" style={{ background: '#ffffff' }}>
         <div className="container">
           <div className="text-center mb-5">
-            <span className="section-badge mb-2">Infrastruktur Teknologi</span>
-            <h2 className="section-title font-bold mt-1">Teknologi Dynamic Link dengan Proteksi Lifetime Warranty</h2>
+            <span className="section-badge mb-2">Infrastruktur Google Review Card</span>
+            <h2 className="section-title font-bold mt-1">Keunggulan Kartu NFC Google Review &amp; Dynamic Link Mycarrd</h2>
             <p className="text-muted max-w-lg mx-auto text-sm mt-2">
-              Investasi jangka panjang tanpa biaya berlangganan. Kartu pintar dengan keandalan maksimal yang adaptif terhadap pertumbuhan bisnis Anda.
+              Investasi jangka panjang tanpa biaya berlangganan. Kartu pintar Google Review dengan keandalan maksimal yang adaptif terhadap pertumbuhan bisnis Anda.
             </p>
           </div>
 
@@ -676,10 +684,10 @@ export default function Homepage() {
       <section id="target-market" className="py-6 border-b" style={{ background: 'var(--background-subtle)' }}>
         <div className="container">
           <div className="text-center mb-5">
-            <span className="section-badge mb-2">Target Industri</span>
-            <h2 className="section-title font-bold mt-1">Solusi Teruji untuk Segala Jenis Bisnis Fisik</h2>
+            <span className="section-badge mb-2">Target Industri di Indonesia</span>
+            <h2 className="section-title font-bold mt-1">Jual Kartu Google Review NFC untuk Kafe, Resto, Salon &amp; Klinik</h2>
             <p className="text-muted max-w-lg mx-auto text-sm mt-2">
-              Didesain khusus untuk meningkatkan ulasan bintang 5 bagi seluruh bisnis yang memiliki lokasi toko fisik.
+              Didesain khusus untuk melipatgandakan ulasan bintang 5 bagi seluruh bisnis yang memiliki lokasi toko fisik di seluruh Indonesia.
             </p>
           </div>
 
@@ -708,7 +716,7 @@ export default function Homepage() {
         <div className="container">
           <div className="text-center mb-5">
             <span className="section-badge mb-2">Komparasi Nyata</span>
-            <h2 className="section-title font-bold mt-1">Tanpa Kartu vs Dengan Kartu Pintar Mycarrd</h2>
+            <h2 className="section-title font-bold mt-1">Cara Manual vs Pakai Kartu Google Review Card Pintar</h2>
             <p className="text-muted max-w-lg mx-auto text-sm mt-2">
               Tinggalkan cara lama yang lambat dan merepotkan. Bandingkan efisiensi nyata kartu pintar Mycarrd.
             </p>
@@ -918,7 +926,7 @@ export default function Homepage() {
         <div className="container mb-4">
           <div className="text-center">
             <span className="section-badge mb-2">Testimoni Pelanggan</span>
-            <h2 className="section-title font-bold mt-1">Dipercaya Berbagai Pelaku Usaha di Seluruh Indonesia</h2>
+            <h2 className="section-title font-bold mt-1">Testimoni Pengguna Kartu Google Review NFC di Seluruh Indonesia</h2>
             <p className="text-muted max-w-lg mx-auto text-sm mt-2">
               Pengalaman nyata peningkatan omzet, rating bintang 5, dan visibilitas pencarian Google Maps.
             </p>
@@ -984,6 +992,58 @@ export default function Homepage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SEO ARTICLE SECTION: PANDUAN GOOGLE REVIEW CARD INDONESIA */}
+      <section className="py-6 border-b" style={{ background: '#ffffff' }}>
+        <div className="container">
+          <div className="text-center mb-5">
+            <span className="section-badge mb-2">Edukasi &amp; Panduan Bisnis</span>
+            <h2 className="section-title font-bold mt-1">Mengapa Bisnis Anda Wajib Memiliki Google Review Card NFC?</h2>
+            <p className="text-muted max-w-lg mx-auto text-sm mt-2">
+              Solusi modern memenangkan persaingan bisnis lokal di Indonesia melalui ulasan otentik pelanggan di Google Maps.
+            </p>
+          </div>
+
+          <div className="grid-3">
+            <div className="feature-card-minimal p-4">
+              <div className="step-badge mb-3">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+              </div>
+              <h3 className="text-sm font-bold mb-1.5">Apa itu Google Review Card?</h3>
+              <p className="text-muted text-xs leading-relaxed">
+                <strong>Google Review Card</strong> adalah kartu pintar meja kasir berbasis chip NFC (Near Field Communication) dan kode QR dinamis. Pelanggan cukup menempelkan smartphone mereka dan seketika diarahkan ke halaman pemberian rating ulasan Google Maps bisnis Anda tanpa perlu mengetik manual nama toko.
+              </p>
+            </div>
+
+            <div className="feature-card-minimal p-4">
+              <div className="step-badge mb-3">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+              </div>
+              <h3 className="text-sm font-bold mb-1.5">Mendongkrak Ranking SEO Google Maps</h3>
+              <p className="text-muted text-xs leading-relaxed">
+                Algoritma pencarian lokal Google memprioritaskan bisnis dengan frekuensi ulasan bintang 5 yang konsisten dan tinggi. Menggunakan <strong>kartu NFC Google Review</strong> di kasir terbukti meningkatkan rasio pelanggan yang memberikan ulasan hingga 75% lebih tinggi dibanding cara manual.
+              </p>
+            </div>
+
+            <div className="feature-card-minimal p-4">
+              <div className="step-badge mb-3">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  <polyline points="9 12 11 14 15 10" />
+                </svg>
+              </div>
+              <h3 className="text-sm font-bold mb-1.5">Material Akrilik 3mm &amp; Chip NTAG Asli</h3>
+              <p className="text-muted text-xs leading-relaxed">
+                Dibuat khusus untuk standar hospitality dan ritel Indonesia dengan akrilik tebal 3mm anti air, cetakan UV tahan luntur bertahun-tahun, serta proteksi chip NFC NTAG213 berkecepatan tinggi yang dilengkapi garansi resmi penggantian unit seumur hidup (Lifetime Warranty).
+              </p>
             </div>
           </div>
         </div>

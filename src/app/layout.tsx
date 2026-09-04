@@ -4,29 +4,29 @@ import './globals.css';
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://mycarrd.com'),
   title: {
-    default: 'Mycarrd — Platform Kartu Google Review NFC & Dynamic QR Indonesia (mycarrd.com)',
-    template: '%s | Mycarrd',
+    default: 'Jual Kartu Google Review NFC & Stand Akrilik Indonesia — Mycarrd',
+    template: '%s | Jual Kartu Google Review NFC — Mycarrd',
   },
-  description: 'Tingkatkan ulasan bintang 5 bisnis Anda di Google Maps hingga 3x lipat dengan sekali tap kartu pintar NFC & Dynamic QR. Tanpa biaya langganan, fleksibel ubah link & lokasi kapan saja di mycarrd.com.',
+  description: 'Jual kartu Google Review NFC & Google Review Card Indonesia untuk resto, kafe, salon & klinik. Sekali tap HP langsung buka ulasan bintang 5 Google Maps. Akrilik 3mm anti air, QR dinamis, tanpa biaya langganan di mycarrd.com.',
   keywords: [
+    'google review card',
+    'kartu nfc',
+    'kartu google review card',
+    'jual google review card indonesia',
     'kartu google review',
+    'kartu google review nfc',
+    'google review card indonesia',
+    'jual kartu google review',
+    'beli google review card',
+    'kartu nfc google maps',
     'smart card google review',
-    'nfc google review',
+    'stand akrilik google review',
     'kartu ulasan google maps',
-    'smart card ulasan google',
-    'kartu google review akrilik',
-    'beli kartu google review',
-    'kartu nfc ulasan bisnis',
+    'kartu ulasan bintang 5',
+    'alat ulasan google maps',
+    'tap review nfc',
     'mycarrd',
     'mycarrd.com',
-    'tapku',
-    'dynamic link review',
-    'google maps review card',
-    'kartu review umkm',
-    'tap review nfc',
-    'alat ulasan bintang 5',
-    'cara minta review google',
-    'barcode review google maps',
   ],
   authors: [{ name: 'Mycarrd Indonesia', url: 'https://mycarrd.com' }],
   creator: 'Mycarrd Indonesia',
@@ -39,8 +39,8 @@ export const metadata: Metadata = {
     telephone: false,
   },
   openGraph: {
-    title: 'Mycarrd — Platform Kartu Google Review NFC & Dynamic QR (mycarrd.com)',
-    description: 'Banjir review bintang 5 di Google Maps hanya dengan sekali tempel HP. 1x Beli, aktif selamanya tanpa biaya langganan di mycarrd.com.',
+    title: 'Jual Kartu Google Review NFC & Google Review Card Indonesia — Mycarrd',
+    description: 'Jual kartu Google Review NFC & Google Review Card Indonesia. Sekali tap HP langsung ulasan bintang 5 Google Maps. 1x Beli, aktif selamanya tanpa biaya langganan di mycarrd.com.',
     url: 'https://mycarrd.com',
     siteName: 'Mycarrd',
     locale: 'id_ID',
@@ -50,14 +50,14 @@ export const metadata: Metadata = {
         url: 'https://mycarrd.com/opengraph-image',
         width: 1200,
         height: 630,
-        alt: 'Mycarrd Smart Card Google Review NFC & Dynamic QR',
+        alt: 'Jual Kartu Google Review NFC & Google Review Card Indonesia Mycarrd',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Mycarrd — Platform Kartu Google Review NFC & Dynamic QR (mycarrd.com)',
-    description: 'Banjir review bintang 5 di Google Maps hanya dengan sekali tempel HP. 1x Beli, aktif selamanya.',
+    title: 'Jual Kartu Google Review NFC & Google Review Card Indonesia — Mycarrd',
+    description: 'Banjir ulasan bintang 5 di Google Maps hanya dengan sekali tempel HP. 1x Beli, aktif selamanya.',
     images: ['https://mycarrd.com/opengraph-image'],
   },
   robots: {
@@ -90,9 +90,10 @@ const jsonLdData = {
       '@type': 'Organization',
       '@id': 'https://mycarrd.com/#organization',
       name: 'Mycarrd Indonesia',
+      alternateName: ['Mycarrd', 'Jual Kartu Google Review NFC Indonesia', 'Google Review Card Indonesia'],
       url: 'https://mycarrd.com',
       logo: 'https://mycarrd.com/opengraph-image',
-      description: 'Platform Kartu Google Review NFC & Dynamic QR No. 1 di Indonesia.',
+      description: 'Penyedia & Produsen Kartu Google Review NFC, Stand Akrilik & Dynamic QR No. 1 di Indonesia.',
       contactPoint: {
         '@type': 'ContactPoint',
         telephone: '+62-812-1115-6865',
@@ -105,7 +106,7 @@ const jsonLdData = {
       '@type': 'WebSite',
       '@id': 'https://mycarrd.com/#website',
       url: 'https://mycarrd.com',
-      name: 'Mycarrd',
+      name: 'Mycarrd — Jual Kartu Google Review NFC Indonesia',
       publisher: {
         '@id': 'https://mycarrd.com/#organization',
       },
@@ -114,9 +115,15 @@ const jsonLdData = {
     {
       '@type': 'Product',
       '@id': 'https://mycarrd.com/#product',
-      name: 'Mycarrd Smart Card Google Review NFC & Dynamic QR',
+      name: 'Kartu Google Review NFC & Google Review Card Indonesia — Mycarrd',
+      alternateName: [
+        'Google Review Card Indonesia',
+        'Kartu Google Review Card',
+        'Kartu NFC Google Review',
+        'Smart Card Ulasan Google Maps Akrilik',
+      ],
       image: 'https://mycarrd.com/opengraph-image',
-      description: 'Kartu akrilik premium 3mm berteknologi NFC & Dynamic QR untuk mengumpulkan ulasan Google Maps bintang 5 secara instan dalam 2 detik.',
+      description: 'Jual kartu Google Review NFC dan Google Review Card akrilik tebal 3mm UV print berteknologi chip NFC & Dynamic QR untuk ulasan bintang 5 instan Google Maps dalam 2 detik.',
       brand: {
         '@type': 'Brand',
         name: 'Mycarrd',
@@ -184,10 +191,26 @@ const jsonLdData = {
       mainEntity: [
         {
           '@type': 'Question',
+          name: 'Apa itu Google Review Card dan Kartu NFC Review?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Google Review Card adalah kartu pintar berbasis teknologi NFC (Near Field Communication) dan QR code dinamis yang dirancang agar pelanggan toko atau bisnis fisik dapat langsung membuka form ulasan Google Maps bintang 5 hanya dengan sekali menempelkan HP mereka tanpa perlu mencari nama toko manual.',
+          },
+        },
+        {
+          '@type': 'Question',
           name: 'Bagaimana cara kerja Kartu Google Review Mycarrd?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Kartu dilengkapi chip NFC dan kode QR dinamis. Saat pelanggan menempelkan smartphone atau scan kode QR di kartu, layar HP langsung membuka form resmi ulasan Google Maps untuk memberi rating bintang 5 dalam 2 detik.',
+            text: 'Kartu dilengkapi chip NFC NTAG resmi dan kode QR dinamis. Saat pelanggan menempelkan smartphone atau scan kode QR di kartu, layar HP otomatis membuka form resmi ulasan Google Maps bisnis Anda untuk memberi rating bintang 5 dalam 2 detik.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Apakah kartu NFC ulasan kompatibel dengan semua jenis HP?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Ya, kartu ini kompatibel dengan semua smartphone modern. Untuk iPhone (iPhone 7 ke atas) dan semua smartphone Android yang memiliki fitur NFC, pelanggan cukup menempelkan HP. Untuk HP yang belum ada NFC, pelanggan bisa memindai kode QR dinamis berkualitas tinggi yang tertera di kartu.',
           },
         },
         {
@@ -195,7 +218,7 @@ const jsonLdData = {
           name: 'Apakah nama tempat atau link Google Maps bisa diubah kapan saja?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Bisa 100% fleksibel. Dengan memasukkan ID Kartu dan PIN di portal mycarrd.com/manage, Anda bebas memperbarui nama bisnis dan Place ID Google Maps kapan saja tanpa perlu mengganti kartu fisik.',
+            text: 'Bisa 100% fleksibel. Dengan memasukkan ID Kartu dan PIN di portal mycarrd.com/manage, Anda bebas memperbarui nama bisnis dan Place ID Google Maps kapan saja secara realtime di cloud tanpa perlu mengganti atau mencetak ulang kartu fisik.',
           },
         },
         {
@@ -203,7 +226,7 @@ const jsonLdData = {
           name: 'Apakah ada biaya langganan bulanan?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Tidak ada biaya langganan. Mycarrd menggunakan skema 1x investasi beli putus dengan akses penuh selamanya tanpa batasan kuota ulasan.',
+            text: 'Tidak ada biaya langganan. Mycarrd menggunakan skema 1x beli aktif selamanya (beli putus) dengan akses penuh ke portal manajemen kartu tanpa batasan kuota ulasan.',
           },
         },
         {
@@ -211,7 +234,7 @@ const jsonLdData = {
           name: 'Apakah kartu tahan air dan bergaransi?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Ya, 100% tahan air dan anti luntur dengan material akrilik tebal 3mm UV print serta dilengkapi garansi resmi Lifetime Warranty.',
+            text: 'Ya, 100% tahan air dan anti luntur dengan material akrilik tebal 3mm UV print serta dilengkapi garansi resmi Lifetime Warranty ganti unit baru jika ada kerusakan chip NFC.',
           },
         },
       ],
