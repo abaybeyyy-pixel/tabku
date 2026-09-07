@@ -1212,100 +1212,76 @@ export default function AdminPage() {
                     </button>
                   </div>
 
-                  {/* Middle / Body: Business details & User Email & Destination */}
+                  {/* Middle / Body: Minimalist (Nama Usaha, No HP & Tanggal Aktivasi) */}
                   <div className="admin-card-body">
-                    <div className="text-xs font-semibold text-truncate" style={{ fontSize: '0.82rem' }}>
+                    {/* Nama Usaha */}
+                    <div className="font-bold text-slate-900 text-truncate" style={{ fontSize: '0.85rem' }}>
                       {card.business_name || (
-                        <span className="text-muted italic" style={{ fontSize: '0.75rem' }}>
+                        <span className="text-muted italic font-normal text-xs">
                           Belum diaktivasi
                         </span>
                       )}
                     </div>
 
-                    {/* Destination URL or Type */}
-                    {card.destination_url && (
-                      <div className="flex items-center gap-1.5 mt-0.5 text-xs text-muted text-truncate" style={{ fontSize: '0.72rem' }}>
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0 text-slate-400">
-                          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                        </svg>
-                        <span className="font-mono text-truncate text-slate-600 select-all font-medium">
-                          {card.place_id ? 'Google Maps Review' : card.destination_url}
-                        </span>
-                      </div>
-                    )}
-
-                    {card.email && (() => {
-                      const isPhone = /^[0-9+]+$/.test(card.email.replace(/[\s-]/g, ''));
-                      if (isPhone) {
-                        let cleanPhone = card.email.replace(/\D/g, '');
-                        if (cleanPhone.startsWith('0')) {
-                          cleanPhone = '62' + cleanPhone.slice(1);
-                        }
-                        const greeting = encodeURIComponent(
-                          `Halo ${card.business_name || 'Pemilik Kartu'}, kami dari Admin Mycarrd (mycarrd.com) terkait kartu pintar Anda (${card.card_id}).`
-                        );
-                        const waUrl = `https://wa.me/${cleanPhone}?text=${greeting}`;
-                        return (
-                          <div className="flex items-center gap-1.5 mt-0.5" style={{ flexWrap: 'wrap' }}>
+                    {/* No HP & Tanggal Aktivasi (Minimalist) */}
+                    <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-slate-500" style={{ fontSize: '0.74rem' }}>
+                      {/* No HP / WhatsApp */}
+                      {card.email && (() => {
+                        const isPhone = /^[0-9+]+$/.test(card.email.replace(/[\s-]/g, ''));
+                        if (isPhone) {
+                          let cleanPhone = card.email.replace(/\D/g, '');
+                          if (cleanPhone.startsWith('0')) {
+                            cleanPhone = '62' + cleanPhone.slice(1);
+                          }
+                          const greeting = encodeURIComponent(
+                            `Halo ${card.business_name || 'Pemilik Kartu'}, kami dari Admin Mycarrd terkait kartu pintar Anda (${card.card_id}).`
+                          );
+                          const waUrl = `https://wa.me/${cleanPhone}?text=${greeting}`;
+                          return (
                             <a
                               href={waUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center gap-1 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 py-0.5 px-2 rounded-sm border border-emerald-200 transition-colors font-semibold"
-                              style={{ fontSize: '0.7rem', textDecoration: 'none' }}
-                              title={`Buka Chat WhatsApp ke ${card.email}`}
+                              className="inline-flex items-center gap-1 font-mono font-medium text-emerald-700 hover:text-emerald-800 hover:underline"
+                              title={`Buka Chat WhatsApp: ${card.email}`}
                             >
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="flex-shrink-0 text-emerald-600">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-emerald-600 flex-shrink-0">
                                 <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2z" />
                               </svg>
-                              <span className="font-mono">{card.email}</span>
-                              <span className="text-[10px] bg-emerald-600 text-white px-1 py-0.2 rounded font-bold ml-1">WA ↗</span>
+                              <span>{card.email}</span>
                             </a>
-                          </div>
+                          );
+                        }
+
+                        return (
+                          <span className="inline-flex items-center gap-1 font-mono text-slate-600">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400 flex-shrink-0">
+                              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                              <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                            <span>{card.email}</span>
+                          </span>
                         );
-                      }
+                      })()}
 
-                      return (
-                        <div
-                          className="flex items-center gap-1.5 mt-0.5 text-blue-800 bg-blue-50 py-0.5 px-1.5 rounded-sm border border-blue-100"
-                          style={{ fontSize: '0.7rem', width: 'fit-content', maxWidth: '100%' }}
-                        >
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0 text-blue-600">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                            <polyline points="22,6 12,13 2,6" />
+                      {/* Separator jika no HP dan tanggal aktivasi ada */}
+                      {card.email && card.activated_at && (
+                        <span className="text-slate-300">•</span>
+                      )}
+
+                      {/* Tanggal Aktivasi */}
+                      {card.activated_at && (
+                        <span className="inline-flex items-center gap-1 text-slate-500" title={`Waktu Aktivasi: ${new Date(card.activated_at).toLocaleString('id-ID')}`}>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400 flex-shrink-0">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
                           </svg>
-                          <span className="font-mono text-truncate select-all font-medium">{card.email}</span>
-                        </div>
-                      );
-                    })()}
-
-                    {card.business_address && (
-                      <div className="text-muted text-truncate mt-0.5" style={{ fontSize: '0.68rem' }}>
-                        {card.business_address}
-                      </div>
-                    )}
-
-                    {card.activated_at ? (
-                      <div
-                        className="inline-flex items-center gap-1.5 mt-1.5 px-2 py-0.5 rounded text-emerald-800 bg-emerald-50 border border-emerald-200"
-                        style={{ fontSize: '0.68rem', width: 'fit-content' }}
-                        title={`Tanggal Awal Aktivasi: ${new Date(card.activated_at).toLocaleString('id-ID')}`}
-                      >
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-emerald-600 flex-shrink-0">
-                          <circle cx="12" cy="12" r="10" />
-                          <polyline points="12 6 12 12 16 14" />
-                        </svg>
-                        <span className="font-semibold">
-                          Awal Aktif: {new Date(card.activated_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}, {new Date(card.activated_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                          <span>
+                            Aktif: {new Date(card.activated_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}, {new Date(card.activated_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
                         </span>
-                      </div>
-                    ) : (
-                      <div className="mt-1 text-muted text-xs flex items-center gap-1" style={{ fontSize: '0.66rem' }}>
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                        <span>Belum Diaktivasi</span>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
 
                   {/* Right / Footer Action Toolbar (4 Touch-Friendly Buttons) */}
