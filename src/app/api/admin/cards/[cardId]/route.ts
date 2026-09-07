@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { deleteCard, adminResetPin, updateCardPrintedStatus, findCardById } from '@/lib/db-helpers';
+import { deleteCard, adminResetPin, updateCardPrintedStatus, findCardById, adminResetCardToOnboarding } from '@/lib/db-helpers';
 import { verifyAdminPassword, hashPin } from '@/lib/auth';
 
 export async function DELETE(
@@ -46,6 +46,17 @@ export async function PATCH(
         return NextResponse.json({ error: 'Gagal menghapus kartu.' }, { status: 400 });
       }
       return NextResponse.json({ success: true, message: `Kartu ${cardId} berhasil dihapus.` });
+    }
+
+    if (action === 'reset-onboarding' || action === 'reset-qr') {
+      const success = await adminResetCardToOnboarding(cardId);
+      if (!success) {
+        return NextResponse.json({ error: 'Gagal mereset kartu ke status onboarding.' }, { status: 400 });
+      }
+      return NextResponse.json({
+        success: true,
+        message: `Kartu ${cardId} berhasil dikembalikan ke status onboarding. Siap untuk registrasi ulang.`,
+      });
     }
 
     if (action === 'reset-pin') {

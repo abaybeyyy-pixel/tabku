@@ -40,6 +40,10 @@ export default function AdminPage() {
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [deletingSingle, setDeletingSingle] = useState(false);
 
+  // Single Card Reset to Onboarding Dialog state
+  const [cardToReset, setCardToReset] = useState<string | null>(null);
+  const [resettingCard, setResettingCard] = useState(false);
+
   // Bulk generator state (Random 6-digit card IDs)
   const [genPrefix, setGenPrefix] = useState('');
   const [genCount, setGenCount] = useState(10);
@@ -352,6 +356,39 @@ export default function AdminPage() {
       setError(message);
     } finally {
       setDeletingSingle(false);
+    }
+  };
+
+  // Single card reset to onboarding
+  const handleConfirmResetCard = async () => {
+    if (!cardToReset) return;
+    setResettingCard(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await fetch(`/api/admin/cards/${cardToReset}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-password': password,
+        },
+        body: JSON.stringify({ action: 'reset-onboarding' }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal mereset kartu ke status onboarding.');
+      }
+
+      setSuccess(`Kartu ${cardToReset} berhasil direset ke status awal (Onboarding). ID QR kini siap diregistrasi ulang.`);
+      setCardToReset(null);
+      fetchData(password, search, statusFilter, printFilter, currentPage, pageSize);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal mereset kartu ke status onboarding.';
+      setError(message);
+    } finally {
+      setResettingCard(false);
     }
   };
 
@@ -1166,6 +1203,20 @@ export default function AdminPage() {
 
                     <button
                       type="button"
+                      onClick={() => setCardToReset(card.card_id)}
+                      title="Reset QR / Onboarding Baru"
+                      aria-label="Reset QR / Onboarding Baru"
+                      className="action-icon-btn btn-reset"
+                      style={{ width: '38px', height: '38px', minWidth: '38px' }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                        <path d="M3 3v5h5" />
+                      </svg>
+                    </button>
+
+                    <button
+                      type="button"
                       onClick={() => handleDownloadPrintPNG(card.card_id)}
                       title="Download PNG Cetak"
                       aria-label="Download PNG Cetak"
@@ -1333,6 +1384,56 @@ export default function AdminPage() {
         </div>
       )}
 
+      {/* POPUP MODAL: RESET CARD TO ONBOARDING CONFIRMATION */}
+      {cardToReset && (
+        <div className="modal-backdrop">
+          <div className="onboarding-card modal-content animate-fade-in" style={{ maxWidth: '410px', padding: '1.25rem' }}>
+            <div className="flex items-center gap-2 mb-2">
+              <div style={{ background: '#fff7ed', padding: '6px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ea580c" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                  <path d="M3 3v5h5" />
+                </svg>
+              </div>
+              <h3 className="text-sm font-bold m-0" style={{ color: '#c2410c' }}>Reset QR ke Status Onboarding?</h3>
+            </div>
+
+            <p className="text-muted text-xs mb-2.5 leading-relaxed">
+              Anda akan mereset kartu <strong className="font-mono font-bold" style={{ color: 'var(--foreground)' }}>{cardToReset}</strong> ke status awal (registrasi baru).
+            </p>
+
+            <div className="p-2.5 rounded-sm mb-3 text-xs" style={{ background: '#fff7ed', border: '1px solid #fed7aa', color: '#9a3412', lineHeight: '1.45' }}>
+              <div className="font-bold mb-1">Dampak setelah direset:</div>
+              <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
+                <li>Nama usaha, link ulasan Google Maps, email &amp; PIN akan dikosongkan.</li>
+                <li>Status kartu kembali menjadi <strong>Pending (UNACTIVATED)</strong>.</li>
+                <li>Saat kartu ditap atau QR discan, pelanggan diarahkan ke halaman onboarding (<span className="font-mono font-semibold">/onboarding/{cardToReset}</span>).</li>
+              </ul>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleConfirmResetCard}
+                className="btn w-full py-1.5 font-semibold text-xs"
+                style={{ background: '#ea580c', color: '#ffffff', border: '1px solid #ea580c' }}
+                disabled={resettingCard}
+              >
+                {resettingCard ? 'Mereset...' : 'Ya, Reset ke Onboarding'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setCardToReset(null)}
+                className="btn btn-secondary w-full py-1.5 font-semibold text-xs"
+                disabled={resettingCard}
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* POPUP MODAL: BULK DELETE CONFIRMATION */}
       {showBulkDeleteConfirm && (
         <div className="modal-backdrop">
@@ -1453,7 +1554,7 @@ export default function AdminPage() {
               </div>
             ) : null}
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 mb-2">
               <button
                 type="button"
                 onClick={() => handleDownloadPrintPNG(showQrCardId)}
@@ -1472,6 +1573,25 @@ export default function AdminPage() {
                 Tutup
               </button>
             </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                const id = showQrCardId;
+                setShowQrCardId('');
+                setShowQrDataUrl('');
+                setCardToReset(id);
+              }}
+              className="btn w-full py-1.5 text-xs font-semibold flex items-center justify-center gap-1.5"
+              style={{ background: '#fff7ed', border: '1px solid #fed7aa', color: '#c2410c' }}
+              title="Kembalikan ID QR ini ke status awal onboarding"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+              </svg>
+              <span>Reset QR ke Onboarding</span>
+            </button>
           </div>
         </div>
       )}

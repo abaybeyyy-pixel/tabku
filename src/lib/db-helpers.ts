@@ -451,6 +451,38 @@ export async function adminResetPin(cardId: string, newPinHash: string): Promise
   return !error && data && data.length > 0;
 }
 
+export async function adminResetCardToOnboarding(cardId: string): Promise<boolean> {
+  const normalized = cardId.trim().toUpperCase();
+  const supabase = await createClient();
+  const now = new Date().toISOString();
+
+  // Hapus semua kode OTP aktif terkait kartu ini
+  await supabase.from('otp_codes').delete().eq('card_id', normalized);
+
+  // Reset status kartu menjadi UNACTIVATED dan kosongkan data profil
+  const { data, error } = await supabase
+    .from('cards')
+    .update({
+      status: 'UNACTIVATED',
+      business_name: null,
+      destination_url: null,
+      place_id: null,
+      business_address: null,
+      pin_hash: null,
+      email: null,
+      tap_count: 0,
+      qr_count: 0,
+      last_tapped_at: null,
+      activated_at: null,
+      disabled_at: null,
+      updated_at: now,
+    })
+    .eq('card_id', normalized)
+    .select();
+
+  return !error && data && data.length > 0;
+}
+
 export async function incrementCardTap(cardId: string, isQr: boolean = false): Promise<void> {
   try {
     const supabase = await createClient();

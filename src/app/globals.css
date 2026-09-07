@@ -1626,6 +1626,12 @@ a {
   color: var(--foreground);
 }
 
+.action-icon-btn.btn-reset:hover {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #ea580c;
+}
+
 .action-icon-btn.btn-pin:hover {
   background: var(--accent-gold-bg);
   border-color: var(--accent-gold-border);
@@ -2882,6 +2888,12 @@ a {
   color: #15803d;
 }
 
+.action-icon-btn.btn-reset:hover {
+  border-color: #fed7aa;
+  background: #fff7ed;
+  color: #ea580c;
+}
+
 .action-icon-btn.btn-pin:hover {
   border-color: #fde047;
   background: #fefce8;
@@ -2925,7 +2937,7 @@ a {
 
   .admin-card-actions {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 0.4rem;
     width: 100%;
     padding-top: 0.6rem;
