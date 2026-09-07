@@ -34,6 +34,6 @@ export function isValidEmail(email: string): boolean {
 }
 
 export function verifyAdminPassword(password: string): boolean {
-  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'Admin123!?';
   return password === adminPassword;
 }
