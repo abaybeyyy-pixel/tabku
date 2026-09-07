@@ -236,7 +236,17 @@ export async function getCardsPaginated(
 
   if (search) {
     const cleanSearch = search.trim();
-    query = query.or(`card_id.ilike.%${cleanSearch}%,business_name.ilike.%${cleanSearch}%,email.ilike.%${cleanSearch}%`);
+    let orConditions = `card_id.ilike.%${cleanSearch}%,business_name.ilike.%${cleanSearch}%,email.ilike.%${cleanSearch}%`;
+    const digitsOnly = cleanSearch.replace(/\D/g, '');
+    if (digitsOnly.length >= 4) {
+      if (digitsOnly.startsWith('0')) {
+        orConditions += `,email.ilike.%62${digitsOnly.slice(1)}%`;
+      } else if (digitsOnly.startsWith('62')) {
+        orConditions += `,email.ilike.%0${digitsOnly.slice(2)}%`;
+      }
+      orConditions += `,email.ilike.%${digitsOnly}%`;
+    }
+    query = query.or(orConditions);
   }
 
   if (status && status !== 'ALL') {
@@ -312,7 +322,17 @@ export async function getAllCards(
 
   if (search) {
     const cleanSearch = search.trim();
-    query = query.or(`card_id.ilike.%${cleanSearch}%,business_name.ilike.%${cleanSearch}%,email.ilike.%${cleanSearch}%`);
+    let orConditions = `card_id.ilike.%${cleanSearch}%,business_name.ilike.%${cleanSearch}%,email.ilike.%${cleanSearch}%`;
+    const digitsOnly = cleanSearch.replace(/\D/g, '');
+    if (digitsOnly.length >= 4) {
+      if (digitsOnly.startsWith('0')) {
+        orConditions += `,email.ilike.%62${digitsOnly.slice(1)}%`;
+      } else if (digitsOnly.startsWith('62')) {
+        orConditions += `,email.ilike.%0${digitsOnly.slice(2)}%`;
+      }
+      orConditions += `,email.ilike.%${digitsOnly}%`;
+    }
+    query = query.or(orConditions);
   }
 
   if (status && status !== 'ALL') {

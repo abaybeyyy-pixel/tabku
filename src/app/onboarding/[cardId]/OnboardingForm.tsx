@@ -497,7 +497,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
                 id="phone"
                 placeholder="contoh: 081234567890"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => setPhone(e.target.value.replace(/[^0-9+]/g, ''))}
                 disabled={loading}
                 required
               />

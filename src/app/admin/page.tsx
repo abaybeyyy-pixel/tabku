@@ -597,12 +597,12 @@ export default function AdminPage() {
 
       const csvContent =
         'data:text/csv;charset=utf-8,' +
-        ['Card ID,Permanent URL,Business Name,WhatsApp / Kontak,Destination,Status,Printed'].join(',') +
+        ['Card ID,Permanent URL,Business Name,WhatsApp / Kontak,Destination,Status,Printed,Tanggal Aktivasi'].join(',') +
         '\n' +
         cardsToExport
           .map(
             (c) =>
-              `${c.card_id},https://mycarrd.com/c/${c.card_id},"${(c.business_name || '').replace(/"/g, '""')}","${(c.email || '').replace(/"/g, '""')}","${(c.destination_url || '').replace(/"/g, '""')}",${c.status},${c.is_printed ? 'YES' : 'NO'}`
+              `${c.card_id},https://mycarrd.com/c/${c.card_id},"${(c.business_name || '').replace(/"/g, '""')}","${(c.email || '').replace(/"/g, '""')}","${(c.destination_url || '').replace(/"/g, '""')}",${c.status},${c.is_printed ? 'YES' : 'NO'},"${c.activated_at ? new Date(c.activated_at).toLocaleString('id-ID') : 'Belum Aktif'}"`
           )
           .join('\n');
 

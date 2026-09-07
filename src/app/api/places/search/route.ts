@@ -31,6 +31,8 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         textQuery: query.trim(),
         maxResultCount: 5,
+        regionCode: 'ID',
+        languageCode: 'id',
       }),
     });
 
