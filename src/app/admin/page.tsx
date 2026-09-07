@@ -27,6 +27,7 @@ export default function AdminPage() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [printFilter, setPrintFilter] = useState('ALL'); // 'ALL' | 'UNPRINTED' | 'PRINTED'
   const [sortFilter, setSortFilter] = useState<'ACTIVATED_FIRST' | 'ACTIVATED_RECENT' | 'CREATED_DESC' | 'PRINTED_FIRST'>('ACTIVATED_FIRST');
+  const [quickFilter, setQuickFilter] = useState<'ALL' | 'ACTIVE' | 'PRINTED' | 'UNPRINTED'>('ALL');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -243,6 +244,26 @@ export default function AdminPage() {
     setSearch(newSearch);
     setCurrentPage(1);
     fetchData(password, newSearch, statusFilter, printFilter, sortFilter, 1, pageSize);
+  };
+
+  const handleQuickFilterChange = (filter: 'ALL' | 'ACTIVE' | 'PRINTED' | 'UNPRINTED') => {
+    setQuickFilter(filter);
+    setCurrentPage(1);
+
+    let nextStatus = 'ALL';
+    let nextPrinted = 'ALL';
+
+    if (filter === 'ACTIVE') {
+      nextStatus = 'ACTIVE';
+    } else if (filter === 'PRINTED') {
+      nextPrinted = 'PRINTED';
+    } else if (filter === 'UNPRINTED') {
+      nextPrinted = 'UNPRINTED';
+    }
+
+    setStatusFilter(nextStatus);
+    setPrintFilter(nextPrinted);
+    fetchData(password, search, nextStatus, nextPrinted, 'ACTIVATED_FIRST', 1, pageSize);
   };
 
   const handleStatusFilterChange = (status: string) => {
@@ -1051,63 +1072,92 @@ export default function AdminPage() {
               )}
             </div>
 
-            {/* Filter Status Aktif/Pending */}
-            <select
-              value={statusFilter}
-              onChange={(e) => handleStatusFilterChange(e.target.value)}
-              style={{
-                padding: '0.4rem 0.65rem',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-sm)',
-                fontSize: '0.8rem',
-                background: '#ffffff',
-                color: 'var(--foreground)',
-              }}
+            {/* Quick Filter Segmented Buttons (Simple & Tidak Membingungkan) */}
+            <div
+              className="flex items-center gap-1 p-1 rounded-lg bg-slate-100 border border-slate-200"
+              style={{ overflowX: 'auto', maxWidth: '100%' }}
             >
-              <option value="ALL">Semua Status</option>
-              <option value="ACTIVE">Aktif</option>
-              <option value="UNACTIVATED">Pending</option>
-            </select>
+              <button
+                type="button"
+                onClick={() => handleQuickFilterChange('ALL')}
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                  quickFilter === 'ALL'
+                    ? 'bg-white text-slate-900 shadow-sm border border-slate-200/80 font-bold'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+                }`}
+                title="Menampilkan semua kartu dengan urutan teratas aktif"
+              >
+                <span>Semua (Urutan Teratas)</span>
+                {stats.total > 0 && (
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                    quickFilter === 'ALL' ? 'bg-slate-100 text-slate-800' : 'bg-slate-200/70 text-slate-600'
+                  }`}>
+                    {stats.total}
+                  </span>
+                )}
+              </button>
 
-            {/* Filter Status Cetak QR */}
-            <select
-              value={printFilter}
-              onChange={(e) => handlePrintFilterChange(e.target.value)}
-              style={{
-                padding: '0.4rem 0.65rem',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-sm)',
-                fontSize: '0.8rem',
-                background: '#ffffff',
-                color: 'var(--foreground)',
-              }}
-            >
-              <option value="ALL">Semua Cetak</option>
-              <option value="UNPRINTED">Belum Dicetak</option>
-              <option value="PRINTED">Sudah Dicetak</option>
-            </select>
+              <button
+                type="button"
+                onClick={() => handleQuickFilterChange('ACTIVE')}
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                  quickFilter === 'ACTIVE'
+                    ? 'bg-emerald-600 text-white shadow-sm font-bold'
+                    : 'text-slate-600 hover:text-emerald-700 hover:bg-emerald-50'
+                }`}
+                title="Hanya kartu yang sudah aktif"
+              >
+                <span className={`w-2 h-2 rounded-full ${quickFilter === 'ACTIVE' ? 'bg-emerald-200' : 'bg-emerald-500'}`}></span>
+                <span>Aktif</span>
+                {stats.active > 0 && (
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                    quickFilter === 'ACTIVE' ? 'bg-emerald-700 text-white' : 'bg-slate-200/70 text-slate-600'
+                  }`}>
+                    {stats.active}
+                  </span>
+                )}
+              </button>
 
-            {/* Filter Pengurutan Kartu */}
-            <select
-              value={sortFilter}
-              onChange={(e) => handleSortFilterChange(e.target.value)}
-              title="Urutan Tampilan Kartu"
-              aria-label="Urutan Tampilan Kartu"
-              style={{
-                padding: '0.4rem 0.65rem',
-                border: '1px solid #10b981',
-                borderRadius: 'var(--radius-sm)',
-                fontSize: '0.8rem',
-                background: '#f0fdf4',
-                color: '#065f46',
-                fontWeight: 600,
-              }}
-            >
-              <option value="ACTIVATED_FIRST">★ Paling Awal Aktif (Terdepan)</option>
-              <option value="ACTIVATED_RECENT">Terbaru Aktif</option>
-              <option value="CREATED_DESC">Terbaru Dibuat</option>
-              <option value="PRINTED_FIRST">Sudah Cetak Dahulu</option>
-            </select>
+              <button
+                type="button"
+                onClick={() => handleQuickFilterChange('PRINTED')}
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                  quickFilter === 'PRINTED'
+                    ? 'bg-blue-600 text-white shadow-sm font-bold'
+                    : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50'
+                }`}
+                title="Kartu yang sudah dicetak"
+              >
+                <span>Sudah Dicetak</span>
+                {(stats.printed ?? 0) > 0 && (
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                    quickFilter === 'PRINTED' ? 'bg-blue-700 text-white' : 'bg-slate-200/70 text-slate-600'
+                  }`}>
+                    {stats.printed}
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleQuickFilterChange('UNPRINTED')}
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                  quickFilter === 'UNPRINTED'
+                    ? 'bg-amber-600 text-white shadow-sm font-bold'
+                    : 'text-slate-600 hover:text-amber-700 hover:bg-amber-50'
+                }`}
+                title="Kartu yang belum dicetak (antrean cetak)"
+              >
+                <span>Belum Dicetak</span>
+                {(stats.unprinted ?? 0) > 0 && (
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                    quickFilter === 'UNPRINTED' ? 'bg-amber-700 text-white' : 'bg-slate-200/70 text-slate-600'
+                  }`}>
+                    {stats.unprinted}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Bulk Selection Actions */}
