@@ -1029,15 +1029,15 @@ export default function AdminPage() {
         <div className="flex gap-2 mb-2.5 flex-wrap items-center justify-between">
           <div className="flex gap-2 flex-1 flex-wrap items-center" style={{ minWidth: '220px' }}>
             {/* Search input */}
-            <div style={{ position: 'relative', flex: '1 1 180px', minWidth: 0 }}>
+            <div style={{ position: 'relative', flex: '1 1 180px', minWidth: '160px' }}>
               <input
                 type="text"
-                placeholder="Cari ID, nama usaha, atau no. WA/email..."
+                placeholder="Cari ID, nama usaha, no. WA..."
                 value={search}
                 onChange={handleSearchChange}
                 style={{
                   width: '100%',
-                  padding: '0.4rem 2rem 0.4rem 0.65rem',
+                  padding: '0.42rem 2rem 0.42rem 0.65rem',
                   border: '1px solid var(--border)',
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '0.8rem',
@@ -1050,7 +1050,7 @@ export default function AdminPage() {
                   type="button"
                   onClick={() => {
                     setSearch('');
-                    fetchData(password, '', statusFilter, printFilter, sortFilter);
+                    fetchData(password, '', statusFilter, printFilter, 'ACTIVATED_FIRST');
                   }}
                   style={{
                     position: 'absolute',
@@ -1072,92 +1072,49 @@ export default function AdminPage() {
               )}
             </div>
 
-            {/* Quick Filter Segmented Buttons (Simple & Tidak Membingungkan) */}
-            <div
-              className="flex items-center gap-1 p-1 rounded-lg bg-slate-100 border border-slate-200"
-              style={{ overflowX: 'auto', maxWidth: '100%' }}
+            {/* Box Filter 1: Status Kartu (Urutan Teratas Otomatis) */}
+            <select
+              value={statusFilter}
+              onChange={(e) => handleStatusFilterChange(e.target.value)}
+              aria-label="Filter Status Kartu"
+              style={{
+                flex: '1 1 140px',
+                minWidth: '130px',
+                padding: '0.42rem 0.65rem',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '0.8rem',
+                background: '#ffffff',
+                color: 'var(--foreground)',
+                cursor: 'pointer',
+              }}
             >
-              <button
-                type="button"
-                onClick={() => handleQuickFilterChange('ALL')}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
-                  quickFilter === 'ALL'
-                    ? 'bg-white text-slate-900 shadow-sm border border-slate-200/80 font-bold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
-                }`}
-                title="Menampilkan semua kartu dengan urutan teratas aktif"
-              >
-                <span>Semua (Urutan Teratas)</span>
-                {stats.total > 0 && (
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                    quickFilter === 'ALL' ? 'bg-slate-100 text-slate-800' : 'bg-slate-200/70 text-slate-600'
-                  }`}>
-                    {stats.total}
-                  </span>
-                )}
-              </button>
+              <option value="ALL">Semua (Urutan Teratas)</option>
+              <option value="ACTIVE">Aktif ({stats.active || 0})</option>
+              <option value="UNACTIVATED">Pending ({stats.unactivated || 0})</option>
+            </select>
 
-              <button
-                type="button"
-                onClick={() => handleQuickFilterChange('ACTIVE')}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
-                  quickFilter === 'ACTIVE'
-                    ? 'bg-emerald-600 text-white shadow-sm font-bold'
-                    : 'text-slate-600 hover:text-emerald-700 hover:bg-emerald-50'
-                }`}
-                title="Hanya kartu yang sudah aktif"
-              >
-                <span className={`w-2 h-2 rounded-full ${quickFilter === 'ACTIVE' ? 'bg-emerald-200' : 'bg-emerald-500'}`}></span>
-                <span>Aktif</span>
-                {stats.active > 0 && (
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                    quickFilter === 'ACTIVE' ? 'bg-emerald-700 text-white' : 'bg-slate-200/70 text-slate-600'
-                  }`}>
-                    {stats.active}
-                  </span>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickFilterChange('PRINTED')}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
-                  quickFilter === 'PRINTED'
-                    ? 'bg-blue-600 text-white shadow-sm font-bold'
-                    : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50'
-                }`}
-                title="Kartu yang sudah dicetak"
-              >
-                <span>Sudah Dicetak</span>
-                {(stats.printed ?? 0) > 0 && (
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                    quickFilter === 'PRINTED' ? 'bg-blue-700 text-white' : 'bg-slate-200/70 text-slate-600'
-                  }`}>
-                    {stats.printed}
-                  </span>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickFilterChange('UNPRINTED')}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
-                  quickFilter === 'UNPRINTED'
-                    ? 'bg-amber-600 text-white shadow-sm font-bold'
-                    : 'text-slate-600 hover:text-amber-700 hover:bg-amber-50'
-                }`}
-                title="Kartu yang belum dicetak (antrean cetak)"
-              >
-                <span>Belum Dicetak</span>
-                {(stats.unprinted ?? 0) > 0 && (
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                    quickFilter === 'UNPRINTED' ? 'bg-amber-700 text-white' : 'bg-slate-200/70 text-slate-600'
-                  }`}>
-                    {stats.unprinted}
-                  </span>
-                )}
-              </button>
-            </div>
+            {/* Box Filter 2: Status Cetak QR */}
+            <select
+              value={printFilter}
+              onChange={(e) => handlePrintFilterChange(e.target.value)}
+              aria-label="Filter Status Cetak QR"
+              style={{
+                flex: '1 1 140px',
+                minWidth: '130px',
+                padding: '0.42rem 0.65rem',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '0.8rem',
+                background: '#ffffff',
+                color: 'var(--foreground)',
+                cursor: 'pointer',
+              }}
+            >
+              <option value="ALL">Semua Cetak</option>
+              <option value="PRINTED">Sudah Dicetak ({stats.printed || 0})</option>
+              <option value="UNPRINTED">Belum Dicetak ({stats.unprinted !== undefined ? stats.unprinted : Math.max(0, stats.total - (stats.printed || 0))})</option>
+            </select>
           </div>
 
           {/* Bulk Selection Actions */}
