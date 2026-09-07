@@ -1554,7 +1554,7 @@ export default function AdminPage() {
               </div>
             ) : null}
 
-            <div className="flex gap-2 mb-2">
+            <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => handleDownloadPrintPNG(showQrCardId)}
@@ -1573,25 +1573,6 @@ export default function AdminPage() {
                 Tutup
               </button>
             </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                const id = showQrCardId;
-                setShowQrCardId('');
-                setShowQrDataUrl('');
-                setCardToReset(id);
-              }}
-              className="btn w-full py-1.5 text-xs font-semibold flex items-center justify-center gap-1.5"
-              style={{ background: '#fff7ed', border: '1px solid #fed7aa', color: '#c2410c' }}
-              title="Kembalikan ID QR ini ke status awal onboarding"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                <path d="M3 3v5h5" />
-              </svg>
-              <span>Reset QR ke Onboarding</span>
-            </button>
           </div>
         </div>
       )}
