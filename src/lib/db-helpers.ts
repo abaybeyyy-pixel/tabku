@@ -222,6 +222,7 @@ export async function getCardsPaginated(
   search?: string,
   status?: string,
   printedFilter?: string,
+  sortBy: string = 'ACTIVATED_FIRST',
   page: number = 1,
   limit: number = 50
 ): Promise<PaginatedCardsResult> {
@@ -248,13 +249,27 @@ export async function getCardsPaginated(
     query = query.or('is_printed.is.null,is_printed.eq.false');
   }
 
-  let { data, error, count } = await query
-    .order('is_printed', { ascending: false, nullsFirst: false })
-    .order('created_at', { ascending: false })
-    .range(from, to);
+  if (sortBy === 'ACTIVATED_FIRST') {
+    // Kartu yang paling awal aktif berada di paling atas (nullsFirst: false memastikan kartu aktif muncul lebih dulu)
+    query = query
+      .order('activated_at', { ascending: true, nullsFirst: false })
+      .order('created_at', { ascending: false });
+  } else if (sortBy === 'ACTIVATED_RECENT') {
+    query = query
+      .order('activated_at', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false });
+  } else if (sortBy === 'PRINTED_FIRST') {
+    query = query
+      .order('is_printed', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false });
+  } else {
+    query = query.order('created_at', { ascending: false });
+  }
+
+  let { data, error, count } = await query.range(from, to);
 
   if (error) {
-    // Fallback if is_printed column or composite order fails
+    // Fallback if composite order fails
     const fallbackRes = await query
       .order('created_at', { ascending: false })
       .range(from, to);
@@ -289,6 +304,7 @@ export async function getAllCards(
   search?: string,
   status?: string,
   printedFilter?: string,
+  sortBy: string = 'ACTIVATED_FIRST',
   limit: number = 1000
 ): Promise<Card[]> {
   const supabase = await createClient();
@@ -309,10 +325,23 @@ export async function getAllCards(
     query = query.or('is_printed.is.null,is_printed.eq.false');
   }
 
-  let { data, error } = await query
-    .order('is_printed', { ascending: false, nullsFirst: false })
-    .order('created_at', { ascending: false })
-    .limit(limit);
+  if (sortBy === 'ACTIVATED_FIRST') {
+    query = query
+      .order('activated_at', { ascending: true, nullsFirst: false })
+      .order('created_at', { ascending: false });
+  } else if (sortBy === 'ACTIVATED_RECENT') {
+    query = query
+      .order('activated_at', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false });
+  } else if (sortBy === 'PRINTED_FIRST') {
+    query = query
+      .order('is_printed', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false });
+  } else {
+    query = query.order('created_at', { ascending: false });
+  }
+
+  let { data, error } = await query.limit(limit);
 
   if (error) {
     const fallbackRes = await query

@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || undefined;
     const status = searchParams.get('status') || undefined;
     const printed = searchParams.get('printed') || undefined;
+    const sort = searchParams.get('sort') || 'ACTIVATED_FIRST';
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = parseInt(searchParams.get('limit') || '50', 10);
     const all = searchParams.get('all') === 'true';
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     const stats = await getCardStats();
 
     if (all) {
-      const cards = await getAllCards(search, status, printed);
+      const cards = await getAllCards(search, status, printed, sort);
       return NextResponse.json({
         success: true,
         cards,
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const paginated = await getCardsPaginated(search, status, printed, page, limit);
+    const paginated = await getCardsPaginated(search, status, printed, sort, page, limit);
 
     return NextResponse.json({
       success: true,

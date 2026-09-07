@@ -26,6 +26,7 @@ export default function AdminPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [printFilter, setPrintFilter] = useState('ALL'); // 'ALL' | 'UNPRINTED' | 'PRINTED'
+  const [sortFilter, setSortFilter] = useState<'ACTIVATED_FIRST' | 'ACTIVATED_RECENT' | 'CREATED_DESC' | 'PRINTED_FIRST'>('ACTIVATED_FIRST');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -79,14 +80,58 @@ export default function AdminPage() {
 
   const router = useRouter();
 
-  // Helper to ensure printed cards are always at the top/front, then newest created_at
-  const sortCardsByPrinted = (cardList: Card[]): Card[] => {
+  // Helper to ensure cards ordering according to selected sort mode
+  // Default 'ACTIVATED_FIRST': Kartu yang paling awal aktif selalu berada di paling atas dan terdepan
+  const sortCardsByOrder = (cardList: Card[], mode: string = sortFilter): Card[] => {
     return [...cardList].sort((a, b) => {
-      const aPrinted = Boolean(a.is_printed);
-      const bPrinted = Boolean(b.is_printed);
-      if (aPrinted !== bPrinted) {
-        return aPrinted ? -1 : 1;
+      if (mode === 'ACTIVATED_FIRST') {
+        const aHasAct = Boolean(a.activated_at);
+        const bHasAct = Boolean(b.activated_at);
+        if (aHasAct !== bHasAct) {
+          return aHasAct ? -1 : 1; // Kartu aktif paling depan
+        }
+        if (aHasAct && bHasAct) {
+          const aTime = new Date(a.activated_at!).getTime();
+          const bTime = new Date(b.activated_at!).getTime();
+          if (aTime !== bTime) {
+            return aTime - bTime; // Paling awal aktif teratas (ASC)
+          }
+        }
+        const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return bCreated - aCreated;
       }
+
+      if (mode === 'ACTIVATED_RECENT') {
+        const aHasAct = Boolean(a.activated_at);
+        const bHasAct = Boolean(b.activated_at);
+        if (aHasAct !== bHasAct) {
+          return aHasAct ? -1 : 1;
+        }
+        if (aHasAct && bHasAct) {
+          const aTime = new Date(a.activated_at!).getTime();
+          const bTime = new Date(b.activated_at!).getTime();
+          if (aTime !== bTime) {
+            return bTime - aTime; // Paling baru aktif teratas (DESC)
+          }
+        }
+        const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return bCreated - aCreated;
+      }
+
+      if (mode === 'PRINTED_FIRST') {
+        const aPrinted = Boolean(a.is_printed);
+        const bPrinted = Boolean(b.is_printed);
+        if (aPrinted !== bPrinted) {
+          return aPrinted ? -1 : 1;
+        }
+        const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return bCreated - aCreated;
+      }
+
+      // Default: CREATED_DESC
       const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
       const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
       return bTime - aTime;
@@ -98,13 +143,14 @@ export default function AdminPage() {
     searchQuery = search,
     statusQ = statusFilter,
     printQ = printFilter,
+    sortQ = sortFilter,
     targetPage = currentPage,
     targetLimit = pageSize
   ) => {
     setLoading(true);
     setError('');
     try {
-      const url = `/api/admin/cards?search=${encodeURIComponent(searchQuery)}&status=${statusQ}&printed=${printQ}&page=${targetPage}&limit=${targetLimit}`;
+      const url = `/api/admin/cards?search=${encodeURIComponent(searchQuery)}&status=${statusQ}&printed=${printQ}&sort=${sortQ}&page=${targetPage}&limit=${targetLimit}`;
       const response = await fetch(url, {
         headers: { 'x-admin-password': pw },
       });
@@ -119,7 +165,7 @@ export default function AdminPage() {
       }
 
       const data = await response.json();
-      setCards(sortCardsByPrinted(data.cards || []));
+      setCards(sortCardsByOrder(data.cards || [], sortQ));
       setStats(data.stats || { total: 0, active: 0, unactivated: 0, disabled: 0 });
       if (data.pagination) {
         setPagination(data.pagination);
@@ -152,7 +198,7 @@ export default function AdminPage() {
     let ignore = false;
     const loadInitialData = async () => {
       try {
-        const url = `/api/admin/cards?search=&status=ALL&printed=ALL&page=1&limit=50`;
+        const url = `/api/admin/cards?search=&status=ALL&printed=ALL&sort=ACTIVATED_FIRST&page=1&limit=50`;
         const response = await fetch(url, {
           headers: { 'x-admin-password': saved },
         });
@@ -170,7 +216,7 @@ export default function AdminPage() {
         const data = await response.json();
         if (ignore) return;
 
-        setCards(sortCardsByPrinted(data.cards || []));
+        setCards(sortCardsByOrder(data.cards || [], 'ACTIVATED_FIRST'));
         setStats(data.stats || { total: 0, active: 0, unactivated: 0, disabled: 0 });
         if (data.pagination) {
           setPagination(data.pagination);
@@ -196,31 +242,38 @@ export default function AdminPage() {
     const newSearch = e.target.value;
     setSearch(newSearch);
     setCurrentPage(1);
-    fetchData(password, newSearch, statusFilter, printFilter, 1, pageSize);
+    fetchData(password, newSearch, statusFilter, printFilter, sortFilter, 1, pageSize);
   };
 
   const handleStatusFilterChange = (status: string) => {
     setStatusFilter(status);
     setCurrentPage(1);
-    fetchData(password, search, status, printFilter, 1, pageSize);
+    fetchData(password, search, status, printFilter, sortFilter, 1, pageSize);
   };
 
   const handlePrintFilterChange = (printed: string) => {
     setPrintFilter(printed);
     setCurrentPage(1);
-    fetchData(password, search, statusFilter, printed, 1, pageSize);
+    fetchData(password, search, statusFilter, printed, sortFilter, 1, pageSize);
+  };
+
+  const handleSortFilterChange = (newSort: string) => {
+    const safeSort = newSort as 'ACTIVATED_FIRST' | 'ACTIVATED_RECENT' | 'CREATED_DESC' | 'PRINTED_FIRST';
+    setSortFilter(safeSort);
+    setCurrentPage(1);
+    fetchData(password, search, statusFilter, printFilter, safeSort, 1, pageSize);
   };
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > pagination.totalPages || newPage === currentPage) return;
     setCurrentPage(newPage);
-    fetchData(password, search, statusFilter, printFilter, newPage, pageSize);
+    fetchData(password, search, statusFilter, printFilter, sortFilter, newPage, pageSize);
   };
 
   const handlePageSizeChange = (newLimit: number) => {
     setPageSize(newLimit);
     setCurrentPage(1);
-    fetchData(password, search, statusFilter, printFilter, 1, newLimit);
+    fetchData(password, search, statusFilter, printFilter, sortFilter, 1, newLimit);
   };
 
   const getPageNumbers = () => {
@@ -274,8 +327,9 @@ export default function AdminPage() {
 
       // Instant optimistic UI update
       setCards((prev) =>
-        sortCardsByPrinted(
-          prev.map((c) => (c.card_id === cardId ? { ...c, is_printed: data.isPrinted } : c))
+        sortCardsByOrder(
+          prev.map((c) => (c.card_id === cardId ? { ...c, is_printed: data.isPrinted } : c)),
+          sortFilter
         )
       );
       setStats((prev) => ({
@@ -319,7 +373,7 @@ export default function AdminPage() {
           : `Berhasil menandai ${selectedCardIds.length} kartu belum dicetak.`
       );
       setSelectedCardIds([]);
-      fetchData(password, search, statusFilter, printFilter);
+      fetchData(password, search, statusFilter, printFilter, sortFilter, currentPage, pageSize);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gagal memperbarui status cetak.';
       setError(message);
@@ -350,7 +404,7 @@ export default function AdminPage() {
 
       setSuccess(`Kartu ${cardToDelete} berhasil dihapus.`);
       setCardToDelete(null);
-      fetchData(password, search, statusFilter, printFilter);
+      fetchData(password, search, statusFilter, printFilter, sortFilter, currentPage, pageSize);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gagal menghapus kartu.';
       setError(message);
@@ -383,7 +437,7 @@ export default function AdminPage() {
 
       setSuccess(`Kartu ${cardToReset} berhasil direset ke status awal (Onboarding). ID QR kini siap diregistrasi ulang.`);
       setCardToReset(null);
-      fetchData(password, search, statusFilter, printFilter, currentPage, pageSize);
+      fetchData(password, search, statusFilter, printFilter, sortFilter, currentPage, pageSize);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gagal mereset kartu ke status onboarding.';
       setError(message);
@@ -417,7 +471,7 @@ export default function AdminPage() {
       setSuccess(`Berhasil menghapus ${selectedCardIds.length} kartu.`);
       setSelectedCardIds([]);
       setShowBulkDeleteConfirm(false);
-      fetchData(password, search, statusFilter, printFilter);
+      fetchData(password, search, statusFilter, printFilter, sortFilter, currentPage, pageSize);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gagal menghapus kartu terpilih.';
       setError(message);
@@ -454,7 +508,7 @@ export default function AdminPage() {
 
       setSuccess(`Berhasil membuat ${data.count} kartu baru.`);
       setCurrentPage(1);
-      fetchData(password, search, statusFilter, printFilter, 1, pageSize);
+      fetchData(password, search, statusFilter, printFilter, sortFilter, 1, pageSize);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gagal membuat kartu baru.';
       setError(message);
@@ -754,8 +808,9 @@ export default function AdminPage() {
           body: JSON.stringify({ action: 'set-printed', isPrinted: true }),
         }).then(() => {
           setCards((prev) =>
-            sortCardsByPrinted(
-              prev.map((c) => (c.card_id === cardId ? { ...c, is_printed: true } : c))
+            sortCardsByOrder(
+              prev.map((c) => (c.card_id === cardId ? { ...c, is_printed: true } : c)),
+              sortFilter
             )
           );
         }).catch(() => {});
@@ -800,8 +855,9 @@ export default function AdminPage() {
       body: JSON.stringify({ action: 'set-printed', isPrinted: true }),
     }).then(() => {
       setCards((prev) =>
-        sortCardsByPrinted(
-          prev.map((c) => (c.card_id === cardId ? { ...c, is_printed: true } : c))
+        sortCardsByOrder(
+          prev.map((c) => (c.card_id === cardId ? { ...c, is_printed: true } : c)),
+          sortFilter
         )
       );
     }).catch(() => {});
@@ -973,7 +1029,7 @@ export default function AdminPage() {
                   type="button"
                   onClick={() => {
                     setSearch('');
-                    fetchData(password, '', statusFilter, printFilter);
+                    fetchData(password, '', statusFilter, printFilter, sortFilter);
                   }}
                   style={{
                     position: 'absolute',
@@ -1029,6 +1085,28 @@ export default function AdminPage() {
               <option value="ALL">Semua Cetak</option>
               <option value="UNPRINTED">Belum Dicetak</option>
               <option value="PRINTED">Sudah Dicetak</option>
+            </select>
+
+            {/* Filter Pengurutan Kartu */}
+            <select
+              value={sortFilter}
+              onChange={(e) => handleSortFilterChange(e.target.value)}
+              title="Urutan Tampilan Kartu"
+              aria-label="Urutan Tampilan Kartu"
+              style={{
+                padding: '0.4rem 0.65rem',
+                border: '1px solid #10b981',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '0.8rem',
+                background: '#f0fdf4',
+                color: '#065f46',
+                fontWeight: 600,
+              }}
+            >
+              <option value="ACTIVATED_FIRST">★ Paling Awal Aktif (Terdepan)</option>
+              <option value="ACTIVATED_RECENT">Terbaru Aktif</option>
+              <option value="CREATED_DESC">Terbaru Dibuat</option>
+              <option value="PRINTED_FIRST">Sudah Cetak Dahulu</option>
             </select>
           </div>
 
@@ -1208,9 +1286,24 @@ export default function AdminPage() {
                       </div>
                     )}
 
-                    {card.activated_at && (
-                      <div className="mt-1 text-muted text-xs" style={{ fontSize: '0.68rem' }}>
-                        <span>Aktif: {new Date(card.activated_at).toLocaleDateString('id-ID')}</span>
+                    {card.activated_at ? (
+                      <div
+                        className="inline-flex items-center gap-1.5 mt-1.5 px-2 py-0.5 rounded text-emerald-800 bg-emerald-50 border border-emerald-200"
+                        style={{ fontSize: '0.68rem', width: 'fit-content' }}
+                        title={`Tanggal Awal Aktivasi: ${new Date(card.activated_at).toLocaleString('id-ID')}`}
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-emerald-600 flex-shrink-0">
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <span className="font-semibold">
+                          Awal Aktif: {new Date(card.activated_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}, {new Date(card.activated_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="mt-1 text-muted text-xs flex items-center gap-1" style={{ fontSize: '0.66rem' }}>
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                        <span>Belum Diaktivasi</span>
                       </div>
                     )}
                   </div>

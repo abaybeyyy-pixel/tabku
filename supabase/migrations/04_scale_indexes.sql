@@ -18,3 +18,7 @@ $$ LANGUAGE sql SECURITY DEFINER;
 
 -- Grant execution permission to all client roles
 GRANT EXECUTE ON FUNCTION get_total_taps() TO anon, authenticated, service_role;
+
+-- 4. Indexes for sorting by activated_at (Fast ORDER BY activated_at ASC/DESC NULLS LAST)
+CREATE INDEX IF NOT EXISTS idx_cards_activated_at_asc ON cards(activated_at ASC NULLS LAST);
+CREATE INDEX IF NOT EXISTS idx_cards_activated_at_desc ON cards(activated_at DESC NULLS LAST);
