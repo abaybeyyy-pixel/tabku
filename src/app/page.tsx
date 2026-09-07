@@ -141,7 +141,7 @@ export default function Homepage() {
     },
     {
       title: 'Keamanan PIN & Proteksi Brute-Force',
-      description: 'Dilengkapi enkripsi PIN akses, mitigasi brute-force cerdas, dan sistem pemulihan OTP via email terverifikasi.',
+      description: 'Dilengkapi enkripsi PIN akses, mitigasi brute-force cerdas, dan sistem pemulihan kontak WhatsApp resmi terverifikasi.',
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -188,8 +188,8 @@ export default function Homepage() {
     },
     {
       step: '03',
-      title: 'Proteksi PIN & Email Pemulihan',
-      description: 'Konfigurasi PIN pengaman dengan proteksi anti-bruteforce dan email verifikasi untuk fleksibilitas manajemen profil.',
+      title: 'Proteksi PIN & WhatsApp Pemulihan',
+      description: 'Konfigurasi PIN pengaman dengan proteksi anti-bruteforce dan verifikasi nomor WhatsApp resmi untuk fleksibilitas manajemen profil.',
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />

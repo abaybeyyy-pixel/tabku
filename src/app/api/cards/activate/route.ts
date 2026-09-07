@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { findCardById, activateCard } from '@/lib/db-helpers';
-import { hashPin, isValidPin, isValidEmail } from '@/lib/auth';
+import { hashPin, isValidPin, isValidEmail, isValidPhone } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { cardId, businessName, placeId, businessAddress, customUrl, linkType, email, pin, confirmPin } = body;
+    const { cardId, businessName, placeId, businessAddress, customUrl, linkType, email, phone, whatsapp, pin, confirmPin } = body;
 
     // Validate card ID
     if (!cardId) {
@@ -51,18 +51,22 @@ export async function POST(request: NextRequest) {
       destinationUrl = `https://search.google.com/local/writereview?placeid=${placeId}`;
     }
 
-    // Validate email
-    if (!email || !isValidEmail(email)) {
-      return NextResponse.json({ error: 'Please enter a valid email address.' }, { status: 400 });
+    // Validate WhatsApp number / contact (accepts phone or legacy email)
+    const contact = (phone || whatsapp || email || '').trim();
+    if (!contact) {
+      return NextResponse.json({ error: 'Nomor WhatsApp pemilik wajib diisi.' }, { status: 400 });
+    }
+    if (!isValidPhone(contact) && !isValidEmail(contact)) {
+      return NextResponse.json({ error: 'Nomor WhatsApp tidak valid. Masukkan nomor HP aktif (contoh: 081234567890).' }, { status: 400 });
     }
 
     // Validate PIN
     if (!pin || !isValidPin(pin)) {
-      return NextResponse.json({ error: 'PIN must be 4-6 digits.' }, { status: 400 });
+      return NextResponse.json({ error: 'PIN harus 4-6 digit angka.' }, { status: 400 });
     }
 
     if (pin !== confirmPin) {
-      return NextResponse.json({ error: 'PINs do not match.' }, { status: 400 });
+      return NextResponse.json({ error: 'Konfirmasi PIN tidak cocok.' }, { status: 400 });
     }
 
     // Hash PIN and activate
@@ -73,7 +77,7 @@ export async function POST(request: NextRequest) {
       businessName.trim(),
       destinationUrl,
       pinHash,
-      email.trim().toLowerCase(),
+      contact,
       isCustomLink ? undefined : placeId,
       isCustomLink ? undefined : businessAddress?.trim()
     );

@@ -522,12 +522,12 @@ export default function AdminPage() {
 
       const csvContent =
         'data:text/csv;charset=utf-8,' +
-        ['Card ID,Permanent URL,Destination,Status,Printed'].join(',') +
+        ['Card ID,Permanent URL,Business Name,WhatsApp / Kontak,Destination,Status,Printed'].join(',') +
         '\n' +
         cardsToExport
           .map(
             (c) =>
-              `${c.card_id},https://mycarrd.com/c/${c.card_id},"${c.destination_url || ''}",${c.status},${c.is_printed ? 'YES' : 'NO'}`
+              `${c.card_id},https://mycarrd.com/c/${c.card_id},"${(c.business_name || '').replace(/"/g, '""')}","${(c.email || '').replace(/"/g, '""')}","${(c.destination_url || '').replace(/"/g, '""')}",${c.status},${c.is_printed ? 'YES' : 'NO'}`
           )
           .join('\n');
 
@@ -955,7 +955,7 @@ export default function AdminPage() {
             <div style={{ position: 'relative', flex: '1 1 180px', minWidth: 0 }}>
               <input
                 type="text"
-                placeholder="Cari ID, nama usaha, atau email..."
+                placeholder="Cari ID, nama usaha, atau no. WA/email..."
                 value={search}
                 onChange={handleSearchChange}
                 style={{
@@ -1157,18 +1157,50 @@ export default function AdminPage() {
                       </div>
                     )}
 
-                    {card.email && (
-                      <div
-                        className="flex items-center gap-1.5 mt-0.5 text-blue-800 bg-blue-50 py-0.5 px-1.5 rounded-sm border border-blue-100"
-                        style={{ fontSize: '0.7rem', width: 'fit-content', maxWidth: '100%' }}
-                      >
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0 text-blue-600">
-                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                          <polyline points="22,6 12,13 2,6" />
-                        </svg>
-                        <span className="font-mono text-truncate select-all font-medium">{card.email}</span>
-                      </div>
-                    )}
+                    {card.email && (() => {
+                      const isPhone = /^[0-9+]+$/.test(card.email.replace(/[\s-]/g, ''));
+                      if (isPhone) {
+                        let cleanPhone = card.email.replace(/\D/g, '');
+                        if (cleanPhone.startsWith('0')) {
+                          cleanPhone = '62' + cleanPhone.slice(1);
+                        }
+                        const greeting = encodeURIComponent(
+                          `Halo ${card.business_name || 'Pemilik Kartu'}, kami dari Admin Mycarrd (mycarrd.com) terkait kartu pintar Anda (${card.card_id}).`
+                        );
+                        const waUrl = `https://wa.me/${cleanPhone}?text=${greeting}`;
+                        return (
+                          <div className="flex items-center gap-1.5 mt-0.5" style={{ flexWrap: 'wrap' }}>
+                            <a
+                              href={waUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 py-0.5 px-2 rounded-sm border border-emerald-200 transition-colors font-semibold"
+                              style={{ fontSize: '0.7rem', textDecoration: 'none' }}
+                              title={`Buka Chat WhatsApp ke ${card.email}`}
+                            >
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="flex-shrink-0 text-emerald-600">
+                                <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2z" />
+                              </svg>
+                              <span className="font-mono">{card.email}</span>
+                              <span className="text-[10px] bg-emerald-600 text-white px-1 py-0.2 rounded font-bold ml-1">WA ↗</span>
+                            </a>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div
+                          className="flex items-center gap-1.5 mt-0.5 text-blue-800 bg-blue-50 py-0.5 px-1.5 rounded-sm border border-blue-100"
+                          style={{ fontSize: '0.7rem', width: 'fit-content', maxWidth: '100%' }}
+                        >
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0 text-blue-600">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                            <polyline points="22,6 12,13 2,6" />
+                          </svg>
+                          <span className="font-mono text-truncate select-all font-medium">{card.email}</span>
+                        </div>
+                      );
+                    })()}
 
                     {card.business_address && (
                       <div className="text-muted text-truncate mt-0.5" style={{ fontSize: '0.68rem' }}>
@@ -1405,7 +1437,7 @@ export default function AdminPage() {
             <div className="p-2.5 rounded-sm mb-3 text-xs" style={{ background: '#fff7ed', border: '1px solid #fed7aa', color: '#9a3412', lineHeight: '1.45' }}>
               <div className="font-bold mb-1">Dampak setelah direset:</div>
               <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
-                <li>Nama usaha, link ulasan Google Maps, email &amp; PIN akan dikosongkan.</li>
+                <li>Nama usaha, link ulasan Google Maps, no. WhatsApp &amp; PIN akan dikosongkan.</li>
                 <li>Status kartu kembali menjadi <strong>Pending (UNACTIVATED)</strong>.</li>
                 <li>Saat kartu ditap atau QR discan, pelanggan diarahkan ke halaman onboarding (<span className="font-mono font-semibold">/onboarding/{cardToReset}</span>).</li>
               </ul>
@@ -1480,14 +1512,48 @@ export default function AdminPage() {
               {selectedCard.business_name && ` — ${selectedCard.business_name}`}
             </p>
 
-            {selectedCard.email ? (
-              <div className="p-2 rounded bg-blue-50 border border-blue-200 text-xs text-blue-900 mb-3">
-                <span className="font-bold block text-[11px] text-blue-700">Email Pemilik Terdaftar:</span>
-                <span className="font-mono font-semibold select-all">{selectedCard.email}</span>
-              </div>
-            ) : (
+            {selectedCard.email ? (() => {
+              const isPhone = /^[0-9+]+$/.test(selectedCard.email.replace(/[\s-]/g, ''));
+              if (isPhone) {
+                let cleanPhone = selectedCard.email.replace(/\D/g, '');
+                if (cleanPhone.startsWith('0')) {
+                  cleanPhone = '62' + cleanPhone.slice(1);
+                }
+                const greeting = encodeURIComponent(
+                  `Halo ${selectedCard.business_name || 'Pemilik Kartu'}, kami dari Admin Mycarrd (mycarrd.com) mengenai permohonan reset PIN untuk kartu ${selectedCard.card_id}.`
+                );
+                const waUrl = `https://wa.me/${cleanPhone}?text=${greeting}`;
+                return (
+                  <div className="p-2.5 rounded bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 mb-3">
+                    <span className="font-bold block text-[11px] text-emerald-800 mb-1">
+                      No. WhatsApp Pemilik Terdaftar:
+                    </span>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono font-bold text-sm text-emerald-950 select-all">
+                        {selectedCard.email}
+                      </span>
+                      <a
+                        href={waUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="py-1 px-2 text-xs font-semibold flex items-center gap-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white transition-colors"
+                        style={{ textDecoration: 'none', fontSize: '11px' }}
+                      >
+                        Chat WA ↗
+                      </a>
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <div className="p-2 rounded bg-blue-50 border border-blue-200 text-xs text-blue-900 mb-3">
+                  <span className="font-bold block text-[11px] text-blue-700">Email Pemilik Terdaftar:</span>
+                  <span className="font-mono font-semibold select-all">{selectedCard.email}</span>
+                </div>
+              );
+            })() : (
               <div className="p-2 rounded bg-slate-50 border border-slate-200 text-xs text-muted mb-3">
-                Kartu belum memiliki email pendaftaran terdaftar.
+                Kartu belum memiliki kontak WhatsApp/email terdaftar.
               </div>
             )}
             <form onSubmit={handleResetPin} className="form-group">

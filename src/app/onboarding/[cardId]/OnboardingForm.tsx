@@ -28,7 +28,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
   const [businessName, setBusinessName] = useState('');
 
   // Form state
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [pin, setPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,26 +43,36 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
   } | null>(null);
 
   const handleSearch = async () => {
-    if (!searchQuery.trim() || searchQuery.trim().length < 2) {
-      setError('Masukkan minimal 2 karakter untuk mencari bisnis.');
+    if (!searchQuery.trim()) {
+      setError('Masukkan kata kunci pencarian bisnis terlebih dahulu.');
       return;
     }
-    setError('');
+
     setSearching(true);
     setHasSearched(true);
+    setError('');
     setSearchResults([]);
 
     try {
-      const res = await fetch('/api/places/search', {
+      const response = await fetch('/api/places/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: searchQuery.trim() }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Gagal mencari bisnis.');
-      setSearchResults(data.results || []);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Pencarian gagal.');
+      }
+
+      if (data.results.length === 0) {
+        setError('Lokasi bisnis tidak ditemukan. Coba gunakan nama yang lebih spesifik atau pilih opsi Link Custom.');
+      } else {
+        setSearchResults(data.results);
+      }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Gagal mencari bisnis.';
+      const message =
+        err instanceof Error ? err.message : 'Terjadi kesalahan sistem saat mencari lokasi.';
       setError(message);
     } finally {
       setSearching(false);
@@ -120,8 +130,9 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
       }
     }
 
-    if (!email.trim()) {
-      setError('Alamat email pemulihan wajib diisi.');
+    const cleanPhone = phone.replace(/[\s\-\+\(\)]/g, '');
+    if (!phone.trim() || cleanPhone.length < 9 || cleanPhone.length > 16 || !/^[0-9]+$/.test(cleanPhone)) {
+      setError('Nomor WhatsApp wajib diisi dengan benar (minimal 9 digit, contoh: 081234567890).');
       return;
     }
 
@@ -153,7 +164,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
           placeId: linkType === 'google_review' ? selectedBusiness?.placeId : undefined,
           businessAddress: linkType === 'google_review' ? selectedBusiness?.address : undefined,
           customUrl: linkType === 'custom_url' ? finalCustomUrl : undefined,
-          email: email.trim(),
+          phone: phone.trim(),
           pin,
           confirmPin,
         }),
@@ -472,17 +483,27 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
         {isFormReadyForPin && (
           <div className="animate-fade-in">
             <div className="input-group">
-              <label htmlFor="email">Email Pemulihan</label>
+              <label htmlFor="phone" className="flex items-center justify-between">
+                <span>Nomor WhatsApp Pemilik</span>
+                <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.174.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.392-10.416c-5.514 0-10 4.486-10 10 0 1.761.459 3.417 1.258 4.865l-1.297 4.735 4.856-1.273c1.393.759 2.977 1.173 4.683 1.173 5.514 0 10-4.486 10-10s-4.486-10-10-10z" />
+                  </svg>
+                  Pemulihan &amp; Layanan
+                </span>
+              </label>
               <input
-                type="email"
-                id="email"
-                placeholder="pemilik@bisnisku.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="tel"
+                id="phone"
+                placeholder="contoh: 081234567890"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 disabled={loading}
                 required
               />
-              <span className="help-text">Digunakan untuk verifikasi dan pemulihan PIN kartu jika lupa.</span>
+              <span className="help-text">
+                Digunakan untuk verifikasi pemulihan PIN kartu &amp; bantuan layanan resmi via WhatsApp.
+              </span>
             </div>
 
             <div className="grid-2">

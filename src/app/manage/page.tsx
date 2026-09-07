@@ -50,7 +50,7 @@ export default function ManagePage() {
 
   // Forgot PIN state
   const [isForgotMode, setIsForgotMode] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotPhone, setForgotPhone] = useState('');
   const [forgotCardId, setForgotCardId] = useState('');
 
   // Business search state (for "Tujuan Kartu" Google Maps tab)
@@ -473,12 +473,12 @@ export default function ManagePage() {
                       setError('ID Kartu wajib diisi.');
                       return;
                     }
-                    if (!forgotEmail.trim()) {
-                      setError('Email terdaftar wajib diisi.');
+                    if (!forgotPhone.trim()) {
+                      setError('Nomor WhatsApp terdaftar wajib diisi.');
                       return;
                     }
 
-                    const message = `Halo Admin Mycarrd (mycarrd.com), saya ingin meminta bantuan reset PIN untuk kartu pintar saya.\n\n• ID Kartu: ${forgotCardId.trim().toUpperCase()}\n• Email Terdaftar: ${forgotEmail.trim()}\n\nMohon bantuannya untuk verifikasi dan reset PIN kartu saya. Terima kasih!`;
+                    const message = `Halo Admin Mycarrd (mycarrd.com), saya ingin meminta bantuan reset PIN untuk kartu pintar saya.\n\n• ID Kartu: ${forgotCardId.trim().toUpperCase()}\n• No. WhatsApp Terdaftar: ${forgotPhone.trim()}\n\nMohon bantuannya untuk verifikasi dan reset PIN kartu saya. Terima kasih!`;
                     const waUrl = `https://wa.me/6281211156865?text=${encodeURIComponent(message)}`;
                     window.open(waUrl, '_blank');
                   }}
@@ -498,13 +498,13 @@ export default function ManagePage() {
                   </div>
 
                   <div className="input-group">
-                    <label htmlFor="forgotEmail">Email yang Didaftarkan Sebelumnya</label>
+                    <label htmlFor="forgotPhone">Nomor WhatsApp yang Didaftarkan</label>
                     <input
-                      type="email"
-                      id="forgotEmail"
-                      placeholder="contoh: pemilik@bisnisku.com"
-                      value={forgotEmail}
-                      onChange={(e) => setForgotEmail(e.target.value)}
+                      type="tel"
+                      id="forgotPhone"
+                      placeholder="contoh: 081234567890"
+                      value={forgotPhone}
+                      onChange={(e) => setForgotPhone(e.target.value)}
                       disabled={loading}
                       required
                     />
@@ -518,7 +518,7 @@ export default function ManagePage() {
                       Verifikasi Aman via WhatsApp Resmi
                     </div>
                     <p className="text-emerald-700 leading-relaxed text-[11px]">
-                      Admin akan mencocokkan email Anda dengan data pendaftaran di database untuk memastikan keamanan akun sebelum mereset PIN baru.
+                      Admin akan mencocokkan nomor WhatsApp Anda dengan data pendaftaran di database untuk memastikan keamanan akun sebelum mereset PIN baru.
                     </p>
                   </div>
 
@@ -730,9 +730,13 @@ export default function ManagePage() {
                     </div>
                   )}
 
-                  {/* Email Pemulihan */}
+                  {/* Kontak Pemulihan (WhatsApp / Email) */}
                   <div className="summary-card-row">
-                    <span className="summary-label">Email Pemulihan</span>
+                    <span className="summary-label">
+                      {loggedInCard.email && /^[0-9+]+$/.test(loggedInCard.email.replace(/[\s-]/g, ''))
+                        ? 'No. WhatsApp Pemilik'
+                        : 'Email / Kontak Pemulihan'}
+                    </span>
                     <div className="summary-val-sub font-mono" style={{ fontSize: '0.78rem' }}>
                       {loggedInCard.email}
                     </div>

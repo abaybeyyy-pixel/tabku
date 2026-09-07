@@ -33,6 +33,20 @@ export function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+export function isValidPhone(phone: string): boolean {
+  if (!phone) return false;
+  const cleaned = phone.replace(/[\s\-\+\(\)]/g, '');
+  return /^[0-9]{9,16}$/.test(cleaned);
+}
+
+export function normalizePhoneNumber(phone: string): string {
+  let cleaned = phone.replace(/[\s\-\(\)\+]/g, '').trim();
+  if (cleaned.startsWith('0')) {
+    cleaned = '62' + cleaned.substring(1);
+  }
+  return cleaned;
+}
+
 export function verifyAdminPassword(password: string): boolean {
   const adminPassword = process.env.ADMIN_PASSWORD || 'Admin123!?';
   return password === adminPassword;
