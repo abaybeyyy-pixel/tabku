@@ -3226,6 +3226,11 @@ a {
   box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(37, 99, 235, 0.25);
 }
 
+.hero-product-card picture {
+  display: block;
+  width: 100%;
+}
+
 .hero-product-image {
   width: 100%;
   height: auto;
@@ -3301,6 +3306,15 @@ a {
   }
   .hero-product-subtext {
     font-size: 0.62rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero-product-card {
+    max-width: 280px;
+  }
+  .hero-product-subtext {
+    display: none;
   }
 }
 

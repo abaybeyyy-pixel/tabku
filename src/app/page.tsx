@@ -528,14 +528,23 @@ export default function Homepage() {
             {/* Right Column: Real Product Showcase */}
             <div className="hero-product-col">
               <div className="hero-product-card">
-                <img
-                  src="/googlereview.jpg"
-                  alt="Jual Kartu Google Review NFC & Google Review Card Akrilik Indonesia Mycarrd"
-                  className="hero-product-image"
-                  width={1024}
-                  height={1024}
-                  loading="eager"
-                />
+                <picture>
+                  <source
+                    type="image/webp"
+                    srcSet="/imagefix-480.webp 480w, /imagefix-800.webp 800w, /imagefix.webp 1200w"
+                    sizes="(max-width: 480px) 330px, (max-width: 860px) 380px, 440px"
+                  />
+                  <img
+                    src="/imagefix.png"
+                    alt="Jual Kartu Google Review NFC & Google Review Card Akrilik Indonesia Mycarrd"
+                    className="hero-product-image"
+                    width={440}
+                    height={440}
+                    fetchPriority="high"
+                    loading="eager"
+                    decoding="async"
+                  />
+                </picture>
                 <div className="hero-product-caption">
                   <div className="hero-product-pill">
                     <span className="hero-product-dot"></span>
