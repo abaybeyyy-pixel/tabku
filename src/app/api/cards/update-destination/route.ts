@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { findCardById, updateDestination } from '@/lib/db-helpers';
 import { verifyPin } from '@/lib/auth';
 import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit';
+import { resolveGoogleMapsReviewUrl } from '@/lib/url-resolver';
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,9 +19,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'ID Kartu dan PIN wajib diisi.' }, { status: 400 });
     }
 
-    const isCustomLink = linkType === 'custom_url' || (!!customUrl && !placeId);
+    const isCustomLink = linkType === 'custom_url';
 
-    if (!isCustomLink && !placeId && (!businessName || businessName.trim().length === 0)) {
+    if (!isCustomLink && !placeId && !customUrl && (!businessName || businessName.trim().length === 0)) {
       return NextResponse.json({ error: 'Nama bisnis atau tautan baru wajib diisi.' }, { status: 400 });
     }
 
@@ -54,9 +55,24 @@ export async function POST(request: NextRequest) {
       destinationUrl = formattedUrl;
       newPlaceId = null; // Clear place_id since it's now a custom link
       newAddress = null;
-    } else if (placeId) {
-      destinationUrl = `https://search.google.com/local/writereview?placeid=${placeId}`;
-      newPlaceId = placeId;
+    } else if (placeId || customUrl || businessName) {
+      if (placeId?.startsWith('direct:')) {
+        const decodedQuery = decodeURIComponent(placeId.replace('direct:', ''));
+        destinationUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(decodedQuery)}`;
+        newPlaceId = placeId;
+      } else if (placeId?.startsWith('http://') || placeId?.startsWith('https://')) {
+        destinationUrl = await resolveGoogleMapsReviewUrl(placeId);
+        newPlaceId = placeId;
+      } else if (placeId) {
+        destinationUrl = `https://search.google.com/local/writereview?placeid=${placeId}`;
+        newPlaceId = placeId;
+      } else if (customUrl) {
+        destinationUrl = await resolveGoogleMapsReviewUrl(customUrl);
+        newPlaceId = customUrl;
+      } else if (businessName) {
+        destinationUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(businessName.trim())}`;
+        newPlaceId = `direct:${encodeURIComponent(businessName.trim())}`;
+      }
       newAddress = businessAddress?.trim() || null;
     }
 

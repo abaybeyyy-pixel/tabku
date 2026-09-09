@@ -7,6 +7,9 @@ interface PlaceResult {
   placeId: string;
   name: string;
   address: string;
+  destinationUrl?: string;
+  source?: 'google' | 'url' | 'osm' | 'direct';
+  isDirect?: boolean;
 }
 
 interface LoggedInCard {
@@ -180,6 +183,12 @@ export default function ManagePage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Gagal mencari bisnis.');
+      
+      if (data.isUrl && data.results && data.results.length === 1) {
+        handleSelectBusiness(data.results[0]);
+        return;
+      }
+
       setSearchResults(data.results || []);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gagal mencari bisnis.';
@@ -216,6 +225,7 @@ export default function ManagePage() {
           placeId: selectedBusiness.placeId,
           businessName: selectedBusiness.name,
           businessAddress: selectedBusiness.address,
+          customUrl: selectedBusiness.destinationUrl,
         }),
       });
 
@@ -225,12 +235,14 @@ export default function ManagePage() {
         throw new Error(data.error || 'Gagal memperbarui bisnis.');
       }
 
+      const finalDest = data.card?.destinationUrl || (selectedBusiness.destinationUrl || `https://search.google.com/local/writereview?placeid=${selectedBusiness.placeId}`);
+
       setLoggedInCard((prev) => (prev ? {
         ...prev,
         businessName: selectedBusiness.name,
         businessAddress: selectedBusiness.address,
         placeId: selectedBusiness.placeId,
-        destinationUrl: `https://search.google.com/local/writereview?placeid=${selectedBusiness.placeId}`,
+        destinationUrl: finalDest,
       } : null));
       setCustomBusinessName(selectedBusiness.name);
       setSuccessMsg('Lokasi bisnis berhasil diperbarui.');
@@ -895,12 +907,12 @@ export default function ManagePage() {
                   <div className="form-group animate-fade-in">
                     {!selectedBusiness ? (
                       <div className="input-group">
-                        <label htmlFor="businessSearchManage">Cari Nama Tempat / Toko di Google Maps</label>
+                        <label htmlFor="businessSearchManage">Cari Tempat / Toko di Google Maps atau Tempel Link</label>
                         <div className="flex gap-2">
                           <input
                             type="text"
                             id="businessSearchManage"
-                            placeholder="contoh: Kedai Kopi Joni Palembang"
+                            placeholder="contoh: Kopi Kenangan atau tempel link Maps"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={(e) => {
@@ -921,6 +933,9 @@ export default function ManagePage() {
                             {searching ? 'Mencari...' : 'Cari'}
                           </button>
                         </div>
+                        <span className="text-[11px] text-muted mt-1 block">
+                          💡 Anda dapat mengetik nama bisnis atau langsung menempel link Google Maps dari tombol Bagikan.
+                        </span>
 
                         {/* Search Results List */}
                         {searchResults.length > 0 && (
@@ -928,7 +943,24 @@ export default function ManagePage() {
                             {searchResults.map((place) => (
                               <div key={place.placeId} className="search-result-item">
                                 <div className="search-result-info">
-                                  <span className="search-result-name">{place.name}</span>
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span className="search-result-name">{place.name}</span>
+                                    {place.source === 'google' && (
+                                      <span className="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-1.5 py-0.5 rounded">
+                                        Google Maps Resmi
+                                      </span>
+                                    )}
+                                    {place.isDirect && (
+                                      <span className="text-[10px] bg-blue-100 text-blue-800 font-semibold px-1.5 py-0.5 rounded">
+                                        Gunakan Nama Ini
+                                      </span>
+                                    )}
+                                    {place.source === 'url' && (
+                                      <span className="text-[10px] bg-purple-100 text-purple-800 font-semibold px-1.5 py-0.5 rounded">
+                                        Tautan Terverifikasi
+                                      </span>
+                                    )}
+                                  </div>
                                   <span className="search-result-address">{place.address}</span>
                                 </div>
                                 <button
@@ -946,7 +978,7 @@ export default function ManagePage() {
                         {/* No results */}
                         {hasSearched && !searching && searchResults.length === 0 && (
                           <div className="info-alert mt-2">
-                            Tidak ditemukan tempat dengan nama tersebut. Coba gunakan kata kunci atau lokasi yang lebih spesifik.
+                            Tidak ditemukan tempat dengan nama tersebut. Coba gunakan kata kunci atau lokasi yang lebih spesifik atau tempel tautan Google Maps langsung.
                           </div>
                         )}
 
@@ -971,6 +1003,19 @@ export default function ManagePage() {
                           <div className="selected-business-info">
                             <span className="selected-business-name">{selectedBusiness.name}</span>
                             <span className="selected-business-address">{selectedBusiness.address}</span>
+                            <a
+                              href={selectedBusiness.destinationUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedBusiness.name)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[11px] text-blue-600 hover:underline inline-flex items-center gap-1 font-semibold mt-1"
+                            >
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                <polyline points="15 3 21 3 21 9"/>
+                                <line x1="10" y1="14" x2="21" y2="3"/>
+                              </svg>
+                              Uji Buka Link Ulasan Google Maps
+                            </a>
                           </div>
                         </div>
 

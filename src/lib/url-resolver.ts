@@ -1,4 +1,4 @@
-function extractPlaceIdFromFtid(ftid: string): string | null {
+export function extractPlaceIdFromFtid(ftid: string): string | null {
   try {
     const parts = ftid.split(':');
     if (parts.length !== 2) return null;
@@ -28,6 +28,94 @@ function extractPlaceIdFromFtid(ftid: string): string | null {
   }
 }
 
+export interface ResolvedPlaceDetails {
+  name: string;
+  placeId: string | null;
+  destinationUrl: string;
+  address?: string;
+}
+
+/**
+ * Extracts business name, Place ID, and destination review URL from any Google Maps link
+ */
+export async function resolveGoogleMapsPlaceDetails(inputUrl: string): Promise<ResolvedPlaceDetails> {
+  let cleanUrl = inputUrl.trim();
+  if (!/^https?:\/\//i.test(cleanUrl)) {
+    cleanUrl = `https://${cleanUrl}`;
+  }
+
+  let finalUrl = cleanUrl;
+
+  // Direct placeid in input URL
+  const initialPidMatch = cleanUrl.match(/[?&]placeid=([a-zA-Z0-9_-]+)/i);
+  let placeId: string | null = initialPidMatch ? initialPidMatch[1] : null;
+
+  try {
+    const response = await fetch(cleanUrl, { 
+      redirect: 'follow', 
+      headers: { 
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7'
+      },
+      signal: AbortSignal.timeout(6000),
+    });
+    
+    // Only use response.url if it doesn't redirect to Google login/accounts
+    if (response.url && !response.url.includes('accounts.google.com')) {
+      finalUrl = response.url;
+    }
+  } catch (error) {
+    console.warn('[resolveGoogleMapsPlaceDetails] Redirect follow warning:', error);
+  }
+
+  // Extract place name from URL path /maps/place/Nama+Usaha/@...
+  let name = '';
+  const placePathMatch = finalUrl.match(/\/maps\/place\/([^/@?]+)/i) || cleanUrl.match(/\/maps\/place\/([^/@?]+)/i);
+  if (placePathMatch && placePathMatch[1]) {
+    try {
+      name = decodeURIComponent(placePathMatch[1].replace(/\+/g, ' '));
+    } catch {
+      name = placePathMatch[1].replace(/\+/g, ' ');
+    }
+  }
+
+  // Extract placeId if not found yet
+  if (!placeId) {
+    const finalPidMatch = finalUrl.match(/[?&]placeid=([a-zA-Z0-9_-]+)/i);
+    if (finalPidMatch) {
+      placeId = finalPidMatch[1];
+    }
+  }
+
+  if (!placeId) {
+    const ftidMatch = finalUrl.match(/!1s(0x[0-9a-f]+:0x[0-9a-f]+)/i) || cleanUrl.match(/!1s(0x[0-9a-f]+:0x[0-9a-f]+)/i);
+    if (ftidMatch && ftidMatch[1]) {
+      placeId = extractPlaceIdFromFtid(ftidMatch[1]);
+    }
+  }
+
+  // Determine optimal destination review URL
+  let destinationUrl = finalUrl;
+  if (placeId) {
+    destinationUrl = `https://search.google.com/local/writereview?placeid=${placeId}`;
+  } else if (finalUrl.includes('google.com/maps/place/')) {
+    const urlObj = new URL(finalUrl);
+    if (!urlObj.pathname.endsWith('/review')) {
+      urlObj.pathname = urlObj.pathname.endsWith('/') 
+        ? `${urlObj.pathname}review` 
+        : `${urlObj.pathname}/review`;
+    }
+    destinationUrl = urlObj.toString();
+  }
+
+  return {
+    name: name || 'Lokasi Google Maps',
+    placeId,
+    destinationUrl,
+    address: 'Terverifikasi dari tautan Google Maps',
+  };
+}
+
 export async function resolveGoogleMapsReviewUrl(inputUrl: string): Promise<string> {
   try {
     // Basic validation
@@ -35,40 +123,8 @@ export async function resolveGoogleMapsReviewUrl(inputUrl: string): Promise<stri
       return inputUrl; // Not a Google Maps link, return as is
     }
 
-    // Fetch the URL, it will automatically follow redirects
-    const response = await fetch(inputUrl, { 
-      redirect: 'follow', 
-      headers: { 'User-Agent': 'Mozilla/5.0' } 
-    });
-    
-    const finalUrl = response.url;
-
-    // If it's already a review link, return it
-    if (finalUrl.includes('/review') || finalUrl.includes('search.google.com/local/writereview')) {
-      return finalUrl;
-    }
-
-    // Try to extract ftid to generate official Place ID review link
-    const ftidMatch = finalUrl.match(/!1s(0x[0-9a-f]+:0x[0-9a-f]+)/i);
-    if (ftidMatch && ftidMatch[1]) {
-      const placeId = extractPlaceIdFromFtid(ftidMatch[1]);
-      if (placeId) {
-        return `https://search.google.com/local/writereview?placeid=${placeId}`;
-      }
-    }
-
-    // Fallback: If it's a google maps place link and no ftid found
-    if (finalUrl.includes('google.com/maps/place/')) {
-      const urlObj = new URL(finalUrl);
-      if (!urlObj.pathname.endsWith('/review')) {
-        urlObj.pathname = urlObj.pathname.endsWith('/') 
-          ? `${urlObj.pathname}review` 
-          : `${urlObj.pathname}/review`;
-      }
-      return urlObj.toString();
-    }
-
-    return finalUrl; // Fallback to whatever the final URL is
+    const details = await resolveGoogleMapsPlaceDetails(inputUrl);
+    return details.destinationUrl || inputUrl;
   } catch (error) {
     console.error('Error resolving Google Maps URL:', error);
     return inputUrl; // Return original if resolution fails

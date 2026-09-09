@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { findCardById, activateCard } from '@/lib/db-helpers';
 import { hashPin, isValidPin, isValidEmail, isValidPhone } from '@/lib/auth';
+import { resolveGoogleMapsReviewUrl } from '@/lib/url-resolver';
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,9 +27,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Business name is required.' }, { status: 400 });
     }
 
-    // Validate destination: either Google Review Place ID or Custom URL
+    // Validate destination: either Google Review Place ID, Direct Google Review URL, or Custom URL
     let destinationUrl = '';
-    const isCustomLink = linkType === 'custom_url' || (!!customUrl && !placeId);
+    const isCustomLink = linkType === 'custom_url';
 
     if (isCustomLink) {
       if (!customUrl || customUrl.trim().length === 0) {
@@ -45,10 +46,22 @@ export async function POST(request: NextRequest) {
       }
       destinationUrl = formattedUrl;
     } else {
-      if (!placeId || placeId.trim().length === 0) {
-        return NextResponse.json({ error: 'Silakan cari dan pilih lokasi bisnis Google Maps.' }, { status: 400 });
+      if ((!placeId || placeId.trim().length === 0) && (!customUrl || customUrl.trim().length === 0) && (!businessName || businessName.trim().length === 0)) {
+        return NextResponse.json({ error: 'Silakan cari dan pilih lokasi bisnis Google Maps atau masukkan link Google Maps.' }, { status: 400 });
       }
-      destinationUrl = `https://search.google.com/local/writereview?placeid=${placeId}`;
+
+      if (placeId?.startsWith('direct:')) {
+        const queryParam = decodeURIComponent(placeId.replace('direct:', ''));
+        destinationUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryParam)}`;
+      } else if (placeId?.startsWith('http://') || placeId?.startsWith('https://')) {
+        destinationUrl = await resolveGoogleMapsReviewUrl(placeId);
+      } else if (placeId) {
+        destinationUrl = `https://search.google.com/local/writereview?placeid=${placeId}`;
+      } else if (customUrl) {
+        destinationUrl = await resolveGoogleMapsReviewUrl(customUrl);
+      } else {
+        destinationUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(businessName.trim())}`;
+      }
     }
 
     // Validate WhatsApp number / contact (accepts phone or legacy email)
