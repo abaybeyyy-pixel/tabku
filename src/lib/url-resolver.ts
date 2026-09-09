@@ -36,7 +36,8 @@ export interface ResolvedPlaceDetails {
 }
 
 /**
- * Extracts business name, Place ID, and destination review URL from any Google Maps link
+ * Resolves any Google Maps link (maps.app.goo.gl, goo.gl/maps, google.com/maps/place, etc.)
+ * into a direct 5-star Google Review URL: https://search.google.com/local/writereview?placeid=...
  */
 export async function resolveGoogleMapsPlaceDetails(inputUrl: string): Promise<ResolvedPlaceDetails> {
   let cleanUrl = inputUrl.trim();
@@ -46,8 +47,8 @@ export async function resolveGoogleMapsPlaceDetails(inputUrl: string): Promise<R
 
   let finalUrl = cleanUrl;
 
-  // Direct placeid in input URL
-  const initialPidMatch = cleanUrl.match(/[?&]placeid=([a-zA-Z0-9_-]+)/i);
+  // 1. Direct placeid in input URL
+  const initialPidMatch = cleanUrl.match(/[?&]placeid=([a-zA-Z0-9_-]+)/i) || cleanUrl.match(/(ChIJ[a-zA-Z0-9_-]{20,})/i);
   let placeId: string | null = initialPidMatch ? initialPidMatch[1] : null;
 
   try {
@@ -68,7 +69,7 @@ export async function resolveGoogleMapsPlaceDetails(inputUrl: string): Promise<R
     console.warn('[resolveGoogleMapsPlaceDetails] Redirect follow warning:', error);
   }
 
-  // Extract place name from URL path /maps/place/Nama+Usaha/@...
+  // 2. Extract place name from URL path /maps/place/Nama+Usaha/@...
   let name = '';
   const placePathMatch = finalUrl.match(/\/maps\/place\/([^/@?]+)/i) || cleanUrl.match(/\/maps\/place\/([^/@?]+)/i);
   if (placePathMatch && placePathMatch[1]) {
@@ -79,22 +80,37 @@ export async function resolveGoogleMapsPlaceDetails(inputUrl: string): Promise<R
     }
   }
 
-  // Extract placeId if not found yet
+  // If no name from path, check query param q=...
+  if (!name) {
+    const qMatch = finalUrl.match(/[?&]q=([^&]+)/i) || cleanUrl.match(/[?&]q=([^&]+)/i) || finalUrl.match(/\/maps\/search\/([^/?]+)/i);
+    if (qMatch && qMatch[1]) {
+      try {
+        name = decodeURIComponent(qMatch[1].replace(/\+/g, ' '));
+      } catch {
+        name = qMatch[1].replace(/\+/g, ' ');
+      }
+    }
+  }
+
+  // 3. Extract placeId if not found yet
   if (!placeId) {
-    const finalPidMatch = finalUrl.match(/[?&]placeid=([a-zA-Z0-9_-]+)/i);
+    const finalPidMatch = finalUrl.match(/[?&]placeid=([a-zA-Z0-9_-]+)/i) || finalUrl.match(/(ChIJ[a-zA-Z0-9_-]{20,})/i);
     if (finalPidMatch) {
       placeId = finalPidMatch[1];
     }
   }
 
+  // 4. Extract from hex FTID (0x...:0x...)
   if (!placeId) {
-    const ftidMatch = finalUrl.match(/!1s(0x[0-9a-f]+:0x[0-9a-f]+)/i) || cleanUrl.match(/!1s(0x[0-9a-f]+:0x[0-9a-f]+)/i);
+    const ftidMatch = finalUrl.match(/!1s(0x[0-9a-f]+:0x[0-9a-f]+)/i) || 
+                      cleanUrl.match(/!1s(0x[0-9a-f]+:0x[0-9a-f]+)/i) ||
+                      finalUrl.match(/(0x[0-9a-f]{10,}:0x[0-9a-f]{10,})/i);
     if (ftidMatch && ftidMatch[1]) {
       placeId = extractPlaceIdFromFtid(ftidMatch[1]);
     }
   }
 
-  // Determine optimal destination review URL
+  // 5. Build Direct 5-Star Write Review URL
   let destinationUrl = finalUrl;
   if (placeId) {
     destinationUrl = `https://search.google.com/local/writereview?placeid=${placeId}`;
@@ -106,10 +122,12 @@ export async function resolveGoogleMapsPlaceDetails(inputUrl: string): Promise<R
         : `${urlObj.pathname}/review`;
     }
     destinationUrl = urlObj.toString();
+  } else if (name && name !== 'Lokasi Google Maps') {
+    destinationUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`;
   }
 
   return {
-    name: name || 'Lokasi Google Maps',
+    name: name || 'Usaha Google Maps',
     placeId,
     destinationUrl,
     address: 'Terverifikasi dari tautan Google Maps',
@@ -118,15 +136,14 @@ export async function resolveGoogleMapsPlaceDetails(inputUrl: string): Promise<R
 
 export async function resolveGoogleMapsReviewUrl(inputUrl: string): Promise<string> {
   try {
-    // Basic validation
-    if (!inputUrl.includes('google.com') && !inputUrl.includes('goo.gl')) {
-      return inputUrl; // Not a Google Maps link, return as is
+    if (!inputUrl.includes('google.com') && !inputUrl.includes('goo.gl') && !inputUrl.includes('g.page')) {
+      return inputUrl;
     }
 
     const details = await resolveGoogleMapsPlaceDetails(inputUrl);
     return details.destinationUrl || inputUrl;
   } catch (error) {
     console.error('Error resolving Google Maps URL:', error);
-    return inputUrl; // Return original if resolution fails
+    return inputUrl;
   }
 }

@@ -6,13 +6,11 @@ interface OnboardingFormProps {
   cardId: string;
 }
 
-interface PlaceResult {
-  placeId: string;
+interface ConvertedReview {
   name: string;
-  address: string;
-  destinationUrl?: string;
-  source?: 'google' | 'url' | 'osm' | 'direct';
-  isDirect?: boolean;
+  placeId: string | null;
+  reviewUrl: string;
+  address?: string;
 }
 
 export default function OnboardingForm({ cardId }: OnboardingFormProps) {
@@ -20,21 +18,12 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
   const [linkType, setLinkType] = useState<'google_review' | 'custom_url'>('google_review');
   const [customUrl, setCustomUrl] = useState('');
 
-  // Business search state (Google Places & Fallbacks)
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<PlaceResult[]>([]);
-  const [searching, setSearching] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [searchNotice, setSearchNotice] = useState('');
+  // Google Maps link & auto-convert state
+  const [googleMapsUrl, setGoogleMapsUrl] = useState('');
+  const [converting, setConverting] = useState(false);
+  const [convertedReview, setConvertedReview] = useState<ConvertedReview | null>(null);
 
-  // Manual input state
-  const [isManualInput, setIsManualInput] = useState(false);
-  const [manualBusinessName, setManualBusinessName] = useState('');
-  const [manualMapsUrl, setManualMapsUrl] = useState('');
-  const [manualAddress, setManualAddress] = useState('');
-
-  // Selected business state & customizable name
-  const [selectedBusiness, setSelectedBusiness] = useState<PlaceResult | null>(null);
+  // Business Name on Card
   const [businessName, setBusinessName] = useState('');
 
   // Form state
@@ -52,134 +41,91 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
     linkType: 'google_review' | 'custom_url';
   } | null>(null);
 
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) {
-      setError('Masukkan kata kunci pencarian bisnis atau tempel tautan Google Maps.');
-      return;
+  const handleConvertLink = async (urlOverride?: string): Promise<ConvertedReview | null> => {
+    const rawUrl = (urlOverride !== undefined ? urlOverride : googleMapsUrl).trim();
+    if (!rawUrl) {
+      setError('Masukkan tautan Google Maps usaha Anda terlebih dahulu.');
+      return null;
     }
 
-    setSearching(true);
-    setHasSearched(true);
+    setConverting(true);
     setError('');
-    setSearchNotice('');
-    setSearchResults([]);
 
     try {
-      const response = await fetch('/api/places/search', {
+      const response = await fetch('/api/resolve-url', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: searchQuery.trim() }),
+        body: JSON.stringify({ url: rawUrl }),
       });
+
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Pencarian gagal.');
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Gagal memproses tautan Google Maps.');
       }
 
-      // If user pasted a direct Google Maps link, select it immediately
-      if (data.isUrl && data.results && data.results.length === 1) {
-        handleSelectBusiness(data.results[0]);
-        return;
+      const reviewData: ConvertedReview = {
+        name: data.name || 'Usaha Google Maps',
+        placeId: data.placeId || null,
+        reviewUrl: data.destinationUrl || rawUrl,
+        address: data.address || 'Terverifikasi dari tautan Google Maps',
+      };
+
+      setConvertedReview(reviewData);
+
+      // Auto-fill business name if not edited yet
+      if (!businessName.trim() && data.name && data.name !== 'Usaha Google Maps') {
+        setBusinessName(data.name);
       }
 
-      if (data.message) {
-        setSearchNotice(data.message);
-      }
-
-      if (!data.results || data.results.length === 0) {
-        setError('Lokasi bisnis tidak ditemukan. Anda dapat menggunakan opsi Input Manual di bawah.');
-      } else {
-        setSearchResults(data.results);
-      }
+      return reviewData;
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Terjadi kesalahan sistem saat mencari lokasi.';
+      const message = err instanceof Error ? err.message : 'Tautan tidak valid atau gagal diproses.';
       setError(message);
+      return null;
     } finally {
-      setSearching(false);
+      setConverting(false);
     }
   };
 
-  const handleApplyManual = async () => {
-    if (!manualBusinessName.trim()) {
-      setError('Nama usaha wajib diisi.');
-      return;
+  const handleUrlPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pastedText = e.clipboardData.getData('text');
+    if (pastedText && (pastedText.includes('google.com/maps') || pastedText.includes('goo.gl') || pastedText.includes('http'))) {
+      setGoogleMapsUrl(pastedText);
+      setTimeout(() => {
+        handleConvertLink(pastedText);
+      }, 50);
     }
-
-    setSearching(true);
-    setError('');
-
-    try {
-      let placeId = `direct:${encodeURIComponent(manualBusinessName.trim())}`;
-      let addr = manualAddress.trim() || 'Google Maps Review';
-      let destUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(manualBusinessName.trim())}`;
-
-      if (manualMapsUrl.trim()) {
-        try {
-          const res = await fetch('/api/places/search', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: manualMapsUrl.trim() }),
-          });
-          const d = await res.json();
-          if (d.results && d.results.length > 0) {
-            placeId = d.results[0].placeId;
-            destUrl = d.results[0].destinationUrl || destUrl;
-            if (d.results[0].address) addr = d.results[0].address;
-          }
-        } catch {
-          placeId = manualMapsUrl.trim();
-          destUrl = manualMapsUrl.trim();
-        }
-      }
-
-      handleSelectBusiness({
-        placeId,
-        name: manualBusinessName.trim(),
-        address: addr,
-        destinationUrl: destUrl,
-        source: manualMapsUrl.trim() ? 'url' : 'direct',
-      });
-      setIsManualInput(false);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Gagal memproses data usaha.';
-      setError(message);
-    } finally {
-      setSearching(false);
-    }
-  };
-
-  const handleSelectBusiness = (place: PlaceResult) => {
-    setSelectedBusiness(place);
-    setBusinessName(place.name);
-    setSearchResults([]);
-    setHasSearched(false);
-    setSearchNotice('');
-    setError('');
-  };
-
-  const handleChangeBusiness = () => {
-    setSelectedBusiness(null);
-    setBusinessName('');
-    setSearchQuery('');
-    setSearchResults([]);
-    setHasSearched(false);
-    setSearchNotice('');
-    setIsManualInput(false);
-    setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
+    let finalDestinationUrl = '';
+    let finalPlaceId: string | null = null;
+    let finalAddress = '';
+
     if (linkType === 'google_review') {
-      if (!selectedBusiness) {
-        setError('Silakan cari dan pilih bisnis Google Maps Anda terlebih dahulu.');
+      if (!googleMapsUrl.trim()) {
+        setError('Tautan Google Maps usaha wajib diisi.');
         return;
       }
+
+      let currentReview = convertedReview;
+      if (!currentReview || currentReview.reviewUrl === '') {
+        currentReview = await handleConvertLink(googleMapsUrl);
+        if (!currentReview) {
+          return;
+        }
+      }
+
+      finalDestinationUrl = currentReview.reviewUrl;
+      finalPlaceId = currentReview.placeId;
+      finalAddress = currentReview.address || '';
+
       if (!businessName.trim()) {
-        setError('Nama bisnis wajib diisi.');
+        setError('Nama usaha wajib diisi.');
         return;
       }
     } else {
@@ -197,6 +143,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
         setError('Format URL tidak valid. Contoh: https://instagram.com/tokoanda');
         return;
       }
+      finalDestinationUrl = formattedUrl;
       if (!businessName.trim()) {
         setError('Nama usaha atau label kartu wajib diisi.');
         return;
@@ -222,11 +169,6 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
     setLoading(true);
 
     try {
-      let finalCustomUrl = customUrl.trim();
-      if (linkType === 'custom_url' && !/^https?:\/\//i.test(finalCustomUrl)) {
-        finalCustomUrl = `https://${finalCustomUrl}`;
-      }
-
       const response = await fetch('/api/cards/activate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -234,9 +176,9 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
           cardId,
           linkType,
           businessName: businessName.trim(),
-          placeId: linkType === 'google_review' ? selectedBusiness?.placeId : undefined,
-          businessAddress: linkType === 'google_review' ? selectedBusiness?.address : undefined,
-          customUrl: linkType === 'custom_url' ? finalCustomUrl : selectedBusiness?.destinationUrl,
+          placeId: linkType === 'google_review' ? (finalPlaceId || undefined) : undefined,
+          businessAddress: linkType === 'google_review' ? finalAddress : undefined,
+          customUrl: finalDestinationUrl,
           phone: phone.trim(),
           pin,
           confirmPin,
@@ -251,9 +193,9 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
 
       setActivatedData({
         businessName: businessName.trim(),
-        businessAddress: linkType === 'google_review' ? selectedBusiness?.address : undefined,
-        placeId: linkType === 'google_review' ? selectedBusiness?.placeId : null,
-        destinationUrl: data.card?.destinationUrl || (linkType === 'custom_url' ? finalCustomUrl : (selectedBusiness?.destinationUrl || `https://search.google.com/local/writereview?placeid=${selectedBusiness?.placeId}`)),
+        businessAddress: linkType === 'google_review' ? finalAddress : undefined,
+        placeId: linkType === 'google_review' ? finalPlaceId : null,
+        destinationUrl: data.card?.destinationUrl || finalDestinationUrl,
         linkType,
       });
       setSuccess(true);
@@ -278,7 +220,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
         <h2 className="text-xl font-bold mb-2">Kartu Anda Telah Aktif!</h2>
         <p className="text-muted text-xs mb-4">
           {activatedData.linkType === 'google_review'
-            ? 'Kartu fisik NFC dan kode QR Anda sudah terhubung ke ulasan Google.'
+            ? 'Kartu fisik NFC dan kode QR Anda sudah terhubung ke ulasan bintang 5 Google Maps.'
             : 'Kartu fisik NFC dan kode QR Anda sudah terhubung ke tautan khusus Anda.'}
         </p>
 
@@ -290,16 +232,6 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
               {activatedData.businessName}
             </div>
           </div>
-
-          {/* Alamat Terdaftar (Google Places) */}
-          {activatedData.businessAddress && (
-            <div className="summary-card-row">
-              <span className="summary-label">Alamat Lokasi</span>
-              <div className="summary-val-sub">
-                {activatedData.businessAddress}
-              </div>
-            </div>
-          )}
 
           {/* ID Kartu & Status */}
           <div className="summary-card-grid-2">
@@ -349,7 +281,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
               <polyline points="15 3 21 3 21 9" />
               <line x1="10" y1="14" x2="21" y2="3" />
             </svg>
-            {activatedData.linkType === 'google_review' ? 'Buka Halaman Ulasan Google' : 'Buka Tautan Tujuan'}
+            {activatedData.linkType === 'google_review' ? 'Buka Halaman Ulasan Bintang 5' : 'Buka Tautan Tujuan'}
           </a>
           <a
             href={`/c/${cardId}`}
@@ -370,7 +302,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
     );
   }
 
-  const isFormReadyForPin = linkType === 'google_review' ? !!selectedBusiness : !!customUrl.trim();
+  const isFormReadyForPin = linkType === 'google_review' ? !!googleMapsUrl.trim() : !!customUrl.trim();
 
   return (
     <div className="animate-fade-in">
@@ -414,239 +346,90 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
       <form onSubmit={handleSubmit} className="form-group">
         {error && <div className="error-alert">{error}</div>}
 
-        {/* TAB 1: GOOGLE MAPS REVIEW */}
+        {/* TAB 1: GOOGLE MAPS REVIEW (COPY LINK TO 5-STAR DIRECT) */}
         {linkType === 'google_review' && (
-          <>
-            {!selectedBusiness ? (
-              <div className="input-group">
-                <div className="flex justify-between items-center mb-1">
-                  <label htmlFor="businessSearch" className="mb-0">
-                    Cari Tempat / Usaha di Google Maps
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsManualInput(!isManualInput);
-                      setError('');
-                    }}
-                    className="text-[11px] text-blue-600 hover:underline font-semibold"
-                  >
-                    {isManualInput ? '« Mode Pencarian' : '⚡ Input Manual / Link'}
-                  </button>
-                </div>
-
-                {!isManualInput ? (
-                  <>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        id="businessSearch"
-                        placeholder="contoh: Kopi Kenangan / tempel link Maps"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleSearch();
-                          }
-                        }}
-                        disabled={searching || loading}
-                        style={{ flex: 1 }}
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleSearch}
-                      disabled={searching || !searchQuery.trim()}
-                      className="btn btn-secondary mt-1 w-full py-2 text-xs font-semibold"
-                    >
-                      {searching ? 'Mencari Lokasi...' : 'Cari Tempat'}
-                    </button>
-
-                    <div className="text-[11px] text-muted mt-1 leading-normal">
-                      💡 Ketik nama usaha <strong>atau tempel link Google Maps</strong> dari tombol Bagikan di aplikasi Google Maps.
-                    </div>
-
-                    {searchNotice && (
-                      <div className="info-alert mt-2 text-[11px]">
-                        {searchNotice}
-                      </div>
-                    )}
-
-                    {/* Search Results */}
-                    {searchResults.length > 0 && (
-                      <div className="search-results mt-2">
-                        {searchResults.map((place) => (
-                          <div key={place.placeId} className="search-result-item">
-                            <div className="search-result-info">
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="search-result-name">{place.name}</span>
-                                {place.source === 'google' && (
-                                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-1.5 py-0.5 rounded">
-                                    Google Maps Resmi
-                                  </span>
-                                )}
-                                {place.isDirect && (
-                                  <span className="text-[10px] bg-blue-100 text-blue-800 font-semibold px-1.5 py-0.5 rounded">
-                                    Gunakan Nama Ini
-                                  </span>
-                                )}
-                                {place.source === 'url' && (
-                                  <span className="text-[10px] bg-purple-100 text-purple-800 font-semibold px-1.5 py-0.5 rounded">
-                                    Tautan Terverifikasi
-                                  </span>
-                                )}
-                              </div>
-                              <span className="search-result-address">{place.address}</span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => handleSelectBusiness(place)}
-                              className="btn btn-primary py-1 px-3 text-xs font-semibold"
-                            >
-                              Pilih
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* No results */}
-                    {hasSearched && !searching && searchResults.length === 0 && (
-                      <div className="info-alert mt-2">
-                        Tidak ditemukan tempat dengan nama tersebut.{' '}
-                        <button
-                          type="button"
-                          onClick={() => setIsManualInput(true)}
-                          className="font-bold underline text-blue-700 hover:text-blue-900"
-                        >
-                          Klik di sini untuk Input Manual / Tempel Link
-                        </button>.
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  /* Manual input mode */
-                  <div className="border border-blue-200 bg-blue-50/40 rounded-lg p-3 mt-1 flex flex-col gap-2.5">
-                    <div className="text-xs text-blue-900 font-semibold">
-                      Masukkan Informasi Usaha / Link Google Maps
-                    </div>
-                    <div>
-                      <label htmlFor="manualName" className="text-[11px] font-semibold block mb-1">
-                        Nama Usaha *
-                      </label>
-                      <input
-                        type="text"
-                        id="manualName"
-                        placeholder="contoh: Kopi Kenangan Grand Indonesia"
-                        value={manualBusinessName}
-                        onChange={(e) => setManualBusinessName(e.target.value)}
-                        disabled={searching || loading}
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="manualUrl" className="text-[11px] font-semibold block mb-1">
-                        Link Google Maps / Link Ulasan (Dianjurkan jika ada)
-                      </label>
-                      <input
-                        type="text"
-                        id="manualUrl"
-                        placeholder="https://maps.app.goo.gl/... atau https://google.com/maps/place/..."
-                        value={manualMapsUrl}
-                        onChange={(e) => setManualMapsUrl(e.target.value)}
-                        disabled={searching || loading}
-                      />
-                      <span className="text-[10px] text-muted block mt-0.5">
-                        Tips: Buka Google Maps &gt; cari usaha Anda &gt; klik Bagikan &gt; Salin link.
-                      </span>
-                    </div>
-                    <div>
-                      <label htmlFor="manualAddr" className="text-[11px] font-semibold block mb-1">
-                        Alamat / Kota (Opsional)
-                      </label>
-                      <input
-                        type="text"
-                        id="manualAddr"
-                        placeholder="contoh: Jakarta Pusat"
-                        value={manualAddress}
-                        onChange={(e) => setManualAddress(e.target.value)}
-                        disabled={searching || loading}
-                      />
-                    </div>
-                    <div className="flex gap-2 mt-1">
-                      <button
-                        type="button"
-                        onClick={handleApplyManual}
-                        disabled={searching || !manualBusinessName.trim()}
-                        className="btn btn-primary py-2 px-3 text-xs font-semibold flex-1"
-                      >
-                        {searching ? 'Memproses...' : 'Terapkan Lokasi Ini'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setIsManualInput(false)}
-                        className="btn btn-secondary py-2 px-3 text-xs font-semibold"
-                      >
-                        Batal
-                      </button>
-                    </div>
-                  </div>
-                )}
+          <div className="animate-fade-in">
+            <div className="input-group">
+              <label htmlFor="googleMapsUrl">Tautan Google Maps Usaha</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  id="googleMapsUrl"
+                  placeholder="https://maps.app.goo.gl/... atau google.com/maps/place/..."
+                  value={googleMapsUrl}
+                  onChange={(e) => {
+                    setGoogleMapsUrl(e.target.value);
+                    if (convertedReview) setConvertedReview(null);
+                  }}
+                  onPaste={handleUrlPaste}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleConvertLink();
+                    }
+                  }}
+                  disabled={loading || converting}
+                  style={{ flex: 1 }}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => handleConvertLink()}
+                  disabled={converting || loading || !googleMapsUrl.trim()}
+                  className="btn btn-primary py-2 px-4 text-xs font-semibold whitespace-nowrap"
+                >
+                  {converting ? 'Memproses...' : 'Cek Link'}
+                </button>
               </div>
-            ) : (
-              /* Selected Business Confirmation & Name Customization */
-              <div className="input-group">
-                <div className="flex justify-between items-center mb-1">
-                  <label>Lokasi Google Review Terpilih</label>
-                  <button
-                    type="button"
-                    onClick={handleChangeBusiness}
-                    className="text-xs text-blue-600 hover:underline font-semibold"
-                  >
-                    Ganti Lokasi
-                  </button>
-                </div>
-                <div className="selected-business-box mb-2">
-                  <div className="selected-business-check">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </div>
-                  <div className="selected-business-info">
-                    <span className="selected-business-name">{selectedBusiness.name}</span>
-                    <span className="selected-business-address">{selectedBusiness.address}</span>
-                    <a
-                      href={selectedBusiness.destinationUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(businessName || selectedBusiness.name)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[11px] text-blue-600 hover:underline inline-flex items-center gap-1 font-semibold mt-1"
-                    >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                        <polyline points="15 3 21 3 21 9"/>
-                        <line x1="10" y1="14" x2="21" y2="3"/>
-                      </svg>
-                      Uji Buka Link Ulasan Google
-                    </a>
-                  </div>
-                </div>
+              <span className="help-text">
+                Buka Google Maps &gt; cari usaha Anda &gt; klik Bagikan &gt; Salin Link lalu tempel di sini.
+              </span>
+            </div>
 
-                <div className="input-group">
-                  <label htmlFor="businessNameInput">Nama Usaha pada Kartu</label>
-                  <input
-                    type="text"
-                    id="businessNameInput"
-                    value={businessName}
-                    onChange={(e) => setBusinessName(e.target.value)}
-                    placeholder="Nama usaha Anda"
-                    disabled={loading}
-                    required
-                  />
-                  <span className="help-text">Nama bisnis yang akan terdaftar pada kartu Anda.</span>
+            {/* Converted 5-Star Status Preview */}
+            {convertedReview && (
+              <div className="selected-business-box mb-3 animate-fade-in">
+                <div className="selected-business-check">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+                <div className="selected-business-info">
+                  <span className="selected-business-name">{businessName || convertedReview.name}</span>
+                  <span className="selected-business-address">
+                    Otomatis diubah menjadi tautan ulasan bintang 5 langsung
+                  </span>
+                  <a
+                    href={convertedReview.reviewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-blue-600 hover:underline inline-flex items-center gap-1 font-semibold mt-1"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                      <polyline points="15 3 21 3 21 9"/>
+                      <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                    Uji Buka Link Ulasan Bintang 5
+                  </a>
                 </div>
               </div>
             )}
-          </>
+
+            <div className="input-group">
+              <label htmlFor="businessNameInput">Nama Usaha pada Kartu</label>
+              <input
+                type="text"
+                id="businessNameInput"
+                value={businessName}
+                onChange={(e) => setBusinessName(e.target.value)}
+                placeholder="contoh: Kopi Kenangan Grand Indonesia"
+                disabled={loading}
+                required
+              />
+              <span className="help-text">Nama bisnis yang akan terdaftar pada kartu fisik Anda.</span>
+            </div>
+          </div>
         )}
 
         {/* TAB 2: CUSTOM LINK */}
@@ -684,7 +467,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
           </div>
         )}
 
-        {/* Common Security & PIN Fields (Shown once business/URL is ready) */}
+        {/* Common Security & PIN Fields (Shown once Google Maps link or Custom URL is filled) */}
         {isFormReadyForPin && (
           <div className="animate-fade-in">
             <div className="input-group">
@@ -746,7 +529,7 @@ export default function OnboardingForm({ cardId }: OnboardingFormProps) {
             <button
               type="submit"
               className="btn btn-primary w-full py-3 font-semibold mt-1"
-              disabled={loading}
+              disabled={loading || converting}
             >
               {loading ? 'Mengaktifkan Kartu...' : 'Aktifkan Kartu Sekarang'}
             </button>

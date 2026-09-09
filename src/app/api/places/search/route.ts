@@ -8,7 +8,6 @@ interface PlaceItem {
   address: string;
   destinationUrl?: string;
   source?: 'google' | 'url' | 'osm' | 'direct';
-  isDirect?: boolean;
 }
 
 export async function POST(request: NextRequest) {
@@ -49,11 +48,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 2. Attempt Google Places API (New) if API Key is configured
+    // 2. Google Places API (New) & Legacy Text Search
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     if (apiKey) {
+      // 2a. Try Google Places API (New)
       try {
-        const response = await fetch('https://places.googleapis.com/v1/places:searchText', {
+        const responseNew = await fetch('https://places.googleapis.com/v1/places:searchText', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -69,10 +69,10 @@ export async function POST(request: NextRequest) {
           signal: AbortSignal.timeout(5000),
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          if (Array.isArray(data.places) && data.places.length > 0) {
-            const results: PlaceItem[] = data.places.map(
+        if (responseNew.ok) {
+          const dataNew = await responseNew.json();
+          if (Array.isArray(dataNew.places) && dataNew.places.length > 0) {
+            const results: PlaceItem[] = dataNew.places.map(
               (place: { id: string; displayName?: { text?: string }; formattedAddress?: string }) => ({
                 placeId: place.id,
                 name: place.displayName?.text || trimmedQuery,
@@ -83,21 +83,41 @@ export async function POST(request: NextRequest) {
             );
             return NextResponse.json({ results, source: 'google' });
           }
-        } else {
-          const errorData = await response.json().catch(() => ({}));
-          console.warn('[Google Places API Warning]', response.status, errorData?.error?.message || errorData);
         }
-      } catch (googleErr) {
-        console.warn('[Google Places API Error] Falling back to alternative search:', googleErr);
+      } catch (errNew) {
+        console.warn('[Google Places API New Error]:', errNew);
+      }
+
+      // 2b. Try Google Places API (Legacy Text Search)
+      try {
+        const legacyUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(trimmedQuery)}&region=id&language=id&key=${apiKey}`;
+        const responseLegacy = await fetch(legacyUrl, { signal: AbortSignal.timeout(5000) });
+        if (responseLegacy.ok) {
+          const dataLegacy = await responseLegacy.json();
+          if (dataLegacy.status === 'OK' && Array.isArray(dataLegacy.results) && dataLegacy.results.length > 0) {
+            const results: PlaceItem[] = dataLegacy.results.slice(0, 6).map(
+              (place: { place_id: string; name: string; formatted_address?: string }) => ({
+                placeId: place.place_id,
+                name: place.name || trimmedQuery,
+                address: place.formatted_address || 'Indonesia',
+                destinationUrl: `https://search.google.com/local/writereview?placeid=${place.place_id}`,
+                source: 'google',
+              })
+            );
+            return NextResponse.json({ results, source: 'google' });
+          }
+        }
+      } catch (errLegacy) {
+        console.warn('[Google Places Legacy Error]:', errLegacy);
       }
     }
 
-    // 3. Resilient Fallback: OpenStreetMap (Nominatim) for Indonesia + Direct Query Option
+    // 3. Fallback: Search commercial establishments & clean query match
     const fallbackResults: PlaceItem[] = [];
 
     try {
       const osmRes = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(trimmedQuery)}&countrycodes=id&limit=5&addressdetails=1`,
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(trimmedQuery)}&countrycodes=id&limit=8&addressdetails=1`,
         {
           headers: { 'User-Agent': 'MycarrdTapkuApp/1.0 (contact: support@mycarrd.com)' },
           signal: AbortSignal.timeout(4000),
@@ -108,6 +128,15 @@ export async function POST(request: NextRequest) {
         const osmData = await osmRes.json();
         if (Array.isArray(osmData)) {
           for (const item of osmData) {
+            // FILTER OUT villages, hamlets, islands, admin boundaries that are NOT businesses
+            const isNonBusinessAdminPlace = 
+              item.class === 'place' && 
+              ['village', 'hamlet', 'isolated_dwelling', 'suburb', 'county', 'state', 'country', 'island', 'administrative'].includes(item.type);
+            
+            if (isNonBusinessAdminPlace) {
+              continue; // Skip villages like "Desa Kenangan"
+            }
+
             const name = item.name || (item.display_name ? item.display_name.split(',')[0] : trimmedQuery);
             fallbackResults.push({
               placeId: `direct:${encodeURIComponent(name + ' ' + item.display_name)}`,
@@ -123,20 +152,18 @@ export async function POST(request: NextRequest) {
       console.warn('[Places Search Fallback Warning]', osmErr);
     }
 
-    // Always include a guaranteed direct match option so the user is NEVER blocked
+    // Always provide the clean direct search entry for the exact name
     fallbackResults.push({
       placeId: `direct:${encodeURIComponent(trimmedQuery)}`,
       name: trimmedQuery,
-      address: `Gunakan ulasan Google Maps untuk "${trimmedQuery}"`,
+      address: `Cari di Google Maps: "${trimmedQuery}"`,
       destinationUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(trimmedQuery)}`,
       source: 'direct',
-      isDirect: true,
     });
 
     return NextResponse.json({
       results: fallbackResults,
       isFallback: true,
-      message: 'Saran lokasi ditampilkan. Anda juga dapat menempelkan link Google Maps langsung.',
     });
   } catch (error) {
     console.error('Places search unhandled error:', error);
