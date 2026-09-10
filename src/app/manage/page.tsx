@@ -847,72 +847,63 @@ export default function ManagePage() {
             {/* TAB 2: GANTI TUJUAN KARTU (GOOGLE MAPS ATAU CUSTOM LINK) */}
             {dashTab === 'business' && (
               <div className="animate-fade-in">
-                <div className="mb-3">
-                  <span className="text-xs font-bold text-slate-800 block mb-1">Pilih Mode Tujuan Kartu:</span>
-                  <p className="text-muted text-xs">
-                    Tentukan ke mana kartu fisik NFC dan kode QR Anda akan mengarahkan pelanggan saat disentuh.
-                  </p>
+                <div className="mb-2.5">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Mode Tujuan Kartu</span>
                 </div>
 
-                {/* 2 BESAR PILIHAN KARTU (GOOGLE MAPS VS CUSTOM LINK) */}
+                {/* PILIHAN MODE KARTU: MINIMALIST & MOBILE FRIENDLY */}
                 <div className="dest-choice-grid">
                   {/* Pilihan 1: Google Maps Review */}
-                  <div
+                  <button
+                    type="button"
                     className={`dest-choice-card ${manageLinkType === 'google_review' ? 'active' : ''}`}
                     onClick={() => {
                       setManageLinkType('google_review');
                       setError('');
                     }}
                   >
-                    <div className="dest-choice-header">
+                    <div className="dest-choice-top">
                       <div className="dest-choice-icon" style={{ background: '#ecfdf5', color: '#059669' }}>
-                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                           <circle cx="12" cy="10" r="3" />
                         </svg>
                       </div>
-                      <div>
-                        <span className="dest-choice-title">Google Maps Review</span>
-                        {loggedInCard.placeId && (
-                          <span className="dest-choice-badge bg-emerald-100 text-emerald-800 ml-1.5 inline-block">
-                            Aktif
-                          </span>
-                        )}
-                      </div>
+                      {loggedInCard.placeId && (
+                        <span className="dest-choice-badge bg-emerald-100 text-emerald-800">
+                          Aktif
+                        </span>
+                      )}
                     </div>
-                    <span className="dest-choice-desc">
-                      Otomatis membuka ulasan bintang 5 profil Google Bisnis Anda.
-                    </span>
-                  </div>
+                    <span className="dest-choice-title">Google Maps</span>
+                    <span className="dest-choice-desc">Ulasan Bintang 5</span>
+                  </button>
 
                   {/* Pilihan 2: Custom Link URL */}
-                  <div
+                  <button
+                    type="button"
                     className={`dest-choice-card ${manageLinkType === 'custom_url' ? 'active' : ''}`}
                     onClick={() => {
                       setManageLinkType('custom_url');
                       setError('');
                     }}
                   >
-                    <div className="dest-choice-header">
+                    <div className="dest-choice-top">
                       <div className="dest-choice-icon" style={{ background: '#eff6ff', color: '#2563eb' }}>
-                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                           <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
                           <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                         </svg>
                       </div>
-                      <div>
-                        <span className="dest-choice-title">Custom Link URL</span>
-                        {!loggedInCard.placeId && loggedInCard.destinationUrl && (
-                          <span className="dest-choice-badge bg-blue-100 text-blue-800 ml-1.5 inline-block">
-                            Aktif
-                          </span>
-                        )}
-                      </div>
+                      {!loggedInCard.placeId && loggedInCard.destinationUrl && (
+                        <span className="dest-choice-badge bg-blue-100 text-blue-800">
+                          Aktif
+                        </span>
+                      )}
                     </div>
-                    <span className="dest-choice-desc">
-                      Arahkan ke WhatsApp, Instagram, TikTok, Website, Menu, dll.
-                    </span>
-                  </div>
+                    <span className="dest-choice-title">Custom Link</span>
+                    <span className="dest-choice-desc">Medsos, WA & Web</span>
+                  </button>
                 </div>
 
                 {/* PILIHAN 1: GOOGLE MAPS REVIEW (COPY LINK TO 5-STAR DIRECT) */}
@@ -945,22 +936,24 @@ export default function ManagePage() {
                             type="button"
                             onClick={() => handleConvertManageLink()}
                             disabled={convertingManageLink || loading || !manageGoogleMapsUrl.trim()}
-                            className="btn btn-primary py-2 px-4 text-xs font-semibold whitespace-nowrap"
+                            className="btn btn-primary py-2 px-3 text-xs font-semibold whitespace-nowrap min-h-[42px]"
                           >
-                            {convertingManageLink ? 'Memproses...' : 'Cek Link'}
+                            {convertingManageLink ? 'Proses...' : 'Cek Link'}
                           </button>
                         </div>
                         <span className="help-text">
                           Buka Google Maps &gt; cari usaha Anda &gt; klik Bagikan &gt; Salin Link lalu tempel di sini.
                         </span>
 
-                        <button
-                          type="button"
-                          onClick={() => setDashTab('details')}
-                          className="btn btn-secondary w-full py-2.5 text-xs font-semibold mt-3"
-                        >
-                          Batal & Kembali ke Ringkasan
-                        </button>
+                        <div className="btn-group-responsive">
+                          <button
+                            type="button"
+                            onClick={() => setDashTab('details')}
+                            className="btn btn-secondary w-full text-xs font-semibold btn-cancel"
+                          >
+                            Batal & Kembali ke Ringkasan
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       /* Converted 5-Star Review Confirmation */
@@ -993,11 +986,11 @@ export default function ManagePage() {
                           </div>
                         </div>
 
-                        <div className="flex gap-2 mt-2">
+                        <div className="btn-group-responsive">
                           <button
                             type="button"
                             onClick={handleUpdateGoogleReview}
-                            className="btn btn-primary w-full py-2.5 text-xs font-semibold"
+                            className="btn btn-primary w-full text-xs font-semibold btn-submit"
                             disabled={loading}
                           >
                             {loading ? 'Menyimpan...' : 'Simpan Lokasi Google Maps'}
@@ -1008,7 +1001,7 @@ export default function ManagePage() {
                               setConvertedManageReview(null);
                               setManageGoogleMapsUrl('');
                             }}
-                            className="btn btn-secondary w-full py-2.5 text-xs font-semibold"
+                            className="btn btn-secondary w-full text-xs font-semibold btn-cancel"
                             disabled={loading}
                           >
                             Ganti Link
@@ -1023,46 +1016,69 @@ export default function ManagePage() {
                 {manageLinkType === 'custom_url' && (
                   <form onSubmit={handleSaveCustomLink} className="form-group animate-fade-in">
                     <div className="input-group">
-                      <label htmlFor="manageCustomUrl">URL Tautan Tujuan Bebas</label>
+                      <div className="flex items-center justify-between">
+                        <label htmlFor="manageCustomUrl">URL Tautan Tujuan</label>
+                      </div>
                       
-                      {/* PRESET CHIPS */}
-                      <div className="preset-chips-wrap">
-                        <span className="text-[11px] font-semibold text-slate-500 self-center mr-1">Template:</span>
-                        <button
-                          type="button"
-                          className="preset-chip"
-                          onClick={() => setEditCustomUrl('https://wa.me/62')}
-                        >
-                          WhatsApp
-                        </button>
-                        <button
-                          type="button"
-                          className="preset-chip"
-                          onClick={() => setEditCustomUrl('https://instagram.com/')}
-                        >
-                          Instagram
-                        </button>
-                        <button
-                          type="button"
-                          className="preset-chip"
-                          onClick={() => setEditCustomUrl('https://tiktok.com/@')}
-                        >
-                          TikTok
-                        </button>
-                        <button
-                          type="button"
-                          className="preset-chip"
-                          onClick={() => setEditCustomUrl('https://linktr.ee/')}
-                        >
-                          Linktree
-                        </button>
-                        <button
-                          type="button"
-                          className="preset-chip"
-                          onClick={() => setEditCustomUrl('https://')}
-                        >
-                          Website
-                        </button>
+                      {/* PRESET CHIPS: SMOOTH HORIZONTAL SCROLL & TOUCH FRIENDLY */}
+                      <div className="preset-chips-scroll-container">
+                        <div className="preset-chips-scroll">
+                          <span className="preset-chips-label">Pilihan:</span>
+                          <button
+                            type="button"
+                            className="preset-chip"
+                            onClick={() => setEditCustomUrl('https://wa.me/62')}
+                          >
+                            <svg className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/>
+                            </svg>
+                            <span>WhatsApp</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="preset-chip"
+                            onClick={() => setEditCustomUrl('https://instagram.com/')}
+                          >
+                            <svg className="w-3.5 h-3.5 text-pink-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                            </svg>
+                            <span>Instagram</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="preset-chip"
+                            onClick={() => setEditCustomUrl('https://tiktok.com/@')}
+                          >
+                            <svg className="w-3.5 h-3.5 text-slate-800 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 3 15.67 6.34 6.34 0 0 0 9.33 22a6.34 6.34 0 0 0 6.34-6.33V9.2a8.16 8.16 0 0 0 4.92 1.63V7.39a4.84 4.84 0 0 1-1-.7z"/>
+                            </svg>
+                            <span>TikTok</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="preset-chip"
+                            onClick={() => setEditCustomUrl('https://linktr.ee/')}
+                          >
+                            <svg className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M12 2v20M17 7l-5 5-5-5M19 13l-7 7-7-7" />
+                            </svg>
+                            <span>Linktree</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="preset-chip"
+                            onClick={() => setEditCustomUrl('https://')}
+                          >
+                            <svg className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <circle cx="12" cy="12" r="10" />
+                              <line x1="2" y1="12" x2="22" y2="12" />
+                              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                            </svg>
+                            <span>Website</span>
+                          </button>
+                        </div>
                       </div>
 
                       <input
@@ -1075,12 +1091,18 @@ export default function ManagePage() {
                         required
                       />
 
-                      {/* Live Link Test Preview */}
+                      {/* Live Link Test Preview - Minimalist & Mobile Friendly */}
                       {editCustomUrl.trim().length > 4 && (
                         <div className="url-preview-card">
-                          <div className="flex items-center gap-1.5 overflow-hidden text-xs">
-                            <span className="text-slate-400">Target:</span>
-                            <span className="font-mono text-blue-600 truncate font-semibold">
+                          <div className="url-preview-left">
+                            <span className="url-preview-tag">
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                              </svg>
+                              Link
+                            </span>
+                            <span className="url-preview-text">
                               {/^https?:\/\//i.test(editCustomUrl.trim()) ? editCustomUrl.trim() : `https://${editCustomUrl.trim()}`}
                             </span>
                           </div>
@@ -1088,10 +1110,10 @@ export default function ManagePage() {
                             href={/^https?:\/\//i.test(editCustomUrl.trim()) ? editCustomUrl.trim() : `https://${editCustomUrl.trim()}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="btn btn-secondary py-1 px-2 text-[11px] font-bold flex-shrink-0 flex items-center gap-1"
+                            className="url-test-btn"
                           >
                             <span>Tes Link</span>
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                               <polyline points="15 3 21 3 21 9" />
                               <line x1="10" y1="14" x2="21" y2="3" />
@@ -1101,7 +1123,7 @@ export default function ManagePage() {
                       )}
 
                       <span className="help-text">
-                        Kartu fisik NFC dan kode QR akan otomatis membuka tautan ini saat disentuh oleh pelanggan.
+                        NFC &amp; QR kartu Anda akan otomatis mengarahkan pelanggan ke tautan ini.
                       </span>
                     </div>
 
@@ -1118,18 +1140,18 @@ export default function ManagePage() {
                       />
                     </div>
 
-                    <div className="flex gap-2 mt-3">
+                    <div className="btn-group-responsive">
                       <button
                         type="submit"
-                        className="btn btn-primary w-full py-2.5 text-xs font-semibold"
+                        className="btn btn-primary w-full text-xs font-semibold btn-submit"
                         disabled={savingCustomLink}
                       >
-                        {savingCustomLink ? 'Menyimpan Tautan...' : 'Simpan Tautan Custom'}
+                        {savingCustomLink ? 'Menyimpan Tautan...' : 'Simpan Tautan'}
                       </button>
                       <button
                         type="button"
                         onClick={() => setDashTab('details')}
-                        className="btn btn-secondary w-full py-2.5 text-xs font-semibold"
+                        className="btn btn-secondary w-full text-xs font-semibold btn-cancel"
                         disabled={savingCustomLink}
                       >
                         Batal
@@ -1187,10 +1209,10 @@ export default function ManagePage() {
                   </div>
                 </div>
 
-                <div className="flex gap-2 mt-2">
+                <div className="btn-group-responsive">
                   <button
                     type="submit"
-                    className="btn btn-primary w-full py-2.5 text-xs font-semibold"
+                    className="btn btn-primary w-full text-xs font-semibold btn-submit"
                     disabled={loading}
                   >
                     {loading ? 'Menyimpan...' : 'Ubah PIN Keamanan'}
@@ -1198,7 +1220,7 @@ export default function ManagePage() {
                   <button
                     type="button"
                     onClick={() => setDashTab('details')}
-                    className="btn btn-secondary w-full py-2.5 text-xs font-semibold"
+                    className="btn btn-secondary w-full text-xs font-semibold btn-cancel"
                     disabled={loading}
                   >
                     Batal
