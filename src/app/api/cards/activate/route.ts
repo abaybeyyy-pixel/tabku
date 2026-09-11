@@ -64,6 +64,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Check for self-referential loop
+    const destLower = destinationUrl.toLowerCase();
+    const cardIdLower = cardId.trim().toLowerCase();
+    if (destLower.includes(`/c/${cardIdLower}`) || destLower.includes(`/onboarding/${cardIdLower}`)) {
+      return NextResponse.json({ error: 'Tautan tujuan tidak boleh mengarah ke kartu ini sendiri (mencegah redirect loop).' }, { status: 400 });
+    }
+
     // Validate WhatsApp number / contact (accepts phone or legacy email)
     const contact = (phone || whatsapp || email || '').trim();
     if (!contact) {

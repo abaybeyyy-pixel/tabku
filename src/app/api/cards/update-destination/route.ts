@@ -76,6 +76,14 @@ export async function POST(request: NextRequest) {
       newAddress = businessAddress?.trim() || null;
     }
 
+    if (destinationUrl) {
+      const destLower = destinationUrl.toLowerCase();
+      const cardIdLower = cardId.trim().toLowerCase();
+      if (destLower.includes(`/c/${cardIdLower}`) || destLower.includes(`/onboarding/${cardIdLower}`)) {
+        return NextResponse.json({ error: 'Tautan tujuan tidak boleh mengarah ke kartu ini sendiri (mencegah redirect loop).' }, { status: 400 });
+      }
+    }
+
     const success = await updateDestination(
       cardId.toUpperCase(),
       destinationUrl,
