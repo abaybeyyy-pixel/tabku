@@ -49,8 +49,15 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Google Places API (New) & Legacy Text Search
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-    if (apiKey) {
+    const apiKeys = [
+      process.env.GOOGLE_MAPS_API_KEY,
+      process.env.GOOGLE_MAPS_API_KEY_SECONDARY,
+      process.env.GOOGLE_MAPS_API_KEY_BACKUP,
+      'AIzaSyDWEUKKxHlbDiFygALenir_Wv_Rc1DuCjQ',
+      'AIzaSyAPBT5dAB_-g5qkasSRYWtAbrNPHeZgVdc',
+    ].filter((k): k is string => !!k && typeof k === 'string' && k.trim().length > 0);
+
+    for (const apiKey of apiKeys) {
       // 2a. Try Google Places API (New)
       try {
         const responseNew = await fetch('https://places.googleapis.com/v1/places:searchText', {
@@ -83,6 +90,9 @@ export async function POST(request: NextRequest) {
             );
             return NextResponse.json({ results, source: 'google' });
           }
+        } else {
+          const errBody = await responseNew.text().catch(() => '');
+          console.warn(`[Google Places API New] Key failed (${responseNew.status}):`, errBody);
         }
       } catch (errNew) {
         console.warn('[Google Places API New Error]:', errNew);

@@ -1510,6 +1510,15 @@ a {
   box-shadow: 0 1px 3px rgba(30, 58, 138, 0.2);
 }
 
+.btn-sm {
+  min-height: 38px;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
 .btn-primary:hover {
   background: var(--primary-hover);
   border-color: var(--primary-hover);
